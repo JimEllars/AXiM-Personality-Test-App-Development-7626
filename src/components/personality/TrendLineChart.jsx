@@ -20,7 +20,8 @@ function makePoints(values, min, max, width, height) {
   const range = max - min || 1;
 
   return values.map((item, index) => {
-    const value = Number(item.value) || 0;
+    let value = Number(item.value);
+    if (isNaN(value)) value = 0;
     const x =
       horizontalPadding +
       (values.length === 1

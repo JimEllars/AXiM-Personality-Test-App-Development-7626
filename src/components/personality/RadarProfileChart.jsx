@@ -13,7 +13,9 @@ function point(index, radius) {
 function RadarProfileChart({ scores }) {
   const rings = [0.25, 0.5, 0.75, 1];
   const profile = FUNCTION_KEYS.map((key, index) => {
-    const normalized = Math.max(0.12, Math.min(1, (scores[key] + 4) / 8));
+    const rawScore = Number(scores?.[key]);
+    const safeScore = isNaN(rawScore) ? 0 : rawScore;
+    const normalized = Math.max(0.12, Math.min(1, (safeScore + 4) / 8));
     return point(index, RADIUS * normalized);
   }).join(' ');
 

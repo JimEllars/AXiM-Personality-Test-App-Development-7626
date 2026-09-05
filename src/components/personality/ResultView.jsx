@@ -1,11 +1,15 @@
-import React, { useState } from 'react';
-import { PDFDownloadLink } from '@react-pdf/renderer';
+import React, { useState, Suspense, lazy } from 'react';
+
+const PDFDownloadLink = lazy(() => import('@react-pdf/renderer').then(module => ({ default: module.PDFDownloadLink })));
+const PersonalityReportDocument = lazy(() => import('../../lib/pdf/PersonalityReportDocument'));
+
+
 import { motion } from 'framer-motion';
 import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../../common/SafeIcon';
 import { ARCHETYPE_DETAILS, FUNCTION_NAMES } from '../../data/archetypes';
 import { usePersonalityStore } from '../../store/usePersonalityStore';
-import PersonalityReportDocument from '../../lib/pdf/PersonalityReportDocument';
+
 import RadarProfileChart from './RadarProfileChart';
 import ArchetypeComparisonView from './ArchetypeComparisonView';
 import ArchetypeCompatibilityMatrix from './ArchetypeCompatibilityMatrix';
@@ -77,6 +81,7 @@ function ResultView() {
         <p className="result-description">{description}</p>
 
         <div className="result-actions">
+          <Suspense fallback={<button className="primary-button" disabled>Preparing report... <SafeIcon icon={FiDownload} /></button>}>
           <PDFDownloadLink
             className="primary-button"
             document={
@@ -99,6 +104,7 @@ function ResultView() {
               </>
             )}
           </PDFDownloadLink>
+        </Suspense>
 
           <button className="secondary-button" type="button" onClick={share}>
             Share result

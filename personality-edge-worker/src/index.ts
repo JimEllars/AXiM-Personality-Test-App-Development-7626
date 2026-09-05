@@ -25,11 +25,48 @@ export default {
     const url = new URL(request.url);
 
     try {
-      if (request.method === 'POST' && url.pathname === '/api/v1/personality/submit') {
+      if (request.method === 'GET' && url.pathname === '/health') {
+        return new Response(JSON.stringify({
+          status: "healthy",
+          region: request.cf?.colo || "local",
+          timestamp: Date.now()
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      if (request.method === 'POST' && url.pathname === '/api/v1/telemetry') {
         const payload = await request.json() as any;
 
-        // Mock persistence to central API / Supabase
-        console.log("Ingesting completed assessment session into public.personality_user_assessments", payload);
+        // Log telemetry without PII
+        const events = Array.isArray(payload) ? payload : [payload];
+        const logData = events.map((e: any) => ({
+          event: e.event,
+          latency: e.latency || null,
+          error: e.error || null,
+          screen: e.screen || null
+        }));
+        console.log("Telemetry ingested:", JSON.stringify({
+           region: request.cf?.colo || "local",
+           events: logData
+        }));
+
+        return new Response(null, {
+          status: 202,
+          headers: corsHeaders,
+        });
+      }
+
+      if (request.method === 'POST' && (url.pathname === '/api/v1/assessment/submit' || url.pathname === '/api/v1/personality/submit')) {
+        const payload = await request.json() as any;
+
+        // Structured logging for psychometric outcome distribution without logging PII
+        console.log("Ingesting completed assessment session into public.personality_user_assessments", {
+          archetype: payload.assignedArchetype,
+          thetaScores: payload.thetaScores,
+          completedAt: payload.completedAt,
+          region: request.cf?.colo || "local"
+        });
 
         return new Response(JSON.stringify({ success: true, message: 'Assessment persisted' }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -41,27 +78,6 @@ export default {
 
         // Mock email dispatch via Resend
         console.log("Dispatching branded report email via Resend to", payload.email);
-
-        // Example structure for fetch call to Resend:
-        /*
-        await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${env.RESEND_API_KEY}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            from: 'AXiM <noreply@axim.us.com>',
-            to: [payload.email],
-            subject: `Your AXiM Cognitive Profile: ${payload.archetype}`,
-            html: `<p>Here is your cognitive profile report for ${payload.archetype}.</p>`,
-            attachments: payload.pdfBase64 ? [{
-              filename: `AXiM-${payload.archetype}-Profile.pdf`,
-              content: payload.pdfBase64.split(',')[1] || payload.pdfBase64
-            }] : []
-          })
-        });
-        */
 
         return new Response(JSON.stringify({ success: true, message: 'Email dispatched' }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -86,6 +102,7 @@ export default {
 
       return new Response('Not Found', { status: 404, headers: corsHeaders });
     } catch (err: any) {
+      console.error("Worker error:", err.message);
       return new Response(JSON.stringify({ error: err.message }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
