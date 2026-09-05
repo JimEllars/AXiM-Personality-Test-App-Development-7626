@@ -25,9 +25,7 @@ function ArchetypeComparisonView({ assignedArchetype, ranking = [] }) {
   const [copied, setCopied] = useState(false);
 
   const completeRanking = useMemo(() => {
-    if (ranking.length) {
-      return ranking;
-    }
+    if (ranking.length) return ranking;
 
     return Object.keys(ARCHETYPE_REFERENCE_VECTORS).map((archetype) => ({
       archetype,
@@ -40,21 +38,21 @@ function ArchetypeComparisonView({ assignedArchetype, ranking = [] }) {
 
     const filtered = completeRanking.filter((item) => {
       if (!normalizedQuery) return true;
+
+      const details = ARCHETYPE_DETAILS[item.archetype];
+      const title = details?.[0] || '';
+
       return item.archetype.toLowerCase().includes(normalizedQuery)
-        || ARCHETYPE_DETAILS[item.archetype]?.[0]
-          .toLowerCase()
-          .includes(normalizedQuery);
+        || title.toLowerCase().includes(normalizedQuery);
     });
 
-    if (expanded || normalizedQuery) {
-      return filtered;
-    }
-
-    return filtered.slice(0, 3);
+    return expanded || normalizedQuery ? filtered : filtered.slice(0, 3);
   }, [completeRanking, expanded, query]);
 
-  const selectedDetails = ARCHETYPE_DETAILS[selectedType]
-    || ['Unknown archetype', 'No description is available for this profile.'];
+  const selectedDetails = ARCHETYPE_DETAILS[selectedType] || [
+    'Unknown archetype',
+    'No description is available for this profile.'
+  ];
   const selectedReference = ARCHETYPE_REFERENCE_VECTORS[selectedType] || {};
   const selectedRank = completeRanking.find(
     (item) => item.archetype === selectedType
@@ -130,9 +128,8 @@ function ArchetypeComparisonView({ assignedArchetype, ranking = [] }) {
         <div className="comparison-list">
           {comparison.length ? (
             comparison.map((item) => {
-              const [title] = ARCHETYPE_DETAILS[item.archetype] || [
-                'Unknown archetype'
-              ];
+              const title = ARCHETYPE_DETAILS[item.archetype]?.[0]
+                || 'Unknown archetype';
               const rank = completeRanking.findIndex(
                 (ranked) => ranked.archetype === item.archetype
               ) + 1;

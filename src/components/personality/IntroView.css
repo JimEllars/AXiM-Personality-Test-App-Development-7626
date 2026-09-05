@@ -1,0 +1,80 @@
+.resume-card {
+  max-width: 620px;
+  margin: 0 auto;
+  padding: 18px;
+  border: 1px solid rgba(98, 229, 197, 0.25);
+  border-radius: 12px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 22px;
+  background: rgba(16, 46, 57, 0.6);
+  text-align: left;
+}
+
+.resume-card-copy {
+  display: grid;
+  gap: 8px;
+}
+
+.resume-card-copy strong {
+  color: #edf5f5;
+  font: 600 14px Manrope, sans-serif;
+}
+
+.resume-progress {
+  height: 4px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #1c3440;
+}
+
+.resume-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--mint), var(--blue));
+}
+
+.resume-actions {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+}
+
+.resume-actions .primary-button {
+  min-height: 42px;
+  padding: 0 16px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.resume-reset {
+  border: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #8fa4ad;
+  background: transparent;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.resume-reset:hover {
+  color: var(--mint);
+}
+
+@media (max-width: 620px) {
+  .resume-card {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .resume-actions {
+    width: 100%;
+  }
+
+  .resume-actions .primary-button {
+    width: 100%;
+  }
+}
