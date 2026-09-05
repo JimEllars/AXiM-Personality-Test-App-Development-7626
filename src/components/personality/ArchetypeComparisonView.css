@@ -1,0 +1,69 @@
+.comparison-heading-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.comparison-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  padding: 7px 0;
+  color: #8fa4ad;
+  background: transparent;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.comparison-copy:hover {
+  color: var(--mint);
+}
+
+.comparison-search {
+  max-width: 300px;
+  height: 36px;
+  margin-top: 22px;
+  padding: 0 11px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #78939c;
+  background: rgba(7, 19, 29, 0.55);
+}
+
+.comparison-search:focus-within {
+  border-color: rgba(98, 229, 197, 0.5);
+}
+
+.comparison-search input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  color: #edf5f5;
+  background: transparent;
+  font-size: 11px;
+}
+
+.comparison-search input::placeholder {
+  color: #647d86;
+}
+
+.comparison-empty {
+  padding: 20px 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+@media (max-width: 520px) {
+  .comparison-heading-actions {
+    justify-content: space-between;
+    margin-top: 10px;
+  }
+
+  .comparison-search {
+    max-width: none;
+  }
+}
