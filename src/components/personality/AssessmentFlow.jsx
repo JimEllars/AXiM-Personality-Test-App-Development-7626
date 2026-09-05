@@ -9,6 +9,7 @@ import {
 import { scoreAssessmentDiagnostics } from '../../services/psychometrics/irtEngine';
 import { projectArchetype } from '../../services/psychometrics/archetypeProjector';
 import { usePersonalityStore } from '../../store/usePersonalityStore';
+import { trackEvent } from '../../services/telemetry';
 import AnswerReview from './AnswerReview';
 import QuestionCluster from './QuestionCluster';
 
@@ -80,6 +81,7 @@ function AssessmentFlow() {
   }, [setAnswer]);
 
   const revealResults = () => {
+    trackEvent('assessment_completed');
     const metrics = scoreAssessmentDiagnostics(
       QUESTION_BANK,
       answers,
@@ -115,6 +117,7 @@ function AssessmentFlow() {
   };
 
   const advance = () => {
+    trackEvent('assessment_advance', { clusterIndex: currentClusterIndex });
     if (unansweredItems.length > 0) {
       const count = unansweredItems.length;
       setMessage(

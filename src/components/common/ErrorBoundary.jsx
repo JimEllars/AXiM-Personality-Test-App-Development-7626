@@ -1,4 +1,5 @@
 import React from 'react';
+import { trackError } from '../../services/telemetry';
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -12,16 +13,17 @@ class ErrorBoundary extends React.Component {
 
   componentDidCatch(error, errorInfo) {
     console.error('AXiM interface error:', error, errorInfo);
+    trackError(error, errorInfo);
   }
 
-  reloadApp = () => {
+  reloadApp() {
     window.location.reload();
-  };
+  }
 
-  resetApp = () => {
+  resetApp() {
     window.localStorage.removeItem('axim_personality_session');
     this.reloadApp();
-  };
+  }
 
   render() {
     if (!this.state.hasError) {
@@ -44,14 +46,14 @@ class ErrorBoundary extends React.Component {
             <button
               className="secondary-button"
               type="button"
-              onClick={this.reloadApp}
+              onClick={() => this.reloadApp()}
             >
               Reload page
             </button>
             <button
               className="primary-button"
               type="button"
-              onClick={this.resetApp}
+              onClick={() => this.resetApp()}
             >
               Clear local session
             </button>
