@@ -19,7 +19,7 @@ import ResultsToolbar from './ResultsToolbar';
 import ScoreComparisonPanel from './ScoreComparisonPanel';
 import ThetaTrendCharts from './ThetaTrendCharts';
 
-const { FiCheck, FiDownload, FiRefreshCw, FiShare2 } = FiIcons;
+const { FiCheck, FiDownload, FiRefreshCw, FiShare2, FiUserPlus } = FiIcons;
 
 function ResultView() {
   const store = usePersonalityStore();
@@ -33,6 +33,8 @@ function ResultView() {
   const sortedScores = Object.entries(store.thetaScores || {}).sort(
     (first, second) => second[1] - first[1]
   );
+
+  const isAuthenticated = !!localStorage.getItem('axim_passport_token');
 
   const share = async () => {
     const text = `My AXiM cognitive archetype is ${store.assignedArchetype} — ${name}.`;
@@ -110,6 +112,29 @@ function ResultView() {
           </p>
         )}
       </motion.section>
+
+      {!isAuthenticated && (
+        <section className="guest-cta-banner" style={{
+          background: '#f8f9fa', padding: '1.5rem', borderRadius: '8px',
+          border: '1px solid #e9ecef', margin: '2rem auto', maxWidth: '800px',
+          textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem'
+        }}>
+          <div>
+            <h3 style={{ margin: '0 0 0.5rem 0' }}>Save Your Cognitive Evolution</h3>
+            <p style={{ margin: 0, color: '#495057' }}>
+              Connect AXiM Passport to save your cognitive function profile and track your evolution over time.
+            </p>
+          </div>
+          <a
+            href={`https://passport.axim.us.com/login?redirect=${encodeURIComponent(window.location.href)}`}
+            className="primary-button"
+            style={{ textDecoration: 'none' }}
+          >
+            <SafeIcon icon={FiUserPlus} />
+            Connect AXiM Passport
+          </a>
+        </section>
+      )}
 
       <ResultsToolbar
         archetype={store.assignedArchetype}
@@ -200,7 +225,34 @@ function ResultView() {
         </div>
       </section>
 
-      <button className="text-button" type="button" onClick={store.startRetake}>
+      {/* Teachable Partner CTA */}
+      <section className="result-panel teachable-cta" style={{
+        background: '#eef2ff',
+        border: '1px solid #c7d2fe',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        textAlign: 'center',
+        padding: '2rem'
+      }}>
+        <h3 style={{ color: '#3730a3', marginBottom: '0.5rem' }}>
+          Master Your {store.assignedArchetype || 'Profile'} Cognitive Strengths on Teachable
+        </h3>
+        <p style={{ color: '#4f46e5', maxWidth: '600px', marginBottom: '1.5rem' }}>
+          Explore structured video masterclasses and operational blueprints designed for your dominant cognitive function stack.
+        </p>
+        <a
+          href="https://swiy.co/Teach1"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="primary-button"
+          style={{ background: '#4f46e5', borderColor: '#4f46e5' }}
+        >
+          Explore Recommended Courses on Teachable
+        </a>
+      </section>
+
+      <button className="text-button" type="button" onClick={store.startRetake} style={{ marginTop: '2rem' }}>
         <SafeIcon icon={FiRefreshCw} />
         Retake assessment
       </button>
