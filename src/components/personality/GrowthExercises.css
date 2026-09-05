@@ -1,0 +1,288 @@
+.growth-exercises {
+  margin-top: 16px;
+}
+
+.exercises-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.exercises-heading h3 {
+  margin-top: 8px;
+}
+
+.exercises-heading p {
+  max-width: 650px;
+  margin-top: 9px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.exercise-progress {
+  flex: 0 0 auto;
+  display: grid;
+  justify-items: end;
+  gap: 2px;
+  padding: 7px 9px;
+  border: 1px solid rgba(98, 229, 197, 0.2);
+  border-radius: 5px;
+  color: var(--mint);
+  white-space: nowrap;
+}
+
+.exercise-progress strong {
+  font: 700 16px Manrope, sans-serif;
+}
+
+.exercise-progress span {
+  color: #78909a;
+  font-size: 9px;
+  text-transform: uppercase;
+}
+
+.exercise-summary {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 22px;
+  color: #78909a;
+  font-size: 10px;
+}
+
+.exercise-summary > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.exercise-summary svg {
+  color: var(--mint);
+}
+
+.exercise-progress-bar {
+  flex: 1;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #1c3440;
+}
+
+.exercise-progress-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--mint), var(--blue));
+  transition: width 0.3s ease;
+}
+
+.exercise-tabs {
+  display: flex;
+  gap: 8px;
+  margin-top: 23px;
+  border-bottom: 1px solid var(--line);
+}
+
+.exercise-tabs button {
+  padding: 0 2px 11px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  color: #78909a;
+  background: transparent;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.exercise-tabs button.active {
+  border-color: var(--mint);
+  color: var(--mint);
+}
+
+.exercise-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.exercise-card {
+  padding: 17px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  gap: 13px;
+  background: rgba(7, 19, 29, 0.55);
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.exercise-card.completed {
+  border-color: rgba(98, 229, 197, 0.3);
+  background: rgba(21, 57, 57, 0.35);
+}
+
+.exercise-check {
+  width: 27px;
+  height: 27px;
+  border: 1px solid #34515c;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: transparent;
+  background: transparent;
+  cursor: pointer;
+}
+
+.exercise-check:hover {
+  border-color: var(--mint);
+}
+
+.exercise-card.completed .exercise-check {
+  border-color: var(--mint);
+  color: #061612;
+  background: var(--mint);
+}
+
+.exercise-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  color: #718a94;
+  font-size: 10px;
+}
+
+.exercise-meta span:last-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.exercise-meta svg {
+  color: var(--mint);
+}
+
+.exercise-card h4 {
+  margin-top: 8px;
+  color: #edf5f5;
+  font: 600 15px Manrope, sans-serif;
+}
+
+.exercise-card.completed h4 {
+  color: #8da7a5;
+  text-decoration: line-through;
+}
+
+.exercise-card p {
+  margin-top: 7px;
+  color: #a3b5ba;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.exercise-card > div > strong {
+  display: block;
+  margin-top: 9px;
+  color: var(--mint);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.exercise-details-button,
+.exercise-save,
+.exercise-reset {
+  border: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.exercise-details-button {
+  margin-top: 14px;
+  padding: 0;
+  color: #8fa4ad;
+  font-size: 11px;
+}
+
+.exercise-details-button:hover,
+.exercise-reset:hover {
+  color: var(--mint);
+}
+
+.exercise-reflection {
+  margin-top: 14px;
+  padding: 13px;
+  border: 1px solid rgba(151, 186, 195, 0.13);
+  border-radius: 7px;
+  background: rgba(5, 16, 25, 0.45);
+}
+
+.exercise-reflection label {
+  display: block;
+  margin-bottom: 7px;
+  color: #c8d8db;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.exercise-reflection textarea {
+  width: 100%;
+  min-height: 76px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  outline: 0;
+  resize: vertical;
+  color: #edf5f5;
+  background: #081722;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.exercise-reflection textarea:focus {
+  border-color: var(--mint);
+}
+
+.exercise-save {
+  margin-top: 9px;
+  padding: 6px 0;
+  color: var(--mint);
+  font-size: 10px;
+}
+
+.exercise-reset {
+  margin-top: 17px;
+  padding: 0;
+  color: #78909a;
+  font-size: 10px;
+}
+
+@media (max-width: 620px) {
+  .exercises-heading {
+    display: block;
+  }
+
+  .exercise-progress {
+    display: inline-grid;
+    justify-items: start;
+    margin-top: 13px;
+  }
+
+  .exercise-summary {
+    flex-wrap: wrap;
+  }
+
+  .exercise-progress-bar {
+    flex-basis: 100%;
+    order: -1;
+  }
+}
+
+@media (max-width: 520px) {
+  .exercise-card {
+    padding: 14px;
+  }
+}

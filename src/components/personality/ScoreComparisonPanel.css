@@ -1,0 +1,238 @@
+.score-comparison-panel {
+  margin-top: 16px;
+}
+
+.comparison-panel-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.comparison-panel-heading h3 {
+  margin-top: 8px;
+}
+
+.comparison-panel-heading p {
+  max-width: 640px;
+  margin-top: 9px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.comparison-retake {
+  min-height: 38px;
+  padding: 0 12px;
+  white-space: nowrap;
+  font-size: 10px;
+}
+
+.comparison-select-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.comparison-select-row label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #8fa4ad;
+  font-size: 10px;
+}
+
+.comparison-select-row label svg {
+  color: var(--mint);
+}
+
+.comparison-select-row select {
+  min-height: 34px;
+  max-width: 340px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  outline: 0;
+  color: #dcebea;
+  background: #081722;
+  font-size: 10px;
+}
+
+.comparison-select-row select:focus {
+  border-color: var(--mint);
+  box-shadow: var(--focus-ring);
+}
+
+.comparison-summary {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr 1fr;
+  align-items: center;
+  gap: 14px;
+  margin-top: 16px;
+  padding: 15px;
+  border: 1px solid rgba(98, 229, 197, 0.16);
+  border-radius: 8px;
+  background: rgba(7, 19, 29, 0.48);
+}
+
+.comparison-summary > svg {
+  color: var(--mint);
+}
+
+.comparison-summary div {
+  display: grid;
+  gap: 5px;
+}
+
+.comparison-summary span,
+.comparison-score-labels {
+  color: #78909a;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.comparison-summary strong {
+  color: #edf5f5;
+  font: 700 14px Manrope, sans-serif;
+}
+
+.comparison-summary strong.positive,
+.comparison-score-row em.positive {
+  color: var(--mint);
+}
+
+.comparison-summary strong.negative,
+.comparison-score-row em.negative {
+  color: var(--danger);
+}
+
+.comparison-score-list {
+  margin-top: 20px;
+}
+
+.comparison-score-labels,
+.comparison-score-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) 60px 22px 60px 78px;
+  align-items: center;
+  gap: 9px;
+}
+
+.comparison-score-labels {
+  margin-bottom: 8px;
+}
+
+.comparison-score-row {
+  min-height: 43px;
+  border-top: 1px solid rgba(151, 186, 195, 0.1);
+  color: #a3b5ba;
+  font-size: 11px;
+}
+
+.comparison-score-row > div {
+  display: grid;
+  gap: 3px;
+}
+
+.comparison-score-row strong {
+  color: #dcebea;
+  font: 700 11px Manrope, sans-serif;
+}
+
+.comparison-score-row span {
+  color: #78909a;
+  font-size: 9px;
+}
+
+.comparison-score-row > b {
+  color: #b4c5c9;
+  font: 600 11px Manrope, sans-serif;
+  text-align: right;
+}
+
+.comparison-score-row > svg {
+  color: #78909a;
+}
+
+.comparison-score-row em {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  font: 600 10px Manrope, sans-serif;
+  font-style: normal;
+  text-align: right;
+}
+
+.comparison-score-row em svg {
+  width: 11px;
+  height: 11px;
+}
+
+.comparison-score-row em.neutral {
+  color: #78909a;
+}
+
+.comparison-disclaimer {
+  margin-top: 16px;
+  color: #78909a;
+  font-size: 10px;
+  line-height: 1.55;
+}
+
+.comparison-empty-state p,
+.comparison-empty {
+  max-width: 620px;
+  margin-top: 9px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.comparison-empty-state .secondary-button {
+  margin-top: 18px;
+}
+
+@media (max-width: 700px) {
+  .comparison-panel-heading {
+    display: block;
+  }
+
+  .comparison-retake {
+    margin-top: 15px;
+  }
+
+  .comparison-summary {
+    grid-template-columns: 1fr 20px 1fr;
+  }
+
+  .comparison-summary div:last-child {
+    grid-column: 1 / -1;
+    padding-top: 10px;
+    border-top: 1px solid rgba(151, 186, 195, 0.1);
+  }
+}
+
+@media (max-width: 520px) {
+  .comparison-select-row {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .comparison-select-row select {
+    width: 100%;
+    max-width: none;
+  }
+
+  .comparison-score-labels {
+    display: none;
+  }
+
+  .comparison-score-row {
+    grid-template-columns: minmax(100px, 1fr) 45px 18px 45px 62px;
+    gap: 5px;
+  }
+}

@@ -1,0 +1,130 @@
+.conversation-guide {
+  margin-top: 16px;
+}
+
+.conversation-guide-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.conversation-guide-heading h3 {
+  margin-top: 8px;
+}
+
+.conversation-guide-heading p {
+  max-width: 650px;
+  margin-top: 9px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.conversation-guide-badge {
+  flex: 0 0 auto;
+  padding: 7px 9px;
+  border: 1px solid rgba(98, 229, 197, 0.2);
+  border-radius: 5px;
+  color: var(--mint);
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.conversation-guide-tabs {
+  display: flex;
+  gap: 8px;
+  margin-top: 22px;
+  border-bottom: 1px solid var(--line);
+}
+
+.conversation-guide-tabs button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 3px 11px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  color: #78909a;
+  background: transparent;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.conversation-guide-tabs button:hover,
+.conversation-guide-tabs button.active {
+  border-color: var(--mint);
+  color: var(--mint);
+}
+
+.conversation-guide-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.conversation-prompt {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 15px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(7, 19, 29, 0.52);
+}
+
+.conversation-prompt-number {
+  color: #5b7a84;
+  font: 700 11px Manrope, sans-serif;
+  letter-spacing: 0.08em;
+}
+
+.conversation-prompt p {
+  color: #dcebea;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.conversation-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 0;
+  padding: 5px 0;
+  color: #8fa4ad;
+  background: transparent;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.conversation-copy:hover {
+  color: var(--mint);
+}
+
+.conversation-guide-note {
+  margin-top: 15px;
+  color: #78909a;
+  font-size: 10px;
+  line-height: 1.55;
+}
+
+@media (max-width: 560px) {
+  .conversation-guide-heading {
+    display: block;
+  }
+
+  .conversation-guide-badge {
+    display: inline-block;
+    margin-top: 13px;
+  }
+
+  .conversation-prompt {
+    grid-template-columns: 25px 1fr;
+  }
+
+  .conversation-copy {
+    grid-column: 2;
+    justify-self: start;
+  }
+}

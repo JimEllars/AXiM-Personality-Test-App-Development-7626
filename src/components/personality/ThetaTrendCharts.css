@@ -1,0 +1,201 @@
+.theta-trends {
+  margin-top: 16px;
+}
+
+.theta-trends-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.theta-trends-heading h3 {
+  max-width: 570px;
+  margin-top: 8px;
+}
+
+.theta-trends-heading p {
+  max-width: 650px;
+  margin-top: 9px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.theta-trends-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  padding: 7px 9px;
+  border: 1px solid rgba(98, 229, 197, 0.2);
+  border-radius: 5px;
+  color: var(--mint);
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.theta-function-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 22px;
+}
+
+.theta-function-picker button {
+  min-width: 36px;
+  min-height: 30px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  color: #78909a;
+  background: rgba(7, 19, 29, 0.48);
+  font: 700 10px Manrope, sans-serif;
+  cursor: pointer;
+}
+
+.theta-function-picker button:hover,
+.theta-function-picker button.active {
+  border-color: var(--mint);
+  color: #061612;
+  background: var(--mint);
+}
+
+.theta-chart-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.theta-chart-card {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid rgba(151, 186, 195, 0.11);
+  border-radius: 8px;
+  background: rgba(7, 19, 29, 0.44);
+}
+
+.theta-chart-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #8fa4ad;
+  font-size: 10px;
+}
+
+.theta-chart-title strong {
+  color: var(--mint);
+  font: 700 15px Manrope, sans-serif;
+}
+
+.trend-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: 12px;
+  overflow: visible;
+}
+
+.trend-grid-line {
+  stroke: rgba(151, 186, 195, 0.13);
+  stroke-width: 1;
+  stroke-dasharray: 3 5;
+}
+
+.trend-line {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.trend-point {
+  stroke: #07111f;
+  stroke-width: 2;
+}
+
+.theta-chart-scale,
+.theta-attempt-labels {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  color: #647d86;
+  font-size: 9px;
+}
+
+.theta-chart-scale {
+  margin-top: 2px;
+}
+
+.theta-trend-change {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 12px;
+  color: #8fa4ad;
+  font-size: 10px;
+}
+
+.theta-trend-change svg {
+  width: 12px;
+  color: var(--mint);
+}
+
+.theta-attempt-labels {
+  margin-top: 14px;
+  overflow: hidden;
+}
+
+.theta-attempt-labels span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.theta-trends-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 15px;
+  color: #78909a;
+  font-size: 10px;
+}
+
+.theta-trends-note svg {
+  color: var(--mint);
+}
+
+.theta-trends-disclaimer {
+  margin-top: 13px;
+  color: #78909a;
+  font-size: 10px;
+  line-height: 1.55;
+}
+
+@media (max-width: 650px) {
+  .theta-trends-heading {
+    display: block;
+  }
+
+  .theta-trends-badge {
+    display: inline-flex;
+    margin-top: 13px;
+  }
+
+  .theta-chart-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 430px) {
+  .theta-function-picker {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .theta-function-picker button {
+    width: 100%;
+  }
+}

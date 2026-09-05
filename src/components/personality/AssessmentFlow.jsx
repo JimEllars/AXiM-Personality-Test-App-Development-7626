@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../../common/SafeIcon';
 import {
@@ -6,76 +6,168 @@ import {
   FUNCTION_KEYS,
   QUESTION_BANK
 } from '../../data/questionBank';
-import { scoreAssessment } from '../../services/psychometrics/irtEngine';
+import { scoreAssessmentDiagnostics } from '../../services/psychometrics/irtEngine';
 import { projectArchetype } from '../../services/psychometrics/archetypeProjector';
 import { usePersonalityStore } from '../../store/usePersonalityStore';
+import AnswerReview from './AnswerReview';
 import QuestionCluster from './QuestionCluster';
 
-const { FiArrowLeft, FiArrowRight, FiCheck, FiKeyboard, FiLock } = FiIcons;
+const {
+  FiArrowLeft,
+  FiArrowRight,
+  FiCheck,
+  FiKeyboard,
+  FiLock
+} = FiIcons;
 
 function AssessmentFlow() {
-  const store = usePersonalityStore();
+  const currentClusterIndex = usePersonalityStore(
+    (state) => state.currentClusterIndex
+  );
+  const answers = usePersonalityStore((state) => state.answers);
+  const setAnswer = usePersonalityStore((state) => state.setAnswer);
+  const nextCluster = usePersonalityStore((state) => state.nextCluster);
+  const prevCluster = usePersonalityStore((state) => state.prevCluster);
+  const setClusterIndex = usePersonalityStore(
+    (state) => state.setClusterIndex
+  );
+  const setResults = usePersonalityStore((state) => state.setResults);
   const [message, setMessage] = useState('');
-  const items = ASSESSMENT_CLUSTERS[store.currentClusterIndex];
-  const isLast = store.currentClusterIndex === ASSESSMENT_CLUSTERS.length - 1;
-  const answeredCount = Object.keys(store.answers).length;
-  const progress = Math.round((answeredCount / QUESTION_BANK.length) * 100);
-  const complete = items.every((item) => Number.isInteger(store.answers[item.id]));
+  const [reviewMode, setReviewMode] = useState(false);
+
+  const items = ASSESSMENT_CLUSTERS[currentClusterIndex] || [];
+  const isLast = currentClusterIndex === ASSESSMENT_CLUSTERS.length - 1;
+  const answeredCount = Object.keys(answers).filter((itemId) =>
+    QUESTION_BANK.some(
+      (item) =>
+        item.id === itemId && Number.isInteger(answers[itemId])
+    )
+  ).length;
+  const progress = Math.round(
+    (answeredCount / QUESTION_BANK.length) * 100
+  );
+
+  const unansweredItems = useMemo(
+    () => items.filter((item) => !Number.isInteger(answers[item.id])),
+    [items, answers]
+  );
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [store.currentClusterIndex]);
+  }, [currentClusterIndex, reviewMode]);
 
   useEffect(() => {
     const handleKeyboardAnswer = (event) => {
       if (!/^[1-5]$/.test(event.key)) return;
 
       const activeElement = document.activeElement;
+      if (
+        activeElement?.matches('input, textarea, select') ||
+        activeElement?.isContentEditable
+      ) {
+        return;
+      }
+
       const question = activeElement?.closest('[data-question-id]');
       if (!question) return;
 
-      const itemId = question.dataset.questionId;
-      store.setAnswer(itemId, Number(event.key));
+      setAnswer(question.dataset.questionId, Number(event.key));
       setMessage('');
     };
 
     window.addEventListener('keydown', handleKeyboardAnswer);
     return () => window.removeEventListener('keydown', handleKeyboardAnswer);
-  }, [store]);
+  }, [setAnswer]);
+
+  const revealResults = () => {
+    const metrics = scoreAssessmentDiagnostics(
+      QUESTION_BANK,
+      answers,
+      FUNCTION_KEYS
+    );
+
+    setResults(
+      metrics.thetaScores,
+      projectArchetype(metrics.thetaScores),
+      metrics
+    );
+  };
+
+  const editAnswer = (itemId) => {
+    const itemIndex = QUESTION_BANK.findIndex((item) => item.id === itemId);
+    if (itemIndex < 0) return;
+
+    const targetCluster = Math.floor(itemIndex / 6);
+    setClusterIndex(targetCluster);
+    setReviewMode(false);
+    setMessage('');
+
+    window.setTimeout(() => {
+      const question = document.querySelector(
+        `[data-question-id="${CSS.escape(itemId)}"]`
+      );
+
+      if (!question) return;
+
+      question.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      question.focus({ preventScroll: true });
+    }, 80);
+  };
 
   const advance = () => {
-    if (!complete) {
-      setMessage('Answer each statement before continuing.');
+    if (unansweredItems.length > 0) {
+      const count = unansweredItems.length;
+      setMessage(
+        `${count} statement${count === 1 ? '' : 's'} still need${
+          count === 1 ? 's' : ''
+        } an answer.`
+      );
+
+      document
+        .querySelector(
+          `[data-question-id="${CSS.escape(unansweredItems[0].id)}"]`
+        )
+        ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
 
     setMessage('');
 
     if (!isLast) {
-      store.nextCluster();
+      nextCluster();
       return;
     }
 
-    const thetaScores = scoreAssessment(
-      QUESTION_BANK,
-      store.answers,
-      FUNCTION_KEYS
-    );
-
-    store.setResults(thetaScores, projectArchetype(thetaScores));
+    setReviewMode(true);
   };
+
+  if (reviewMode) {
+    return (
+      <AnswerReview
+        items={QUESTION_BANK}
+        answers={answers}
+        onEdit={editAnswer}
+        onBack={() => setReviewMode(false)}
+        onReveal={revealResults}
+      />
+    );
+  }
 
   return (
     <main className="assessment-shell">
       <div className="assessment-heading">
         <div>
           <span className="eyebrow">
-            <span /> Cognitive profile
+            <span />
+            Cognitive profile
           </span>
           <h1>Choose what feels most true.</h1>
-          <p>Answer from your usual behavior—not who you think you should be.</p>
+          <p>
+            Answer from your usual behavior—not who you think you should be.
+          </p>
         </div>
-        <div className="progress-copy">
+
+        <div className="progress-copy" aria-live="polite">
           <strong>{progress}%</strong>
           <span>complete</span>
         </div>
@@ -94,38 +186,48 @@ function AssessmentFlow() {
 
       <div className="cluster-label">
         <span>
-          Section {store.currentClusterIndex + 1} of {ASSESSMENT_CLUSTERS.length}
+          Section {currentClusterIndex + 1} of {ASSESSMENT_CLUSTERS.length}
         </span>
         <span>
-          <SafeIcon icon={FiLock} /> Saved locally
+          <SafeIcon icon={FiLock} />
+          Saved locally
         </span>
       </div>
 
       <div className="keyboard-hint">
         <SafeIcon icon={FiKeyboard} />
-        <span>Tip: focus a statement, then press 1–5 to answer quickly.</span>
+        <span>Focus a statement, then press 1–5 to answer quickly.</span>
       </div>
 
       <QuestionCluster
         items={items}
-        answers={store.answers}
-        onAnswer={store.setAnswer}
-        clusterIndex={store.currentClusterIndex}
+        answers={answers}
+        onAnswer={(itemId, value) => {
+          setAnswer(itemId, value);
+          setMessage('');
+        }}
+        clusterIndex={currentClusterIndex}
       />
 
       <div className="assessment-actions">
         <button
           className="secondary-button"
-          disabled={store.currentClusterIndex === 0}
-          onClick={store.prevCluster}
+          type="button"
+          disabled={currentClusterIndex === 0}
+          onClick={prevCluster}
         >
-          <SafeIcon icon={FiArrowLeft} /> Previous
+          <SafeIcon icon={FiArrowLeft} />
+          Previous
         </button>
 
-        {message && <p className="form-error">{message}</p>}
+        {message && (
+          <p className="form-error" role="alert">
+            {message}
+          </p>
+        )}
 
-        <button className="primary-button" onClick={advance}>
-          {isLast ? 'Reveal my profile' : 'Continue'}
+        <button className="primary-button" type="button" onClick={advance}>
+          {isLast ? 'Review answers' : 'Continue'}
           <SafeIcon icon={isLast ? FiCheck : FiArrowRight} />
         </button>
       </div>

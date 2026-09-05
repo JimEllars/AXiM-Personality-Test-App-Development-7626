@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../../common/SafeIcon';
 import { ARCHETYPE_DETAILS } from '../../data/archetypes';
@@ -24,6 +24,10 @@ function ArchetypeComparisonView({ assignedArchetype, ranking = [] }) {
   const [query, setQuery] = useState('');
   const [copied, setCopied] = useState(false);
 
+  useEffect(() => {
+    setSelectedType(assignedArchetype);
+  }, [assignedArchetype]);
+
   const completeRanking = useMemo(() => {
     if (ranking.length) return ranking;
 
@@ -42,8 +46,10 @@ function ArchetypeComparisonView({ assignedArchetype, ranking = [] }) {
       const details = ARCHETYPE_DETAILS[item.archetype];
       const title = details?.[0] || '';
 
-      return item.archetype.toLowerCase().includes(normalizedQuery)
-        || title.toLowerCase().includes(normalizedQuery);
+      return (
+        item.archetype.toLowerCase().includes(normalizedQuery) ||
+        title.toLowerCase().includes(normalizedQuery)
+      );
     });
 
     return expanded || normalizedQuery ? filtered : filtered.slice(0, 3);
@@ -53,6 +59,7 @@ function ArchetypeComparisonView({ assignedArchetype, ranking = [] }) {
     'Unknown archetype',
     'No description is available for this profile.'
   ];
+
   const selectedReference = ARCHETYPE_REFERENCE_VECTORS[selectedType] || {};
   const selectedRank = completeRanking.find(
     (item) => item.archetype === selectedType
@@ -64,7 +71,9 @@ function ArchetypeComparisonView({ assignedArchetype, ranking = [] }) {
     .slice(0, 3);
 
   const copyComparison = async () => {
-    const summary = `AXiM comparison: ${assignedArchetype} is closest to ${selectedType} (${formatSimilarity(selectedRank?.similarity)} similarity).`;
+    const summary = `AXiM comparison: ${assignedArchetype || 'Profile'} is closest to ${
+      selectedType || 'an archetype'
+    } (${formatSimilarity(selectedRank?.similarity)} similarity).`;
 
     if (!navigator.clipboard) return;
 
@@ -101,6 +110,7 @@ function ArchetypeComparisonView({ assignedArchetype, ranking = [] }) {
             <SafeIcon icon={copied ? FiCheck : FiCopy} />
             {copied ? 'Copied' : 'Copy'}
           </button>
+
           <button
             className="comparison-toggle"
             type="button"
@@ -108,7 +118,9 @@ function ArchetypeComparisonView({ assignedArchetype, ranking = [] }) {
             aria-expanded={isShowingAll}
           >
             {isShowingAll ? 'Show less' : 'View all'}
-            <SafeIcon icon={isShowingAll ? FiChevronUp : FiChevronDown} />
+            <SafeIcon
+              icon={isShowingAll ? FiChevronUp : FiChevronDown}
+            />
           </button>
         </div>
       </div>
@@ -128,16 +140,19 @@ function ArchetypeComparisonView({ assignedArchetype, ranking = [] }) {
         <div className="comparison-list">
           {comparison.length ? (
             comparison.map((item) => {
-              const title = ARCHETYPE_DETAILS[item.archetype]?.[0]
-                || 'Unknown archetype';
-              const rank = completeRanking.findIndex(
-                (ranked) => ranked.archetype === item.archetype
-              ) + 1;
+              const title =
+                ARCHETYPE_DETAILS[item.archetype]?.[0] || 'Unknown archetype';
+              const rank =
+                completeRanking.findIndex(
+                  (ranked) => ranked.archetype === item.archetype
+                ) + 1;
               const isSelected = selectedType === item.archetype;
 
               return (
                 <button
-                  className={`comparison-item ${isSelected ? 'selected' : ''}`}
+                  className={`comparison-item ${
+                    isSelected ? 'selected' : ''
+                  }`}
                   key={item.archetype}
                   type="button"
                   onClick={() => setSelectedType(item.archetype)}
@@ -157,13 +172,15 @@ function ArchetypeComparisonView({ assignedArchetype, ranking = [] }) {
               );
             })
           ) : (
-            <p className="comparison-empty">No archetypes match that search.</p>
+            <p className="comparison-empty">
+              No archetypes match that search.
+            </p>
           )}
         </div>
 
         <div className="comparison-detail">
           <span className="comparison-detail-label">Selected profile</span>
-          <strong>{selectedType}</strong>
+          <strong>{selectedType || 'Profile'}</strong>
           <h4>{selectedDetails[0]}</h4>
           <p>{selectedDetails[1]}</p>
 

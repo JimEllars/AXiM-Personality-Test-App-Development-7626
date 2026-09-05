@@ -1,0 +1,135 @@
+.results-toolbar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+  margin: 18px 0 16px;
+  padding: 13px 15px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: rgba(7, 19, 29, 0.6);
+}
+
+.results-toolbar-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.results-toolbar-icon {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(98, 229, 197, 0.25);
+  border-radius: 50%;
+  color: var(--mint);
+}
+
+.results-toolbar-status strong,
+.results-toolbar-status span {
+  display: block;
+}
+
+.results-toolbar-status strong {
+  color: #dcebea;
+  font: 600 11px Manrope, sans-serif;
+}
+
+.results-toolbar-status span {
+  margin-top: 3px;
+  color: #78909a;
+  font-size: 10px;
+}
+
+.results-toolbar-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.results-toolbar-actions button,
+.reset-confirmation-actions button {
+  border: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 0;
+  color: #91a6af;
+  background: transparent;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.results-toolbar-actions button:hover,
+.reset-confirmation-actions button:hover {
+  color: var(--mint);
+}
+
+.results-toolbar-actions .danger-action,
+.reset-confirmation-actions .danger-action {
+  color: #d98e98;
+}
+
+.results-toolbar-actions .danger-action:hover,
+.reset-confirmation-actions .danger-action:hover {
+  color: var(--danger);
+}
+
+.reset-confirmation {
+  position: absolute;
+  z-index: 3;
+  top: calc(100% + 8px);
+  right: 0;
+  width: min(100%, 430px);
+  padding: 16px;
+  border: 1px solid rgba(255, 142, 154, 0.3);
+  border-radius: 9px;
+  background: #0c1d2a;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+}
+
+.reset-confirmation strong {
+  color: #edf5f5;
+  font: 600 12px Manrope, sans-serif;
+}
+
+.reset-confirmation p {
+  margin-top: 6px;
+  color: #8fa4ad;
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.reset-confirmation-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 13px;
+}
+
+@media (max-width: 650px) {
+  .results-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .results-toolbar-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .reset-confirmation {
+    left: 0;
+    right: auto;
+    width: 100%;
+  }
+}
+
+@media print {
+  .results-toolbar {
+    display: none;
+  }
+}

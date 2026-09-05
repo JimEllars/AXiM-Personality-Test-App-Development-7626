@@ -1,61 +1,249 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+const STORAGE_VERSION = 4;
+
 const initialState = {
   screen: 'intro',
   currentClusterIndex: 0,
-  demographics: { age: '', region: '', explicitConsent: false },
+  demographics: {
+    age: '',
+    region: '',
+    explicitConsent: false
+  },
   answers: {},
   thetaScores: {},
   semScores: {},
+  assessmentMetrics: {
+    answeredCount: 0,
+    totalItems: 0,
+    coverage: 0,
+    averageSem: 0
+  },
   assignedArchetype: null,
   confidence: 0,
-  proximityRanking: []
+  proximityRanking: [],
+  resultHistory: [],
+  completedExercises: {},
+  exerciseNotes: {},
+  exerciseStartedAt: {},
+  bookmarkedInsights: {}
 };
 
-export const usePersonalityStore = create()(
+function isValidSession(value) {
+  return (
+    value &&
+    typeof value === 'object' &&
+    value.answers &&
+    typeof value.answers === 'object'
+  );
+}
+
+function normalizeMetrics(metrics = {}) {
+  return {
+    ...initialState.assessmentMetrics,
+    ...metrics,
+    answeredCount: Number(metrics.answeredCount) || 0,
+    totalItems: Number(metrics.totalItems) || 0,
+    coverage: Number(metrics.coverage) || 0,
+    averageSem: Number(metrics.averageSem) || 0
+  };
+}
+
+function normalizeHistory(history = []) {
+  if (!Array.isArray(history)) return [];
+
+  return history
+    .filter((snapshot) => snapshot && typeof snapshot === 'object')
+    .map((snapshot, index) => ({
+      id: snapshot.id || `attempt-${index + 1}-${Date.now()}`,
+      generatedAt: snapshot.generatedAt || new Date().toISOString(),
+      assignedArchetype: snapshot.assignedArchetype || null,
+      thetaScores: snapshot.thetaScores || {},
+      confidence: Number(snapshot.confidence) || 0,
+      assessmentMetrics: normalizeMetrics(snapshot.assessmentMetrics)
+    }))
+    .slice(-5);
+}
+
+function createResultSnapshot(state) {
+  if (!state.assignedArchetype) return null;
+
+  return {
+    id: `attempt-${Date.now()}-${state.resultHistory.length + 1}`,
+    generatedAt: new Date().toISOString(),
+    assignedArchetype: state.assignedArchetype,
+    thetaScores: { ...state.thetaScores },
+    confidence: state.confidence,
+    assessmentMetrics: { ...state.assessmentMetrics }
+  };
+}
+
+export const usePersonalityStore = create(
   persist(
     (set) => ({
       ...initialState,
+
       setScreen: (screen) => set({ screen }),
+
       setDemographics: (data) =>
         set((state) => ({
-          demographics: { ...state.demographics, ...data }
+          demographics: {
+            ...state.demographics,
+            ...data
+          }
         })),
+
       setAnswer: (itemId, value) =>
         set((state) => ({
-          answers: { ...state.answers, [itemId]: value }
+          answers: {
+            ...state.answers,
+            [itemId]: value
+          }
         })),
+
+      setClusterIndex: (currentClusterIndex) =>
+        set({
+          currentClusterIndex: Math.max(0, currentClusterIndex)
+        }),
+
       nextCluster: () =>
         set((state) => ({
           currentClusterIndex: state.currentClusterIndex + 1
         })),
+
       prevCluster: () =>
         set((state) => ({
           currentClusterIndex: Math.max(0, state.currentClusterIndex - 1)
         })),
-      setResults: (thetaScores, result) =>
-        set({
-          thetaScores,
-          assignedArchetype: result.archetype,
-          confidence: result.confidence,
-          proximityRanking: result.proximityRanking,
-          screen: 'results'
+
+      setResults: (thetaScores, result, metrics = {}) =>
+        set((state) => {
+          const previousSnapshot = createResultSnapshot(state);
+          const nextHistory = previousSnapshot
+            ? [...state.resultHistory, previousSnapshot].slice(-5)
+            : state.resultHistory;
+
+          return {
+            thetaScores: { ...thetaScores },
+            semScores: { ...(metrics.semScores || {}) },
+            assessmentMetrics: normalizeMetrics(metrics),
+            assignedArchetype: result.archetype,
+            confidence: result.confidence,
+            proximityRanking: result.proximityRanking,
+            resultHistory: nextHistory,
+            screen: 'results'
+          };
         }),
+
+      startRetake: () =>
+        set((state) => ({
+          screen: 'assessment',
+          currentClusterIndex: 0,
+          answers: {},
+          thetaScores: {},
+          semScores: {},
+          assessmentMetrics: { ...initialState.assessmentMetrics },
+          assignedArchetype: null,
+          confidence: 0,
+          proximityRanking: [],
+          completedExercises: {},
+          exerciseNotes: {},
+          exerciseStartedAt: {},
+          bookmarkedInsights: {},
+
+          // The completed result is already archived by setResults.
+          // Keeping this list unchanged prevents duplicate attempts.
+          resultHistory: state.resultHistory
+        })),
+
+      toggleExercise: (exerciseId) =>
+        set((state) => ({
+          completedExercises: {
+            ...state.completedExercises,
+            [exerciseId]: !state.completedExercises[exerciseId]
+          }
+        })),
+
+      setExerciseNote: (exerciseId, note) =>
+        set((state) => ({
+          exerciseNotes: {
+            ...state.exerciseNotes,
+            [exerciseId]: note
+          }
+        })),
+
+      markExerciseStarted: (exerciseId) =>
+        set((state) => ({
+          exerciseStartedAt: {
+            ...state.exerciseStartedAt,
+            [exerciseId]:
+              state.exerciseStartedAt[exerciseId] ||
+              new Date().toISOString()
+          }
+        })),
+
+      toggleInsightBookmark: (insightId) =>
+        set((state) => ({
+          bookmarkedInsights: {
+            ...state.bookmarkedInsights,
+            [insightId]: !state.bookmarkedInsights[insightId]
+          }
+        })),
+
+      clearInsightBookmarks: () => set({ bookmarkedInsights: {} }),
+
+      clearExerciseProgress: () =>
+        set({
+          completedExercises: {},
+          exerciseNotes: {},
+          exerciseStartedAt: {}
+        }),
+
       resetAssessment: () => set({ ...initialState })
     }),
     {
       name: 'axim_personality_session',
+      version: STORAGE_VERSION,
+
       partialize: (state) => ({
         screen: state.screen,
         currentClusterIndex: state.currentClusterIndex,
         demographics: state.demographics,
         answers: state.answers,
         thetaScores: state.thetaScores,
+        semScores: state.semScores,
+        assessmentMetrics: state.assessmentMetrics,
         assignedArchetype: state.assignedArchetype,
         confidence: state.confidence,
-        proximityRanking: state.proximityRanking
-      })
+        proximityRanking: state.proximityRanking,
+        resultHistory: state.resultHistory,
+        completedExercises: state.completedExercises,
+        exerciseNotes: state.exerciseNotes,
+        exerciseStartedAt: state.exerciseStartedAt,
+        bookmarkedInsights: state.bookmarkedInsights
+      }),
+
+      migrate: (persistedState) => {
+        if (!isValidSession(persistedState)) return initialState;
+
+        return {
+          ...initialState,
+          ...persistedState,
+          demographics: {
+            ...initialState.demographics,
+            ...persistedState.demographics
+          },
+          assessmentMetrics: normalizeMetrics(
+            persistedState.assessmentMetrics
+          ),
+          resultHistory: normalizeHistory(persistedState.resultHistory),
+          currentClusterIndex: Math.max(
+            0,
+            Number(persistedState.currentClusterIndex) || 0
+          )
+        };
+      }
     }
   )
 );

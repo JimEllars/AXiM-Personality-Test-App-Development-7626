@@ -1,0 +1,162 @@
+.insight-bookmarks {
+  margin-top: 16px;
+}
+
+.insight-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.insight-heading h3 {
+  margin-top: 8px;
+}
+
+.insight-heading p {
+  max-width: 650px;
+  margin-top: 9px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.bookmark-count {
+  flex: 0 0 auto;
+  padding: 7px 9px;
+  border: 1px solid rgba(98,229,197,0.2);
+  border-radius: 5px;
+  color: var(--mint);
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.insight-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 22px;
+}
+
+.insight-filter,
+.insight-action {
+  border: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  color: #8fa4ad;
+  background: transparent;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.insight-filter.active,
+.insight-filter:hover,
+.insight-action:hover {
+  color: var(--mint);
+}
+
+.insight-action.danger:hover {
+  color: var(--danger);
+}
+
+.insight-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.insight-card {
+  position: relative;
+  padding: 17px 48px 17px 17px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  display: grid;
+  grid-template-columns: 30px 1fr;
+  gap: 12px;
+  background: rgba(7,19,29,0.55);
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.insight-card.bookmarked {
+  border-color: rgba(98,229,197,0.38);
+  background: rgba(21,57,57,0.3);
+}
+
+.insight-card-icon {
+  width: 27px;
+  height: 27px;
+  border: 1px solid rgba(98,229,197,0.28);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--mint);
+}
+
+.insight-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #78909a;
+  font-size: 10px;
+}
+
+.insight-card-meta b {
+  color: var(--mint);
+  font-weight: 700;
+}
+
+.insight-card h4 {
+  margin-top: 8px;
+  color: #edf5f5;
+  font: 600 15px Manrope,sans-serif;
+}
+
+.insight-card p {
+  margin-top: 7px;
+  color: #a3b5ba;
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.insight-bookmark-button {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  border: 0;
+  padding: 4px;
+  color: #637d87;
+  background: transparent;
+  cursor: pointer;
+}
+
+.insight-bookmark-button:hover,
+.insight-card.bookmarked .insight-bookmark-button {
+  color: var(--mint);
+}
+
+.insight-card.bookmarked .insight-bookmark-button svg {
+  fill: currentColor;
+}
+
+.insight-empty {
+  margin-top: 17px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+@media (max-width: 520px) {
+  .insight-heading {
+    display: block;
+  }
+
+  .bookmark-count {
+    display: inline-block;
+    margin-top: 13px;
+  }
+
+  .insight-card {
+    padding: 14px 42px 14px 14px;
+  }
+}

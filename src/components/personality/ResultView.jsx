@@ -8,16 +8,30 @@ import { usePersonalityStore } from '../../store/usePersonalityStore';
 import PersonalityReportDocument from '../../lib/pdf/PersonalityReportDocument';
 import RadarProfileChart from './RadarProfileChart';
 import ArchetypeComparisonView from './ArchetypeComparisonView';
+import ArchetypeCompatibilityMatrix from './ArchetypeCompatibilityMatrix';
+import ArchetypeConversationGuide from './ArchetypeConversationGuide';
+import ArchetypeShareCard from './ArchetypeShareCard';
+import GrowthExercises from './GrowthExercises';
+import InsightBookmarks from './InsightBookmarks';
+import MethodologyPanel from './MethodologyPanel';
+import PsychometricConfidencePanel from './PsychometricConfidencePanel';
+import ResultsToolbar from './ResultsToolbar';
+import ScoreComparisonPanel from './ScoreComparisonPanel';
+import ThetaTrendCharts from './ThetaTrendCharts';
 
 const { FiCheck, FiDownload, FiRefreshCw, FiShare2 } = FiIcons;
 
 function ResultView() {
   const store = usePersonalityStore();
-  const [name, description] = ARCHETYPE_DETAILS[store.assignedArchetype];
+  const details = ARCHETYPE_DETAILS[store.assignedArchetype] || [
+    'Your cognitive profile',
+    'Your assessment results are ready to explore.'
+  ];
+  const [name, description] = details;
   const [shareMessage, setShareMessage] = useState('');
   const confidence = Math.max(0, Math.round(store.confidence * 100));
-  const sortedScores = Object.entries(store.thetaScores).sort(
-    (a, b) => b[1] - a[1]
+  const sortedScores = Object.entries(store.thetaScores || {}).sort(
+    (first, second) => second[1] - first[1]
   );
 
   const share = async () => {
@@ -25,7 +39,11 @@ function ResultView() {
 
     try {
       if (navigator.share) {
-        await navigator.share({ title: 'My AXiM profile', text });
+        await navigator.share({
+          title: 'My AXiM profile',
+          text
+        });
+        setShareMessage('Profile shared.');
       } else if (navigator.clipboard) {
         await navigator.clipboard.writeText(text);
         setShareMessage('Profile summary copied.');
@@ -48,10 +66,11 @@ function ResultView() {
           <SafeIcon icon={FiCheck} />
         </span>
         <span className="eyebrow">
-          <span /> Assessment complete
+          <span />
+          Assessment complete
         </span>
         <p>Your closest cognitive archetype is</p>
-        <h1>{store.assignedArchetype}</h1>
+        <h1>{store.assignedArchetype || 'Profile'}</h1>
         <h2>{name}</h2>
         <p className="result-description">{description}</p>
 
@@ -65,23 +84,37 @@ function ResultView() {
                 generatedAt={new Date().toLocaleDateString()}
               />
             }
-            fileName={`AXiM-${store.assignedArchetype}-Profile.pdf`}
+            fileName={`AXiM-${store.assignedArchetype || 'Profile'}-Profile.pdf`}
           >
-            {({ loading }) => (
+            {({ loading, error }) => (
               <>
-                {loading ? 'Preparing report…' : 'Download report'}
+                {error
+                  ? 'Report unavailable'
+                  : loading
+                    ? 'Preparing report…'
+                    : 'Download report'}
                 <SafeIcon icon={FiDownload} />
               </>
             )}
           </PDFDownloadLink>
 
-          <button className="secondary-button" onClick={share}>
-            Share result <SafeIcon icon={FiShare2} />
+          <button className="secondary-button" type="button" onClick={share}>
+            Share result
+            <SafeIcon icon={FiShare2} />
           </button>
         </div>
 
-        {shareMessage && <p className="share-message">{shareMessage}</p>}
+        {shareMessage && (
+          <p className="share-message" role="status">
+            {shareMessage}
+          </p>
+        )}
       </motion.section>
+
+      <ResultsToolbar
+        archetype={store.assignedArchetype}
+        title={name}
+      />
 
       <section className="profile-grid">
         <div className="result-panel radar-panel">
@@ -115,17 +148,35 @@ function ResultView() {
                     }}
                   />
                 </div>
-                <b>{value > 0 ? '+' : ''}{value}</b>
+                <b>
+                  {value > 0 ? '+' : ''}
+                  {value}
+                </b>
               </div>
             ))}
           </div>
         </div>
       </section>
 
+      <PsychometricConfidencePanel
+        confidence={store.confidence}
+        ranking={store.proximityRanking}
+        assignedArchetype={store.assignedArchetype}
+        assessmentMetrics={store.assessmentMetrics}
+      />
+
+      <ThetaTrendCharts />
+      <ScoreComparisonPanel />
+      <MethodologyPanel />
       <ArchetypeComparisonView
         assignedArchetype={store.assignedArchetype}
         ranking={store.proximityRanking}
       />
+      <ArchetypeCompatibilityMatrix />
+      <ArchetypeConversationGuide />
+      <ArchetypeShareCard />
+      <InsightBookmarks />
+      <GrowthExercises />
 
       <section className="result-panel growth-panel">
         <span className="card-kicker">Development direction</span>
@@ -149,8 +200,9 @@ function ResultView() {
         </div>
       </section>
 
-      <button className="text-button" onClick={store.resetAssessment}>
-        <SafeIcon icon={FiRefreshCw} /> Retake assessment
+      <button className="text-button" type="button" onClick={store.startRetake}>
+        <SafeIcon icon={FiRefreshCw} />
+        Retake assessment
       </button>
     </main>
   );
