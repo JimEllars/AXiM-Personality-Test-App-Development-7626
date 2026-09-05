@@ -2,7 +2,7 @@ const WORKER_URL = import.meta.env.VITE_EDGE_WORKER_URL || 'http://localhost:878
 
 export async function submitAssessment(data) {
   try {
-    const response = await fetch(`${WORKER_URL}/api/v1/personality/submit`, {
+    const response = await fetch(`${WORKER_URL}/api/v1/assessment/submit`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)

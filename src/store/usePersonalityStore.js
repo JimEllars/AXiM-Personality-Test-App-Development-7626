@@ -31,7 +31,8 @@ const initialState = {
   completedExercises: {},
   exerciseNotes: {},
   exerciseStartedAt: {},
-  bookmarkedInsights: {}
+  bookmarkedInsights: {},
+  pendingSync: []
 };
 
 function isValidSession(value) {
@@ -153,15 +154,59 @@ export const usePersonalityStore = create(
         // Syndicate to AXiM Core if authenticated via Edge Worker API
         const token = localStorage.getItem('axim_passport_token');
         if (token) {
-          const state = get();
-          submitAssessment({
+          const currentState = get();
+          const payload = {
             token,
             assignedArchetype: result.archetype,
             thetaScores,
             completedAt: new Date().toISOString(),
-            answers: state.answers
-          }).catch(err => console.error("Failed to syndicate profile", err));
+            answers: currentState.answers
+          };
+
+          submitAssessment(payload).then(res => {
+            if (!res.success) {
+              set(state => ({ pendingSync: [...(state.pendingSync || []), payload] }));
+            }
+          }).catch(err => {
+            console.error("Failed to syndicate profile", err);
+            set(state => ({ pendingSync: [...(state.pendingSync || []), payload] }));
+          });
         }
+      },
+
+
+      flushPendingSync: async () => {
+        const state = get();
+        if (!state.pendingSync || state.pendingSync.length === 0) return;
+
+        if (!navigator.onLine) return;
+
+        const stillPending = [];
+        for (const payload of state.pendingSync) {
+          try {
+            const res = await submitAssessment(payload);
+            if (!res.success) {
+              stillPending.push(payload);
+            }
+          } catch (err) {
+            stillPending.push(payload);
+          }
+        }
+
+        set({ pendingSync: stillPending });
+      },
+
+
+      resumeAssessment: () => {
+        set((state) => {
+          if (state.assignedArchetype) {
+             return { screen: 'results' };
+          }
+          if (Object.keys(state.answers).length > 0) {
+             return { screen: 'assessment' }; // Preserve currentClusterIndex and answers
+          }
+          return { screen: 'assessment', currentClusterIndex: 0 };
+        });
       },
 
       startRetake: () => {
@@ -251,7 +296,8 @@ export const usePersonalityStore = create(
         completedExercises: state.completedExercises,
         exerciseNotes: state.exerciseNotes,
         exerciseStartedAt: state.exerciseStartedAt,
-        bookmarkedInsights: state.bookmarkedInsights
+        bookmarkedInsights: state.bookmarkedInsights,
+        pendingSync: state.pendingSync || []
       }),
 
       migrate: (persistedState) => {
@@ -277,3 +323,9 @@ export const usePersonalityStore = create(
     }
   )
 );
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('online', () => {
+    usePersonalityStore.getState().flushPendingSync?.();
+  });
+}
