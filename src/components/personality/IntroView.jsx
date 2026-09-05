@@ -45,15 +45,15 @@ function IntroView({
         </p>
 
         {hasSavedAssessment ? (
-          <div className="resume-card">
-            <div className="resume-card-copy">
-              <span className="card-kicker">
+          <div className="resume-card" style={{ padding: '1.5rem', background: '#fff', border: '1px solid #eaeaea', borderRadius: '8px', marginBottom: '2rem', textAlign: 'left' }}>
+            <div className="resume-card-copy" style={{ marginBottom: '1.5rem' }}>
+              <span className="card-kicker" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#666', textTransform: 'uppercase', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>
                 <SafeIcon icon={FiPlay} />
-                Assessment in progress
+                Resume In-Progress Assessment
               </span>
 
-              <strong>
-                {answeredCount} of {totalQuestions} prompts answered
+              <strong style={{ fontSize: '1.2rem', display: 'block', marginBottom: '1rem' }}>
+                {answeredCount} of {totalQuestions} questions completed
               </strong>
 
               <div
@@ -63,12 +63,13 @@ function IntroView({
                 aria-valuemin="0"
                 aria-valuemax="100"
                 aria-valuenow={progress}
+                style={{ height: '8px', background: '#f0f0f0', borderRadius: '4px', overflow: 'hidden' }}
               >
-                <span style={{ width: `${progress}%` }} />
+                <span style={{ display: 'block', height: '100%', width: `${progress}%`, background: '#0066cc', transition: 'width 0.3s ease' }} />
               </div>
             </div>
 
-            <div className="resume-actions">
+            <div className="resume-actions" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
               <button
                 className="primary-button"
                 type="button"
@@ -82,9 +83,10 @@ function IntroView({
                 className="resume-reset"
                 type="button"
                 onClick={onRestart}
+                style={{ background: 'none', border: 'none', color: '#666', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem' }}
               >
                 <SafeIcon icon={FiRotateCcw} />
-                Start over
+                Start Fresh
               </button>
             </div>
           </div>

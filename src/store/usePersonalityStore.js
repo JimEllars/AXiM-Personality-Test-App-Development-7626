@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 import { scoreAssessmentDiagnostics } from '../services/psychometrics/irtEngine';
 import { QUESTION_BANK, FUNCTION_KEYS } from '../data/questionBank';
 import { trackEvent } from '../services/telemetry';
+import { submitAssessment } from '../services/personalityApi';
 
 const STORAGE_VERSION = 4;
 
@@ -84,7 +85,7 @@ function createResultSnapshot(state) {
 
 export const usePersonalityStore = create(
   persist(
-    (set) => ({
+    (set, get) => ({
       ...initialState,
 
       setScreen: (screen) => {
@@ -130,7 +131,7 @@ export const usePersonalityStore = create(
           currentClusterIndex: Math.max(0, state.currentClusterIndex - 1)
         })),
 
-      setResults: (thetaScores, result, metrics = {}) =>
+      setResults: (thetaScores, result, metrics = {}) => {
         set((state) => {
           const previousSnapshot = createResultSnapshot(state);
           const nextHistory = previousSnapshot
@@ -147,7 +148,21 @@ export const usePersonalityStore = create(
             resultHistory: nextHistory,
             screen: 'results'
           };
-        }),
+        });
+
+        // Syndicate to AXiM Core if authenticated via Edge Worker API
+        const token = localStorage.getItem('axim_passport_token');
+        if (token) {
+          const state = get();
+          submitAssessment({
+            token,
+            assignedArchetype: result.archetype,
+            thetaScores,
+            completedAt: new Date().toISOString(),
+            answers: state.answers
+          }).catch(err => console.error("Failed to syndicate profile", err));
+        }
+      },
 
       startRetake: () => {
         trackEvent('assessment_retake');

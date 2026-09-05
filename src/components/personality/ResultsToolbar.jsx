@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../../common/SafeIcon';
 import { usePersonalityStore } from '../../store/usePersonalityStore';
+import { emailReport } from '../../services/personalityApi';
 import './ResultsToolbar.css';
 
-const { FiCheck, FiCopy, FiPrinter, FiShield, FiTrash2 } = FiIcons;
+const { FiCheck, FiCopy, FiPrinter, FiShield, FiTrash2, FiMail } = FiIcons;
 
 async function copyText(text) {
   if (navigator.clipboard) {
@@ -30,6 +31,9 @@ function ResultsToolbar({ archetype, title }) {
   );
   const [copied, setCopied] = useState(false);
   const [showReset, setShowReset] = useState(false);
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [email, setEmail] = useState('');
+  const [emailStatus, setEmailStatus] = useState(''); // 'sending', 'sent', 'error'
 
   const summary = `My AXiM cognitive archetype is ${
     archetype || 'Profile'
@@ -58,6 +62,18 @@ function ResultsToolbar({ archetype, title }) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const sendEmailReport = async (e) => {
+    e.preventDefault();
+    setEmailStatus('sending');
+    const result = await emailReport({ email, archetype });
+    if (result.success) {
+      setEmailStatus('sent');
+      setTimeout(() => setShowEmailModal(false), 2000);
+    } else {
+      setEmailStatus('error');
+    }
+  };
+
   return (
     <section className="results-toolbar" aria-label="Result actions">
       <div className="results-toolbar-status">
@@ -71,6 +87,13 @@ function ResultsToolbar({ archetype, title }) {
       </div>
 
       <div className="results-toolbar-actions">
+        <button type="button" onClick={() => {
+          setShowEmailModal(true);
+          setEmailStatus('');
+        }}>
+          <SafeIcon icon={FiMail} />
+          Email Report
+        </button>
         <button type="button" onClick={copySummary}>
           <SafeIcon icon={copied ? FiCheck : FiCopy} />
           {copied ? 'Copied' : 'Copy summary'}
@@ -88,6 +111,35 @@ function ResultsToolbar({ archetype, title }) {
           Clear session
         </button>
       </div>
+
+      {showEmailModal && (
+        <div className="reset-confirmation" role="dialog">
+          <form onSubmit={sendEmailReport}>
+            <strong>Email My PDF Report</strong>
+            <p>Enter your email to receive a branded report briefing.</p>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              required
+              style={{ width: '100%', padding: '0.5rem', margin: '0.5rem 0', borderRadius: '4px', border: '1px solid #ccc' }}
+            />
+            {emailStatus === 'sending' && <p>Sending...</p>}
+            {emailStatus === 'sent' && <p style={{color: 'green'}}>Report sent!</p>}
+            {emailStatus === 'error' && <p className="form-error">Failed to send email. Please try again.</p>}
+
+            <div className="reset-confirmation-actions" style={{ marginTop: '1rem' }}>
+              <button type="button" onClick={() => setShowEmailModal(false)}>
+                Cancel
+              </button>
+              <button className="primary-button" type="submit" disabled={emailStatus === 'sending'}>
+                Send Email
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
 
       {showReset && (
         <div className="reset-confirmation" role="alertdialog">

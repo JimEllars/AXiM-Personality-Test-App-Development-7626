@@ -101,6 +101,36 @@ function GrowthExercises() {
           <SafeIcon icon={FiRefreshCw} /> Reset exercise progress
         </button>
       )}
+
+      {/* Teachable Partner CTA */}
+      <div className="teachable-cta-inline" style={{
+        marginTop: '2rem',
+        padding: '1.5rem',
+        background: '#f8fafc',
+        border: '1px solid #e2e8f0',
+        borderRadius: '8px',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        textAlign: 'center',
+        gap: '1rem'
+      }}>
+        <h4 style={{ margin: 0, color: '#1e293b' }}>
+          Master Your {store.assignedArchetype || 'Profile'} Cognitive Strengths on Teachable
+        </h4>
+        <p style={{ margin: 0, color: '#64748b', fontSize: '0.95rem' }}>
+          Explore structured video masterclasses and operational blueprints designed for your dominant cognitive function stack.
+        </p>
+        <a
+          href="https://swiy.co/Teach1"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="primary-button"
+          style={{ textDecoration: 'none' }}
+        >
+          Explore Recommended Courses on Teachable
+        </a>
+      </div>
     </section>
   );
 }

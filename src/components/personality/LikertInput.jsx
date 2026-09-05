@@ -2,6 +2,14 @@ import React from 'react';
 import { LIKERT_ANCHORS } from '../../data/questionBank';
 
 function LikertInput({ itemId, value, onChange }) {
+  const handleChange = (val) => {
+    // Add mobile haptics
+    if (navigator.vibrate) {
+      navigator.vibrate(20);
+    }
+    onChange(val);
+  };
+
   return (
     <fieldset className="likert" aria-label="Select agreement level">
       <legend className="sr-only">Select agreement level from 1 to 5</legend>
@@ -16,7 +24,7 @@ function LikertInput({ itemId, value, onChange }) {
             name={itemId}
             value={anchor.value}
             checked={value === anchor.value}
-            onChange={() => onChange(anchor.value)}
+            onChange={() => handleChange(anchor.value)}
           />
           <span className="likert-circle">{anchor.value}</span>
           <small>{anchor.short}</small>
