@@ -1,5 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { scoreAssessmentDiagnostics } from '../services/psychometrics/irtEngine';
+import { QUESTION_BANK, FUNCTION_KEYS } from '../data/questionBank';
+import { trackEvent } from '../services/telemetry';
 
 const STORAGE_VERSION = 4;
 
@@ -84,7 +87,10 @@ export const usePersonalityStore = create(
     (set) => ({
       ...initialState,
 
-      setScreen: (screen) => set({ screen }),
+      setScreen: (screen) => {
+        trackEvent('screen_view', { screen });
+        set({ screen });
+      },
 
       setDemographics: (data) =>
         set((state) => ({
@@ -95,12 +101,19 @@ export const usePersonalityStore = create(
         })),
 
       setAnswer: (itemId, value) =>
-        set((state) => ({
-          answers: {
+        set((state) => {
+          const nextAnswers = {
             ...state.answers,
             [itemId]: value
-          }
-        })),
+          };
+          const metrics = scoreAssessmentDiagnostics(QUESTION_BANK, nextAnswers, FUNCTION_KEYS);
+          return {
+            answers: nextAnswers,
+            thetaScores: metrics.thetaScores,
+            semScores: metrics.semScores,
+            assessmentMetrics: { ...state.assessmentMetrics, ...metrics }
+          };
+        }),
 
       setClusterIndex: (currentClusterIndex) =>
         set({
@@ -136,7 +149,8 @@ export const usePersonalityStore = create(
           };
         }),
 
-      startRetake: () =>
+      startRetake: () => {
+        trackEvent('assessment_retake');
         set((state) => ({
           screen: 'assessment',
           currentClusterIndex: 0,
@@ -155,7 +169,8 @@ export const usePersonalityStore = create(
           // The completed result is already archived by setResults.
           // Keeping this list unchanged prevents duplicate attempts.
           resultHistory: state.resultHistory
-        })),
+        }));
+      },
 
       toggleExercise: (exerciseId) =>
         set((state) => ({
