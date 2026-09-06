@@ -90,7 +90,9 @@ export const usePersonalityStore = create(
       ...initialState,
 
       setScreen: (screen) => {
-        trackEvent('screen_view', { screen });
+        if (get().screen !== screen) {
+          trackEvent('screen_view', { screen });
+        }
         set({ screen });
       },
 

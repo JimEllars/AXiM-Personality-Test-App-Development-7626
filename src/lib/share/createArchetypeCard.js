@@ -79,7 +79,7 @@ export function createArchetypeCard({
 
   const width = 1200;
   const height = 760;
-  const scale = 2;
+  const scale = window.devicePixelRatio || 2;
 
   canvas.width = width * scale;
   canvas.height = height * scale;

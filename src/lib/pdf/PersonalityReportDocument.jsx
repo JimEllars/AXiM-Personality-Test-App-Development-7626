@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
     marginTop: 7,
     color: '#ffffff',
     fontSize: 44,
-    fontWeight: 700
+    fontWeight: 700, fontFamily: 'Helvetica-Bold'
   },
   title: {
     marginBottom: 10,
@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
   value: {
     color: '#eef5f7',
     fontSize: 9,
-    fontWeight: 700
+    fontWeight: 700, fontFamily: 'Helvetica-Bold'
   },
   note: {
     marginTop: 22,

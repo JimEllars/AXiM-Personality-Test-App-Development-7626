@@ -21,6 +21,8 @@ function QuestionCluster({ items, answers, onAnswer, clusterIndex }) {
         return (
           <article
             className={`question-card ${answered ? 'answered' : ''}`}
+            role="group"
+
             data-question-id={item.id}
             key={item.id}
             tabIndex="0"

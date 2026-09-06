@@ -28,3 +28,22 @@ describe('irtEngine', () => {
     expect(results.thetaScores.Te).toBeGreaterThan(0);
   });
 });
+
+  it('handles extreme response patterns safely', () => {
+    const mockQuestionBank = [
+      { id: '1', functionKey: 'Ti', parameters: { a: 1.5, b: [-1.5, -0.5, 0.5, 1.5] }, reverseScored: false },
+      { id: '2', functionKey: 'Ti', parameters: { a: 1.5, b: [-1.5, -0.5, 0.5, 1.5] }, reverseScored: false }
+    ];
+
+    // Extreme all 5s
+    const answersMax = { '1': 5, '2': 5 };
+    const resultsMax = scoreAssessmentDiagnostics(mockQuestionBank, answersMax, ['Ti']);
+    expect(resultsMax.thetaScores.Ti).toBeGreaterThan(0);
+    expect(resultsMax.thetaScores.Ti).toBeLessThanOrEqual(4.0); // Within reasonable bounds
+
+    // Extreme all 1s
+    const answersMin = { '1': 1, '2': 1 };
+    const resultsMin = scoreAssessmentDiagnostics(mockQuestionBank, answersMin, ['Ti']);
+    expect(resultsMin.thetaScores.Ti).toBeLessThan(0);
+    expect(resultsMin.thetaScores.Ti).toBeGreaterThanOrEqual(-4.0); // Within reasonable bounds
+  });

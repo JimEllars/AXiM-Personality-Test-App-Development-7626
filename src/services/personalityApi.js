@@ -1,4 +1,6 @@
-const WORKER_URL = import.meta.env.VITE_EDGE_WORKER_URL || 'http://localhost:8787';
+// For a full-stack Cloudflare Pages deployment, relative `/api` paths work best.
+// If deployed standalone, it falls back to the VITE_EDGE_WORKER_URL env var, or localhost.
+const WORKER_URL = import.meta.env.VITE_EDGE_WORKER_URL || (import.meta.env.PROD ? '' : 'http://localhost:8787');
 
 export async function submitAssessment(data) {
   try {

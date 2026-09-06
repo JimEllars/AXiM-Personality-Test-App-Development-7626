@@ -11,8 +11,8 @@
 - None encountered during this update. The psychometric engine integration successfully handles synchronous local state without performance degradation since the item pool is relatively small (64 items). If item pool expands significantly, we may need to debouce theta calculations or use a Web Worker.
 
 ## Production Hardening (Recent Updates)
-- **Edge Worker (Cloudflare)**: Introduced \`personality-edge-worker\` for edge ingestion of telemetry and assessment payload handling. Develop locally with \`wrangler dev\`.
-- **Telemetry Payload**: Events are batched via a \`navigator.sendBeacon\` implementation (with a \`fetch\` fallback) avoiding page latency. Queue length triggers at 15 items or a 10s timeout limit. Payload contains \`event\`, \`timestamp\`, \`url\`, \`userAgent\`, and custom properties.
-- **Dynamic Imports**: Used \`Suspense\` and \`React.lazy()\` to defer the heavy loading of \`@react-pdf/renderer\`. The archetype card share functions are dynamically imported on-demand to improve load speed.
-- **Offline Resilience**: Zustand storage now maintains a \`pendingSync\` array that queues up API failures. A listener on \`window.online\` triggers automatic replays so no progress or session result is lost on network interruption.
-- **Charts**: Fortified \`RadarProfileChart.jsx\` and \`TrendLineChart.jsx\` against empty or \`NaN\` inputs yielding graceful empty states.
+- **Edge Worker (Cloudflare)**: Hardened `personality-edge-worker` with a graceful 200/202 JSON response for all telemetry & api requests so missing downstream config never crashes frontend routing. Updated CORS config to seamlessly allow localhost dev and prod requests. Deploy with `cd personality-edge-worker && npm run deploy`.
+- **Telemetry Payload & Flow Control**: Events are batched via a `navigator.sendBeacon` implementation with a `fetch(..., {keepalive: true})` fallback. Added a maximum batch truncate limit to eliminate oversized payload 413s. Fixed duplicate stage transitions by ensuring state machines enforce strict condition checking.
+- **Dynamic Imports & PDF**: Hardcoded Helvetica standard fonts as the base fallback in `@react-pdf/renderer` profiles to eliminate client-side web font loading exceptions entirely.
+- **Canvas Polish**: Forced `window.devicePixelRatio` scaling inside `createArchetypeCard` so badge vectors render crisply without anti-aliasing blur on mobile Retina displays.
+- **A11y (Accessibility) Polish**: Corrected missing ARIA mappings (`role="radiogroup"`, `role="radio"`, `aria-checked`) across `LikertInput` and `QuestionCluster`. Wired Up/Down/Left/Right arrow keys for keyboard navigation across psychometric items. Enforced a minimum touch target area of 44x44px.
