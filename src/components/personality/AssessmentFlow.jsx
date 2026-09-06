@@ -32,7 +32,7 @@ function AssessmentFlow() {
   const setClusterIndex = usePersonalityStore(
     (state) => state.setClusterIndex
   );
-  const setResults = usePersonalityStore((state) => state.setResults);
+  const finalizeAssessment = usePersonalityStore((state) => state.finalizeAssessment);
   const [message, setMessage] = useState('');
   const [reviewMode, setReviewMode] = useState(false);
 
@@ -82,17 +82,7 @@ function AssessmentFlow() {
 
   const revealResults = () => {
     trackEvent('assessment_completed');
-    const metrics = scoreAssessmentDiagnostics(
-      QUESTION_BANK,
-      answers,
-      FUNCTION_KEYS
-    );
-
-    setResults(
-      metrics.thetaScores,
-      projectArchetype(metrics.thetaScores),
-      metrics
-    );
+    finalizeAssessment();
   };
 
   const editAnswer = (itemId) => {

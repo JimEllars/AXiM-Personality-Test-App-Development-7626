@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { scoreAssessmentDiagnostics } from '../services/psychometrics/irtEngine';
+import { projectArchetype } from '../services/psychometrics/archetypeProjector';
 import { QUESTION_BANK, FUNCTION_KEYS } from '../data/questionBank';
 import { trackEvent } from '../services/telemetry';
 import { submitAssessment } from '../services/personalityApi';
@@ -134,6 +135,15 @@ export const usePersonalityStore = create(
           currentClusterIndex: Math.max(0, state.currentClusterIndex - 1)
         })),
 
+
+      finalizeAssessment: () => {
+        const state = get();
+        const metrics = scoreAssessmentDiagnostics(QUESTION_BANK, state.answers, FUNCTION_KEYS);
+        const result = projectArchetype(metrics.thetaScores);
+
+        get().setResults(metrics.thetaScores, result, metrics);
+      },
+
       setResults: (thetaScores, result, metrics = {}) => {
         set((state) => {
           const previousSnapshot = createResultSnapshot(state);
@@ -165,13 +175,16 @@ export const usePersonalityStore = create(
             answers: currentState.answers
           };
 
-          submitAssessment(payload).then(res => {
-            if (!res.success) {
-              set(state => ({ pendingSync: [...(state.pendingSync || []), payload] }));
-            }
-          }).catch(err => {
-            console.error("Failed to syndicate profile", err);
-            set(state => ({ pendingSync: [...(state.pendingSync || []), payload] }));
+          // Background sync
+          Promise.resolve().then(() => {
+            submitAssessment(payload).then(res => {
+              if (!res.success) {
+                set(state => ({ pendingSync: [...(state.pendingSync || []), { ...payload, synced: false }] }));
+              }
+            }).catch(err => {
+              console.error("Failed to syndicate profile", err);
+              set(state => ({ pendingSync: [...(state.pendingSync || []), { ...payload, synced: false }] }));
+            });
           });
         }
       },

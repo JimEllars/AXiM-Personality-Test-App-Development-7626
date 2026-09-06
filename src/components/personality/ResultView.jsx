@@ -4,6 +4,7 @@ const PDFDownloadLink = lazy(() => import('@react-pdf/renderer').then(module => 
 const PersonalityReportDocument = lazy(() => import('../../lib/pdf/PersonalityReportDocument'));
 
 
+import ErrorBoundary from '../common/ErrorBoundary';
 import { motion } from 'framer-motion';
 import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../../common/SafeIcon';
@@ -33,7 +34,7 @@ function ResultView() {
   ];
   const [name, description] = details;
   const [shareMessage, setShareMessage] = useState('');
-  const confidence = Math.max(0, Math.round(store.confidence * 100));
+  const confidence = Math.max(0, Math.round((store.confidence || 0) * 100));
   const sortedScores = Object.entries(store.thetaScores || {}).sort(
     (first, second) => second[1] - first[1]
   );
@@ -159,7 +160,7 @@ function ResultView() {
               <small>pattern match</small>
             </div>
           </div>
-          <RadarProfileChart scores={store.thetaScores} />
+          <ErrorBoundary><RadarProfileChart scores={safeThetas} /></ErrorBoundary>
         </div>
 
         <div className="result-panel">
@@ -189,22 +190,24 @@ function ResultView() {
         </div>
       </section>
 
+      <ErrorBoundary>
       <PsychometricConfidencePanel
         confidence={store.confidence}
         ranking={store.proximityRanking}
         assignedArchetype={store.assignedArchetype}
         assessmentMetrics={store.assessmentMetrics}
       />
+      </ErrorBoundary>
 
       <ThetaTrendCharts />
-      <ScoreComparisonPanel />
+      <ErrorBoundary><ScoreComparisonPanel /></ErrorBoundary>
       <MethodologyPanel />
       <ArchetypeComparisonView
         assignedArchetype={store.assignedArchetype}
         ranking={store.proximityRanking}
       />
       <ArchetypeCompatibilityMatrix />
-      <ArchetypeConversationGuide />
+      <ErrorBoundary><ArchetypeConversationGuide /></ErrorBoundary>
       <ArchetypeShareCard />
       <InsightBookmarks />
       <GrowthExercises />

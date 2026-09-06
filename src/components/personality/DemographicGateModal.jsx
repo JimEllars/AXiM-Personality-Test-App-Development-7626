@@ -163,6 +163,18 @@ function DemographicGateModal({ onClose, onContinue }) {
           <SafeIcon icon={FiArrowRight} />
         </button>
 
+        <button
+          type="button"
+          className="text-button full-button"
+          onClick={() => {
+            setError('');
+            onContinue();
+          }}
+          style={{ marginTop: '0.5rem' }}
+        >
+          Skip for now
+        </button>
+
         <small className="privacy-note">
           <SafeIcon icon={FiLock} />
           No account required. Clear browser data to remove your session.
