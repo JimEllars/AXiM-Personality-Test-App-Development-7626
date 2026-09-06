@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../../common/SafeIcon';
 import './IntroView.css';
+import ExampleResultPreview from './ExampleResultPreview';
+
 
 const {
   FiActivity,
@@ -142,6 +144,7 @@ function IntroView({
           </p>
         </div>
       </section>
+      <ExampleResultPreview onStart={onStart} />
     </main>
   );
 }

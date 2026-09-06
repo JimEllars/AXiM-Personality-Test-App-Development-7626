@@ -56,7 +56,7 @@ export function flushQueue() {
             const stored = JSON.parse(localStorage.getItem('axim_telemetry_offline') || '[]');
             stored.push(...payload);
             localStorage.setItem('axim_telemetry_offline', JSON.stringify(stored.slice(-MAX_PAYLOAD_SIZE)));
-        } catch (err) {}
+        } catch (err) { /* silent catch */ }
       });
     }
   } catch (error) {
