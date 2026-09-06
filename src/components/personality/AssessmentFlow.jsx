@@ -33,6 +33,11 @@ function AssessmentFlow() {
     (state) => state.setClusterIndex
   );
   const finalizeAssessment = usePersonalityStore((state) => state.finalizeAssessment);
+  const resumeAssessment = usePersonalityStore((state) => state.resumeAssessment);
+
+  useEffect(() => {
+    resumeAssessment();
+  }, [resumeAssessment]);
   const [message, setMessage] = useState('');
   const [reviewMode, setReviewMode] = useState(false);
 

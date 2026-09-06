@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeAll } from 'vitest';
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, within, waitFor } from '@testing-library/react';
 import ExampleResultPreview from '../src/components/personality/ExampleResultPreview';
 
 // Mock matchMedia for Framer Motion
@@ -27,7 +27,7 @@ beforeAll(() => {
 });
 
 describe('ExampleResultPreview', () => {
-  it('renders the mock scores and annotations properly', () => {
+  it('renders the mock scores and annotations properly', async () => {
     const onStartMock = vi.fn();
     render(<ExampleResultPreview onStart={onStartMock} />);
 
@@ -45,7 +45,7 @@ describe('ExampleResultPreview', () => {
     expect(screen.getByText('INTJ — The Strategist')).toBeDefined();
     // In our component, we only render 'Ni' (func.label), not the full name.
     // We render 94 as the score.
-    expect(screen.getAllByText('Ni').length).toBeGreaterThan(0);
+    await waitFor(() => expect(screen.getAllByText('Ni').length).toBeGreaterThan(0));
     expect(screen.getByText('94')).toBeDefined();
 
     // Check CTA button

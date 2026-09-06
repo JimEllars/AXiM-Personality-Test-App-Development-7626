@@ -2,7 +2,8 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../../common/SafeIcon';
-import RadarProfileChart from './RadarProfileChart';
+import { Suspense, lazy } from 'react';
+const RadarProfileChart = lazy(() => import('./RadarProfileChart'));
 import './ExampleResultPreview.css';
 
 const { FiArrowRight } = FiIcons;
@@ -70,7 +71,7 @@ function ExampleResultPreview({ onStart }) {
             <span className="match-rate">94% Pattern Match</span>
           </div>
 
-          <RadarProfileChart scores={mockScores} />
+          <Suspense fallback={<div className="chart-placeholder">Loading chart...</div>}><RadarProfileChart scores={mockScores} /></Suspense>
         </motion.div>
 
         <motion.div className="preview-section" variants={itemVariants}>

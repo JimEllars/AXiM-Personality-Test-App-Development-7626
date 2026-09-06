@@ -4,6 +4,8 @@ import { trackEvent, getQueue_forTesting, setQueue_forTesting, flushQueue } from
 describe('telemetry', () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    global.fetch = vi.fn().mockResolvedValue({ ok: true });
+
         Object.defineProperty(global, 'navigator', {
       value: {
         sendBeacon: vi.fn().mockReturnValue(true),
@@ -27,7 +29,7 @@ describe('telemetry', () => {
     for (let i = 0; i < 15; i++) {
       trackEvent('test_event', { index: i });
     }
-    expect(global.navigator.sendBeacon).toHaveBeenCalledTimes(1);
+    expect(global.fetch).toHaveBeenCalledTimes(1);
   });
 
   it('truncates queue on oversized payloads', () => {
@@ -36,6 +38,6 @@ describe('telemetry', () => {
 
     flushQueue();
 
-    expect(global.navigator.sendBeacon).toHaveBeenCalled();
+    expect(global.fetch).toHaveBeenCalled();
   });
 });
