@@ -132,7 +132,7 @@ export default {
           console.error("Assessment submit failed", e);
         }
 
-        return new Response(JSON.stringify({ success: true, message: 'Assessment persisted' }), {
+        return new Response(JSON.stringify({ success: true, timestamp: Date.now() }), {
           status: 200,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
