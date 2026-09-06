@@ -106,8 +106,9 @@ function AssessmentFlow() {
     }, 80);
   };
 
+
   const advance = () => {
-    trackEvent('assessment_advance', { clusterIndex: currentClusterIndex });
+    trackEvent('assessment_advance', { clusterIndex: currentClusterIndex, timestamp: Date.now() });
     if (unansweredItems.length > 0) {
       const count = unansweredItems.length;
       setMessage(
@@ -195,10 +196,13 @@ function AssessmentFlow() {
       <QuestionCluster
         items={items}
         answers={answers}
+
         onAnswer={(itemId, value) => {
+          trackEvent('likert_selection', { itemId, value, latency: Date.now() });
           setAnswer(itemId, value);
           setMessage('');
         }}
+
         clusterIndex={currentClusterIndex}
       />
 

@@ -78,6 +78,14 @@ export default {
 
       if (request.method === 'POST' && (normalizedPathname === '/api/v1/telemetry' || normalizedPathname === '/api/telemetry')) {
         try {
+          const payloadSize = parseInt(request.headers.get('content-length') || '0', 10);
+          if (payloadSize > 64 * 1024) {
+            return new Response(JSON.stringify({ success: false, error: 'Payload too large' }), {
+              status: 413,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+          }
+
           const payload = await request.json() as any;
 
           // Log telemetry without PII
@@ -95,14 +103,18 @@ export default {
              region: request.cf?.colo || "local",
              events: logData
           }));
+
+          return new Response(JSON.stringify({ success: true, processed: events.length }), {
+            status: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
         } catch (e) {
           console.error("Telemetry ingestion failed", e);
+          return new Response(JSON.stringify({ success: false, error: 'Bad request' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
         }
-
-        return new Response(JSON.stringify({ success: true, message: 'Telemetry ingested' }), {
-          status: 200,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
       }
 
       if (request.method === 'POST' && (normalizedPathname === '/api/v1/assessment/submit' || normalizedPathname === '/api/v1/personality/submit')) {

@@ -40,3 +40,13 @@ describe('Edge Worker', () => {
     expect(response.status).toBe(200);
   });
 });
+
+  it('telemetry rejects large payloads', async () => {
+    const request = new Request('http://localhost/api/v1/telemetry', {
+      method: 'POST',
+      headers: { 'content-length': '70000' },
+      body: JSON.stringify([{ event: 'test' }])
+    });
+    const response = await worker.fetch(request, {} as any, {} as any);
+    expect(response.status).toBe(413);
+  });
