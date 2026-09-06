@@ -24,3 +24,9 @@
 - **UI & Accessibility**: Replaced "Jungian archetype" with "personality type" in public copy. Implemented keyboard arrow and numerical navigation (1-5) on `LikertInput` components. Ensured a 44px tap target size minimum across choices.
 - **Error Boundaries**: Extended `ErrorBoundary.jsx` to offer a non-destructive "Resume Assessment" option alongside standard reset methods. Added fallback defaults in `usePersonalityStore.js`'s migrate script to gracefully capture `localStorage` corruption parsing errors.
 - **Vitest configuration**: Fixed the package.json script for tests to run properly via `vitest run`.
+
+## Example Results Showcase (Sprint 3)
+- Implemented `ExampleResultPreview` to showcase the psychometric report directly on the landing page, aiming to increase conversion.
+- Highlights continuous spectrum, multi-axis landscape, probabilistic IRT confidence, actionable blueprints, and the PDF dossier.
+- Updated `personality-edge-worker` CORS policy to support `.pages.dev` for staging environments, preventing pre-flight blocks.
+- Added comprehensive Vitest tests verifying mock data rendering and annotation presence using `jsdom`.
