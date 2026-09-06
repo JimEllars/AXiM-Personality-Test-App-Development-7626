@@ -10,6 +10,8 @@ function LikertInput({ itemId, value, onChange }) {
       nextValue = Math.min(5, currentValue + 1);
     } else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
       nextValue = Math.max(1, currentValue - 1);
+    } else if (e.key >= '1' && e.key <= '5') {
+      nextValue = parseInt(e.key, 10);
     }
 
     if (nextValue !== currentValue && nextValue >= 1 && nextValue <= 5) {

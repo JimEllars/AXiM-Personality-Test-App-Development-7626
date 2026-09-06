@@ -303,24 +303,29 @@ export const usePersonalityStore = create(
       }),
 
       migrate: (persistedState) => {
-        if (!isValidSession(persistedState)) return initialState;
+        try {
+          if (!isValidSession(persistedState)) return initialState;
 
-        return {
-          ...initialState,
-          ...persistedState,
-          demographics: {
-            ...initialState.demographics,
-            ...persistedState.demographics
-          },
-          assessmentMetrics: normalizeMetrics(
-            persistedState.assessmentMetrics
-          ),
-          resultHistory: normalizeHistory(persistedState.resultHistory),
-          currentClusterIndex: Math.max(
-            0,
-            Number(persistedState.currentClusterIndex) || 0
-          )
-        };
+          return {
+            ...initialState,
+            ...persistedState,
+            demographics: {
+              ...initialState.demographics,
+              ...persistedState.demographics
+            },
+            assessmentMetrics: normalizeMetrics(
+              persistedState.assessmentMetrics
+            ),
+            resultHistory: normalizeHistory(persistedState.resultHistory),
+            currentClusterIndex: Math.max(
+              0,
+              Number(persistedState.currentClusterIndex) || 0
+            )
+          };
+        } catch (e) {
+          console.error("Failed to migrate store", e);
+          return initialState;
+        }
       }
     }
   )
