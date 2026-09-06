@@ -1,11 +1,30 @@
 {
+  "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "axim-personality-edge-worker",
   "main": "src/index.ts",
-  "compatibility_date": "2024-09-05",
+  "workers_dev": true,
+  "compatibility_date": "2026-09-05",
   "kv_namespaces": [
     {
       "binding": "PERSONALITY_CACHE_KV",
-      "id": "mock_id_for_local_dev"
+      "id": "ab970870e412443baf4e146699576ceb"
     }
-  ]
+  ],
+  "vars": {
+    "PERSONALITY_TEST_ORIGIN": "https://axim-personality-test.pages.dev"
+  },
+  "routes": [
+    {
+      "pattern": "axim.us.com/personalitytest",
+      "zone_id": "52097b74779e6705f5994d247fd17846"
+    },
+    {
+      "pattern": "axim.us.com/personalitytest/*",
+      "zone_id": "52097b74779e6705f5994d247fd17846"
+    }
+  ],
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  }
 }

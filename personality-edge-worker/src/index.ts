@@ -1,5 +1,6 @@
 export interface Env {
   PERSONALITY_CACHE_KV: KVNamespace;
+  PERSONALITY_TEST_ORIGIN: string;
   SUPABASE_URL: string;
   SUPABASE_SERVICE_ROLE_KEY: string;
   RESEND_API_KEY: string;
@@ -28,19 +29,37 @@ const getCorsHeaders = (request: Request) => {
   };
 };
 
+const personalityTestPrefix = '/personalitytest';
+
+function isPersonalityTestRequest(pathname: string): boolean {
+  return pathname === personalityTestPrefix || pathname.startsWith(`${personalityTestPrefix}/`);
+}
+
+function proxyPersonalityTest(request: Request, origin: string): Promise<Response> {
+  const requestUrl = new URL(request.url);
+  const originUrl = new URL(origin);
+  const upstreamUrl = new URL(requestUrl.pathname.slice(personalityTestPrefix.length) || '/', originUrl);
+  upstreamUrl.search = requestUrl.search;
+
+  return fetch(new Request(upstreamUrl, request));
+}
+
 export default {
   async fetch(
     request: Request,
     env: Env,
     ctx: ExecutionContext
   ): Promise<Response> {
+    const url = new URL(request.url);
+    if (isPersonalityTestRequest(url.pathname)) {
+      return proxyPersonalityTest(request, env.PERSONALITY_TEST_ORIGIN);
+    }
+
     const corsHeaders = getCorsHeaders(request);
 
     if (request.method === 'OPTIONS') {
       return new Response(null, { headers: corsHeaders });
     }
-
-    const url = new URL(request.url);
 
     try {
       if (request.method === 'GET' && url.pathname === '/health') {
