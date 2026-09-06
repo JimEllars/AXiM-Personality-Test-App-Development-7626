@@ -47,9 +47,17 @@ export default {
     ctx: ExecutionContext
   ): Promise<Response> {
     const url = new URL(request.url);
-    if (isPersonalityTestRequest(url.pathname)) {
+    let normalizedPathname = url.pathname;
+
+    // Normalize path matching: Strip any /personalitytest subpath prefix
+    if (normalizedPathname.startsWith(personalityTestPrefix)) {
+      normalizedPathname = normalizedPathname.slice(personalityTestPrefix.length) || '/';
+    }
+
+    if (isPersonalityTestRequest(url.pathname) && !normalizedPathname.includes('/api/') && !normalizedPathname.endsWith('/health')) {
       return proxyPersonalityTest(request, env.PERSONALITY_TEST_ORIGIN);
     }
+
 
     const corsHeaders = getCorsHeaders(request);
 
@@ -58,7 +66,7 @@ export default {
     }
 
     try {
-      if (request.method === 'GET' && (url.pathname === '/health' || url.pathname === '/api/health')) {
+      if (request.method === 'GET' && (normalizedPathname === '/health' || normalizedPathname === '/api/health')) {
         return new Response(JSON.stringify({
           status: "healthy",
           region: request.cf?.colo || "local",
@@ -68,7 +76,7 @@ export default {
         });
       }
 
-      if (request.method === 'POST' && (url.pathname === '/api/v1/telemetry' || url.pathname === '/api/telemetry')) {
+      if (request.method === 'POST' && (normalizedPathname === '/api/v1/telemetry' || normalizedPathname === '/api/telemetry')) {
         try {
           const payload = await request.json() as any;
 
@@ -78,7 +86,10 @@ export default {
             event: e.event,
             latency: e.latency || null,
             error: e.error || null,
-            screen: e.screen || null
+            screen: e.screen || null,
+            timeToComplete: e.timeToComplete || null,
+            transitionLatency: e.transitionLatency || null,
+            errorCount: e.errorCount || null
           }));
           console.log("Telemetry ingested:", JSON.stringify({
              region: request.cf?.colo || "local",
@@ -94,7 +105,7 @@ export default {
         });
       }
 
-      if (request.method === 'POST' && (url.pathname === '/api/v1/assessment/submit' || url.pathname === '/api/v1/personality/submit')) {
+      if (request.method === 'POST' && (normalizedPathname === '/api/v1/assessment/submit' || normalizedPathname === '/api/v1/personality/submit')) {
         try {
           const payload = await request.json() as any;
 
@@ -105,6 +116,18 @@ export default {
             completedAt: payload.completedAt,
             region: request.cf?.colo || "local"
           });
+
+          // Write a rolling aggregation summary of anonymous completions (counts per archetype) if KV bound
+          if (env.PERSONALITY_CACHE_KV && payload.assignedArchetype) {
+            try {
+              const countsStr = await env.PERSONALITY_CACHE_KV.get('archetype_counts');
+              const counts = countsStr ? JSON.parse(countsStr) : {};
+              counts[payload.assignedArchetype] = (counts[payload.assignedArchetype] || 0) + 1;
+              await env.PERSONALITY_CACHE_KV.put('archetype_counts', JSON.stringify(counts));
+            } catch (err) {
+              console.error("Failed to update archetype_counts in KV", err);
+            }
+          }
         } catch (e) {
           console.error("Assessment submit failed", e);
         }
@@ -115,7 +138,7 @@ export default {
         });
       }
 
-      if (request.method === 'POST' && url.pathname === '/api/v1/personality/email-report') {
+      if (request.method === 'POST' && normalizedPathname === '/api/v1/personality/email-report') {
         try {
           const payload = await request.json() as { email: string, archetype: string, pdfBase64?: string, sessionToken?: string };
 
@@ -131,7 +154,7 @@ export default {
         });
       }
 
-      if (request.method === 'GET' && url.pathname === '/api/v1/personality/benchmarks') {
+      if (request.method === 'GET' && normalizedPathname === '/api/v1/personality/benchmarks') {
         let benchmarks;
         try {
            benchmarks = await env.PERSONALITY_CACHE_KV?.get('benchmarks', { type: 'json' });

@@ -1,4 +1,4 @@
-const WORKER_URL = import.meta.env.VITE_EDGE_WORKER_URL || (import.meta.env.PROD ? '' : 'http://localhost:8787');
+const WORKER_URL = import.meta.env.VITE_EDGE_WORKER_URL || (import.meta.env.PROD ? (import.meta.env.BASE_URL.replace(/\/$/, '') || '') : 'http://localhost:8787');
 const TELEMETRY_ENDPOINT = `${WORKER_URL}/api/telemetry`;
 
 let eventQueue = [];

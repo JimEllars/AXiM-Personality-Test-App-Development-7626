@@ -86,7 +86,7 @@ function ExampleResultPreview({ onStart }) {
           <div className="mock-functional-stack">
             {mockFunctionalStack.map(func => (
               <div key={func.label} className="mock-function-row">
-                <span className="mock-function-label">{func.label}</span>
+                <span className="mock-function-label">{func.label} &middot; {func.name}</span>
                 <div className="mock-function-bar-bg">
                   <div
                     className="mock-function-bar-fill"

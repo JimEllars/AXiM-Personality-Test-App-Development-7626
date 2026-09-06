@@ -24,6 +24,7 @@ function IntroView({
   totalQuestions = 64
 }) {
   const progress = Math.round((answeredCount / totalQuestions) * 100);
+  const isAuthenticated = !!localStorage.getItem('axim_passport_token');
 
   return (
     <main className="intro-shell">
@@ -32,6 +33,11 @@ function IntroView({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >
+                {isAuthenticated && (
+          <div style={{ display: 'inline-block', background: '#07111f', color: '#5ee4c4', border: '1px solid #5ee4c4', padding: '0.25rem 0.75rem', borderRadius: '999px', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '1rem' }}>
+            Welcome back, AXiM User
+          </div>
+        )}
         <div className="eyebrow">
           <span />
           Cognitive profile assessment
