@@ -15,8 +15,24 @@ describe('Edge Worker', () => {
     expect(data.status).toBe('healthy');
   });
 
+  it('health check returns status even with subpath', async () => {
+    const request = new Request('http://localhost/personalitytest/health', { method: 'GET' });
+    const response = await worker.fetch(request, {} as any, {} as any);
+    const data: any = await response.json();
+    expect(data.status).toBe('healthy');
+  });
+
   it('telemetry accepts payload', async () => {
     const request = new Request('http://localhost/api/v1/telemetry', {
+      method: 'POST',
+      body: JSON.stringify([{ event: 'test' }])
+    });
+    const response = await worker.fetch(request, {} as any, {} as any);
+    expect(response.status).toBe(200);
+  });
+
+  it('telemetry accepts payload even with subpath', async () => {
+    const request = new Request('http://localhost/personalitytest/api/v1/telemetry', {
       method: 'POST',
       body: JSON.stringify([{ event: 'test' }])
     });

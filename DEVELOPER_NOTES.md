@@ -30,3 +30,9 @@
 - Highlights continuous spectrum, multi-axis landscape, probabilistic IRT confidence, actionable blueprints, and the PDF dossier.
 - Updated `personality-edge-worker` CORS policy to support `.pages.dev` for staging environments, preventing pre-flight blocks.
 - Added comprehensive Vitest tests verifying mock data rendering and annotation presence using `jsdom`.
+
+## API Routing & Layout Polish (Sprint 4)
+- **Cloudflare Subpath Routing**: Disambiguated `/personalitytest` edge worker paths, allowing identical parsing regardless of origin base paths (`import.meta.env.BASE_URL`).
+- **Telemetry Payload Additions**: Appended `timeToComplete`, `transitionLatency`, and `errorCount` parameters for enhanced observability. Bound Edge KV limits to aggregate basic psychometric population counts per-type automatically upon submit.
+- **Example Results Showcase Polish**: Augmented `ExampleResultPreview` to list the cognitive function's full name alongside the key (e.g. `Ni · Introverted Intuition`). Adjusted CSS for optimal visual positioning on tablets (`@media max-width: 1024px`) and refined touch targets + A11y focus states for CTA buttons.
+- **SSO Welcome Greeting**: Extracted Passport SSO authentication state (`axim_passport_token`) to dynamically render a "Welcome back, [Name]" badge above the hero kicker on the `IntroView`.
