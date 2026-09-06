@@ -551,6 +551,9 @@ footer {
   color: #6e8892;
   font-size: 9px;
   cursor: pointer;
+
+  min-width: 44px;
+  min-height: 44px;
 }
 
 .likert-option input {

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { trackEvent } from '../src/services/telemetry';
+import { trackEvent, getQueue_forTesting, setQueue_forTesting, flushQueue } from '../src/services/telemetry';
 
 describe('telemetry', () => {
   beforeEach(() => {
@@ -27,5 +27,14 @@ describe('telemetry', () => {
       trackEvent('test_event', { index: i });
     }
     expect(global.navigator.sendBeacon).toHaveBeenCalledTimes(1);
+  });
+
+  it('truncates queue on oversized payloads', () => {
+    const largeQueue = Array.from({ length: 60 }).map((_, i) => ({ event: 'test', id: i }));
+    setQueue_forTesting(largeQueue);
+
+    flushQueue();
+
+    expect(global.navigator.sendBeacon).toHaveBeenCalled();
   });
 });
