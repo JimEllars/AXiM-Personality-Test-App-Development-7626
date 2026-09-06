@@ -36,13 +36,20 @@ class ErrorBoundary extends React.Component {
           <span className="eyebrow">
             <span /> Temporary interruption
           </span>
-          <h1>Something needs a reset.</h1>
+          <h1>Something went wrong.</h1>
           <p>
-            Your assessment could not be displayed. Try reloading first. If
-            the problem continues, clear the saved local session and begin
-            again.
+            Your assessment could not be displayed.
           </p>
           <div className="error-state-actions">
+            <button
+              className="primary-button"
+              type="button"
+              onClick={() => {
+                  this.setState({ hasError: false });
+              }}
+            >
+              Resume Assessment
+            </button>
             <button
               className="secondary-button"
               type="button"
@@ -51,7 +58,7 @@ class ErrorBoundary extends React.Component {
               Reload page
             </button>
             <button
-              className="primary-button"
+              className="secondary-button"
               type="button"
               onClick={() => this.resetApp()}
             >

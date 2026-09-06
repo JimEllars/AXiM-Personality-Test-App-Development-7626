@@ -13,13 +13,9 @@ const getCorsHeaders = (request: Request) => {
   // Allow localhost for dev, staging preview domains, and our production domains.
   // Using '*' might have issues with credentials if we need them later.
   // But for now, we just reflect the origin if it matches expected patterns, or use a wildcard as fallback
-  let allowOrigin = '*';
-  if (origin) {
-    if (origin.startsWith('http://localhost') ||
-        origin.includes('.pages.dev') ||
-        origin.includes('axim.us.com')) {
-      allowOrigin = origin;
-    }
+  let allowOrigin = 'https://axim.us.com';
+  if (origin && (origin.startsWith('http://localhost') || origin === 'https://axim.us.com')) {
+    allowOrigin = origin;
   }
 
   return {
@@ -62,7 +58,7 @@ export default {
     }
 
     try {
-      if (request.method === 'GET' && url.pathname === '/health') {
+      if (request.method === 'GET' && (url.pathname === '/health' || url.pathname === '/api/health')) {
         return new Response(JSON.stringify({
           status: "healthy",
           region: request.cf?.colo || "local",
@@ -72,7 +68,7 @@ export default {
         });
       }
 
-      if (request.method === 'POST' && url.pathname === '/api/v1/telemetry') {
+      if (request.method === 'POST' && (url.pathname === '/api/v1/telemetry' || url.pathname === '/api/telemetry')) {
         try {
           const payload = await request.json() as any;
 
@@ -92,9 +88,9 @@ export default {
           console.error("Telemetry ingestion failed", e);
         }
 
-        return new Response(null, {
-          status: 202,
-          headers: corsHeaders,
+        return new Response(JSON.stringify({ success: true, message: 'Telemetry ingested' }), {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
 

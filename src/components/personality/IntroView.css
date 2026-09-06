@@ -78,3 +78,7 @@
     width: 100%;
   }
 }
+.likert-option {
+  min-height: 44px;
+  min-width: 44px;
+}

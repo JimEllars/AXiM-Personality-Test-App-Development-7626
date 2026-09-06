@@ -41,7 +41,7 @@ function IntroView({
 
         <p className="hero-copy">
           Go beyond a four-letter label. Map eight cognitive functions on a
-          continuous spectrum and reveal your closest Jungian archetype.
+          continuous spectrum and reveal your closest personality type.
         </p>
 
         {hasSavedAssessment ? (

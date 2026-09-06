@@ -1,5 +1,5 @@
 const WORKER_URL = import.meta.env.VITE_EDGE_WORKER_URL || (import.meta.env.PROD ? '' : 'http://localhost:8787');
-const TELEMETRY_ENDPOINT = `${WORKER_URL}/api/v1/telemetry`;
+const TELEMETRY_ENDPOINT = `${WORKER_URL}/api/telemetry`;
 
 let eventQueue = [];
 let flushTimeout = null;
@@ -24,6 +24,18 @@ export function flushQueue() {
   try {
     const data = JSON.stringify(payload);
 
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        // Offline buffer
+        try {
+            const stored = JSON.parse(localStorage.getItem('axim_telemetry_offline') || '[]');
+            stored.push(...payload);
+            localStorage.setItem('axim_telemetry_offline', JSON.stringify(stored.slice(-MAX_PAYLOAD_SIZE)));
+        } catch (e) {
+            console.warn("Failed to write to offline telemetry buffer");
+        }
+        return;
+    }
+
     // Attempt sendBeacon first
     if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
       const blob = new Blob([data], { type: 'application/json' });
@@ -38,7 +50,14 @@ export function flushQueue() {
         headers: { 'Content-Type': 'application/json' },
         body: data,
         keepalive: true
-      }).catch(() => {});
+      }).catch((e) => {
+          // Add back to offline buffer on fail
+          try {
+            const stored = JSON.parse(localStorage.getItem('axim_telemetry_offline') || '[]');
+            stored.push(...payload);
+            localStorage.setItem('axim_telemetry_offline', JSON.stringify(stored.slice(-MAX_PAYLOAD_SIZE)));
+        } catch (err) {}
+      });
     }
   } catch (error) {
     console.error('Telemetry flush error:', error);
@@ -77,6 +96,21 @@ export function trackError(error, errorInfo = {}) {
   });
 }
 
+
+export function flushOfflineQueue() {
+    if (typeof navigator !== 'undefined' && !navigator.onLine) return;
+    try {
+        const stored = JSON.parse(localStorage.getItem('axim_telemetry_offline') || '[]');
+        if (stored.length > 0) {
+            eventQueue.push(...stored);
+            localStorage.removeItem('axim_telemetry_offline');
+            flushQueue();
+        }
+    } catch (e) {
+        // Silent catch
+    }
+}
+
 // Ensure delivery during navigation/unload
 if (typeof window !== 'undefined') {
   window.addEventListener('pagehide', flushQueue);
@@ -85,6 +119,7 @@ if (typeof window !== 'undefined') {
       flushQueue();
     }
   });
+  window.addEventListener('online', flushOfflineQueue);
 }
 
 export function getQueue_forTesting() {

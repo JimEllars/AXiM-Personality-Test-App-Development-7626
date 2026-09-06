@@ -16,3 +16,11 @@
 - **Dynamic Imports & PDF**: Hardcoded Helvetica standard fonts as the base fallback in `@react-pdf/renderer` profiles to eliminate client-side web font loading exceptions entirely.
 - **Canvas Polish**: Forced `window.devicePixelRatio` scaling inside `createArchetypeCard` so badge vectors render crisply without anti-aliasing blur on mobile Retina displays.
 - **A11y (Accessibility) Polish**: Corrected missing ARIA mappings (`role="radiogroup"`, `role="radio"`, `aria-checked`) across `LikertInput` and `QuestionCluster`. Wired Up/Down/Left/Right arrow keys for keyboard navigation across psychometric items. Enforced a minimum touch target area of 44x44px.
+
+## Telemetry Resilience, UI Updates & Production Hardening
+- **Telemetry Resilience**: Updated `telemetry.js` to buffer events in `localStorage` (`axim_telemetry_offline`) when offline or on failure, resuming when `online` event triggers. Handlers moved to `api/telemetry` instead of `api/v1/telemetry`.
+- **Edge Worker Updates**: Updated CORS to only allow `https://axim.us.com` and `http://localhost:*`. Corrected status code mapping to 200 responses as required. Added an `api/health` and `/health` route.
+- **Routing Base**: Updated `vite.config.js` to ensure the subpath is set to `/personalitytest/`.
+- **UI & Accessibility**: Replaced "Jungian archetype" with "personality type" in public copy. Implemented keyboard arrow and numerical navigation (1-5) on `LikertInput` components. Ensured a 44px tap target size minimum across choices.
+- **Error Boundaries**: Extended `ErrorBoundary.jsx` to offer a non-destructive "Resume Assessment" option alongside standard reset methods. Added fallback defaults in `usePersonalityStore.js`'s migrate script to gracefully capture `localStorage` corruption parsing errors.
+- **Vitest configuration**: Fixed the package.json script for tests to run properly via `vitest run`.

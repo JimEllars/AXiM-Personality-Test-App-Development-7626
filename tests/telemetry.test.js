@@ -4,10 +4,11 @@ import { trackEvent, getQueue_forTesting, setQueue_forTesting, flushQueue } from
 describe('telemetry', () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    Object.defineProperty(global, 'navigator', {
+        Object.defineProperty(global, 'navigator', {
       value: {
         sendBeacon: vi.fn().mockReturnValue(true),
-        userAgent: 'test-agent'
+        userAgent: 'test-agent',
+        onLine: true
       },
       writable: true,
       configurable: true
