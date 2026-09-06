@@ -1,6 +1,6 @@
 import React, { useState, Suspense, lazy } from 'react';
 
-const PDFDownloadLink = lazy(() => import('@react-pdf/renderer').then(module => ({ default: module.PDFDownloadLink })));
+// PDF dependencies are loaded on demand later
 const PersonalityReportDocument = lazy(() => import('../../lib/pdf/PersonalityReportDocument'));
 
 
@@ -12,7 +12,8 @@ import { ARCHETYPE_DETAILS, FUNCTION_NAMES } from '../../data/archetypes';
 import { usePersonalityStore } from '../../store/usePersonalityStore';
 import { trackEvent } from '../../services/telemetry';
 
-import RadarProfileChart from './RadarProfileChart';
+const RadarProfileChart = lazy(() => import('./RadarProfileChart'));
+const ThetaTrendCharts = lazy(() => import('./ThetaTrendCharts'));
 import ArchetypeComparisonView from './ArchetypeComparisonView';
 import ArchetypeCompatibilityMatrix from './ArchetypeCompatibilityMatrix';
 import ArchetypeConversationGuide from './ArchetypeConversationGuide';
@@ -23,11 +24,13 @@ import MethodologyPanel from './MethodologyPanel';
 import PsychometricConfidencePanel from './PsychometricConfidencePanel';
 import ResultsToolbar from './ResultsToolbar';
 import ScoreComparisonPanel from './ScoreComparisonPanel';
-import ThetaTrendCharts from './ThetaTrendCharts';
 
 const { FiCheck, FiDownload, FiRefreshCw, FiShare2, FiUserPlus } = FiIcons;
 
+let PDFDownloadLink = null;
+
 function ResultView() {
+  const [pdfReady, setPdfReady] = useState(false);
   const store = usePersonalityStore();
   const details = ARCHETYPE_DETAILS[store.assignedArchetype] || [
     'Your cognitive profile',
@@ -84,35 +87,47 @@ function ResultView() {
 
         <div className="result-actions">
 
-          <Suspense fallback={<button className="primary-button" disabled>Preparing report... <SafeIcon icon={FiDownload} /></button>}>
-            <ErrorBoundary fallback={<button className="primary-button" disabled>Report unavailable <SafeIcon icon={FiDownload} /></button>} onError={() => trackEvent('pdf_generation_error')}>
-          <PDFDownloadLink
-            className="primary-button"
-            document={
-              <PersonalityReportDocument
-                archetype={store.assignedArchetype}
-                thetaScores={store.thetaScores}
-                generatedAt={new Date().toLocaleDateString()}
-              />
-            }
-            fileName={`AXiM-${store.assignedArchetype || 'Profile'}-Profile.pdf`}
-            onClick={() => trackEvent('pdf_download_attempt')}
-          >
-            {({ loading, error }) => {
-              if (error) trackEvent('pdf_generation_error', { error: error.message });
-              return (
-              <>
-                {error
-                  ? 'Report unavailable'
-                  : loading
-                    ? 'Preparing report…'
-                    : 'Download report'}
-                <SafeIcon icon={FiDownload} />
-              </>
-            )}}
-          </PDFDownloadLink>
-          </ErrorBoundary>
-        </Suspense>
+          {pdfReady ? (
+            <Suspense fallback={<button className="primary-button" disabled>Preparing report... <SafeIcon icon={FiDownload} /></button>}>
+              <ErrorBoundary fallback={<button className="primary-button" disabled>Report unavailable <SafeIcon icon={FiDownload} /></button>} onError={() => trackEvent('pdf_generation_error')}>
+                {PDFDownloadLink && (
+                  <PDFDownloadLink
+                    className="primary-button"
+                    document={
+                      <PersonalityReportDocument
+                        archetype={store.assignedArchetype}
+                        thetaScores={store.thetaScores}
+                        generatedAt={new Date().toLocaleDateString()}
+                      />
+                    }
+                    fileName={`AXiM-${store.assignedArchetype || 'Profile'}-Profile.pdf`}
+                    onClick={() => trackEvent('pdf_download_attempt')}
+                  >
+                    {({ loading, error }) => {
+                      if (error) trackEvent('pdf_generation_error', { error: error.message });
+                      return (
+                        <>
+                          {error ? 'Report unavailable' : loading ? 'Preparing report…' : 'Download report'}
+                          <SafeIcon icon={FiDownload} />
+                        </>
+                      );
+                    }}
+                  </PDFDownloadLink>
+                )}
+              </ErrorBoundary>
+            </Suspense>
+          ) : (
+            <button className="primary-button" type="button" onClick={async () => {
+              trackEvent('pdf_preparation_started');
+              if (!PDFDownloadLink) {
+                 const pdfModule = await import('@react-pdf/renderer');
+                 PDFDownloadLink = pdfModule.PDFDownloadLink;
+              }
+              setPdfReady(true);
+            }}>
+              Prepare report <SafeIcon icon={FiDownload} />
+            </button>
+          )}
 
 
           <button className="secondary-button" type="button" onClick={share}>
@@ -168,7 +183,7 @@ function ResultView() {
               <small>pattern match</small>
             </div>
           </div>
-          <ErrorBoundary><RadarProfileChart scores={store.thetaScores} /></ErrorBoundary>
+          <ErrorBoundary><Suspense fallback={<div className="chart-placeholder">Loading chart...</div>}><RadarProfileChart scores={store.thetaScores} /></Suspense></ErrorBoundary>
         </div>
 
         <div className="result-panel">
@@ -207,7 +222,7 @@ function ResultView() {
       />
       </ErrorBoundary>
 
-      <ThetaTrendCharts />
+      <Suspense fallback={<div className="chart-placeholder">Loading chart...</div>}><ThetaTrendCharts /></Suspense>
       <ErrorBoundary><ScoreComparisonPanel /></ErrorBoundary>
       <MethodologyPanel />
       <ArchetypeComparisonView

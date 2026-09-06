@@ -40,7 +40,7 @@ const handleKeyDown = (e) => {
           key={anchor.value}
           role="radio"
           aria-checked={value === anchor.value}
-          tabIndex={0}
+          tabIndex={value === anchor.value || (!value && anchor.value === 1) ? 0 : -1}
           onKeyDown={(e) => {
              if (e.key === 'Enter' || e.key === ' ') {
                e.preventDefault();
@@ -50,13 +50,7 @@ const handleKeyDown = (e) => {
           className={`likert-option ${value === anchor.value ? 'selected' : ''}`}
           title={`${anchor.label}. Keyboard shortcut: ${anchor.value}`}
         >
-          <input
-            type="radio"
-            name={itemId}
-            value={anchor.value}
-            checked={value === anchor.value}
-            onChange={() => handleChange(anchor.value)}
-          />
+          <input type="radio" name={itemId} value={anchor.value} checked={value === anchor.value} onChange={() => handleChange(anchor.value)} tabIndex={-1} aria-hidden="true" />
           <span className="likert-circle">{anchor.value}</span>
           <small>{anchor.short}</small>
         </label>

@@ -37,7 +37,7 @@ export function flushQueue() {
     }
 
     // Attempt sendBeacon first
-    if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
+    if (typeof navigator !== 'undefined' && navigator.sendBeacon && !TELEMETRY_ENDPOINT.includes('localhost') && !import.meta.env.DEV) {
       const blob = new Blob([data], { type: 'application/json' });
       const success = navigator.sendBeacon(TELEMETRY_ENDPOINT, blob);
       if (success) return;

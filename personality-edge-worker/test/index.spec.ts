@@ -28,7 +28,7 @@ describe('Edge Worker', () => {
       body: JSON.stringify([{ event: 'test' }])
     });
     const response = await worker.fetch(request, {} as any, {} as any);
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(202);
   });
 
   it('telemetry accepts payload even with subpath', async () => {
@@ -37,7 +37,7 @@ describe('Edge Worker', () => {
       body: JSON.stringify([{ event: 'test' }])
     });
     const response = await worker.fetch(request, {} as any, {} as any);
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(202);
   });
 });
 

@@ -14,7 +14,7 @@ const getCorsHeaders = (request: Request) => {
   // Using '*' might have issues with credentials if we need them later.
   // But for now, we just reflect the origin if it matches expected patterns, or use a wildcard as fallback
   let allowOrigin = 'https://axim.us.com';
-  if (origin && (origin.startsWith('http://localhost') || origin === 'https://axim.us.com' || origin.endsWith('.pages.dev'))) {
+  if (origin && (origin.startsWith('http://localhost') || origin === 'https://axim.us.com' || origin.endsWith('.axim.us.com') || origin.endsWith('.pages.dev'))) {
     allowOrigin = origin;
   }
 
@@ -105,7 +105,7 @@ export default {
           }));
 
           return new Response(JSON.stringify({ success: true, processed: events.length }), {
-            status: 200,
+            status: 202,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
         } catch (e) {

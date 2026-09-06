@@ -162,7 +162,7 @@ button:disabled {
   color: var(--mint);
 }
 
-.likert-option input:focus-visible + .likert-circle {
+.likert-option:focus-visible .likert-circle {
   outline: 0;
   box-shadow: var(--focus-ring);
 }
@@ -364,9 +364,28 @@ footer::before {
   }
 }
 @media (max-width: 640px) {
+  .likert {
+    display: flex;
+    justify-content: space-between;
+    gap: 4px;
+    width: 100%;
+  }
+
   .likert-option {
     min-width: 44px;
     min-height: 44px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .likert-option small {
+    font-size: 10px;
+    text-align: center;
+    white-space: normal;
+    word-break: break-word;
+    max-width: 100%;
   }
 
   .likert-circle {
