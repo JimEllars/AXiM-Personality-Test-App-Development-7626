@@ -10,6 +10,7 @@ import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../../common/SafeIcon';
 import { ARCHETYPE_DETAILS, FUNCTION_NAMES } from '../../data/archetypes';
 import { usePersonalityStore } from '../../store/usePersonalityStore';
+import { trackEvent } from '../../services/telemetry';
 
 import RadarProfileChart from './RadarProfileChart';
 import ArchetypeComparisonView from './ArchetypeComparisonView';
@@ -82,7 +83,9 @@ function ResultView() {
         <p className="result-description">{description}</p>
 
         <div className="result-actions">
+
           <Suspense fallback={<button className="primary-button" disabled>Preparing report... <SafeIcon icon={FiDownload} /></button>}>
+            <ErrorBoundary fallback={<button className="primary-button" disabled>Report unavailable <SafeIcon icon={FiDownload} /></button>} onError={() => trackEvent('pdf_generation_error')}>
           <PDFDownloadLink
             className="primary-button"
             document={
@@ -93,8 +96,11 @@ function ResultView() {
               />
             }
             fileName={`AXiM-${store.assignedArchetype || 'Profile'}-Profile.pdf`}
+            onClick={() => trackEvent('pdf_download_attempt')}
           >
-            {({ loading, error }) => (
+            {({ loading, error }) => {
+              if (error) trackEvent('pdf_generation_error', { error: error.message });
+              return (
               <>
                 {error
                   ? 'Report unavailable'
@@ -103,9 +109,11 @@ function ResultView() {
                     : 'Download report'}
                 <SafeIcon icon={FiDownload} />
               </>
-            )}
+            )}}
           </PDFDownloadLink>
+          </ErrorBoundary>
         </Suspense>
+
 
           <button className="secondary-button" type="button" onClick={share}>
             Share result
@@ -160,7 +168,7 @@ function ResultView() {
               <small>pattern match</small>
             </div>
           </div>
-          <ErrorBoundary><RadarProfileChart scores={safeThetas} /></ErrorBoundary>
+          <ErrorBoundary><RadarProfileChart scores={store.thetaScores} /></ErrorBoundary>
         </div>
 
         <div className="result-panel">

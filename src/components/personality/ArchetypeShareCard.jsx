@@ -3,6 +3,7 @@ import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../../common/SafeIcon';
 import { ARCHETYPE_DETAILS, FUNCTION_NAMES } from '../../data/archetypes';
 import { usePersonalityStore } from '../../store/usePersonalityStore';
+import { trackEvent } from '../../services/telemetry';
 import {
   createArchetypeCard,
   downloadDataUrl
@@ -85,7 +86,8 @@ function ArchetypeShareCard() {
     }
   };
 
-  const downloadCard = () => {
+const downloadCard = () => {
+    trackEvent('share_card_download_attempt');
     try {
       const dataUrl = createArchetypeCard({
         archetype: assignedArchetype,
@@ -101,8 +103,10 @@ function ArchetypeShareCard() {
 
       downloadDataUrl(dataUrl, `AXiM-${safeArchetype}-Share-Card.png`);
       showMessage('Share card downloaded.');
-    } catch {
+      trackEvent('share_card_download_success');
+    } catch (err) {
       showMessage('Share card generation is unavailable.');
+      trackEvent('share_card_download_error', { error: err.message });
     }
   };
 

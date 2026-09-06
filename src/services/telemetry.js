@@ -27,9 +27,9 @@ export function flushQueue() {
     if (typeof navigator !== 'undefined' && !navigator.onLine) {
         // Offline buffer
         try {
-            const stored = JSON.parse(localStorage.getItem('axim_telemetry_offline') || '[]');
+            const stored = JSON.parse(localStorage.getItem('axim_telemetry_queue') || '[]');
             stored.push(...payload);
-            localStorage.setItem('axim_telemetry_offline', JSON.stringify(stored.slice(-MAX_PAYLOAD_SIZE)));
+            localStorage.setItem('axim_telemetry_queue', JSON.stringify(stored.slice(-MAX_PAYLOAD_SIZE)));
         } catch (e) {
             console.warn("Failed to write to offline telemetry buffer");
         }
@@ -53,9 +53,9 @@ export function flushQueue() {
       }).catch((e) => {
           // Add back to offline buffer on fail
           try {
-            const stored = JSON.parse(localStorage.getItem('axim_telemetry_offline') || '[]');
+            const stored = JSON.parse(localStorage.getItem('axim_telemetry_queue') || '[]');
             stored.push(...payload);
-            localStorage.setItem('axim_telemetry_offline', JSON.stringify(stored.slice(-MAX_PAYLOAD_SIZE)));
+            localStorage.setItem('axim_telemetry_queue', JSON.stringify(stored.slice(-MAX_PAYLOAD_SIZE)));
         } catch (err) { /* silent catch */ }
       });
     }
@@ -100,10 +100,10 @@ export function trackError(error, errorInfo = {}) {
 export function flushOfflineQueue() {
     if (typeof navigator !== 'undefined' && !navigator.onLine) return;
     try {
-        const stored = JSON.parse(localStorage.getItem('axim_telemetry_offline') || '[]');
+        const stored = JSON.parse(localStorage.getItem('axim_telemetry_queue') || '[]');
         if (stored.length > 0) {
             eventQueue.push(...stored);
-            localStorage.removeItem('axim_telemetry_offline');
+            localStorage.removeItem('axim_telemetry_queue');
             flushQueue();
         }
     } catch (e) {

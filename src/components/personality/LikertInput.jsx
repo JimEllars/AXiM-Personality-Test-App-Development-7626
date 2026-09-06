@@ -2,7 +2,7 @@ import React from 'react';
 import { LIKERT_ANCHORS } from '../../data/questionBank';
 
 function LikertInput({ itemId, value, onChange }) {
-  const handleKeyDown = (e) => {
+const handleKeyDown = (e) => {
     const currentValue = value || 0;
     let nextValue = currentValue;
 
@@ -12,6 +12,10 @@ function LikertInput({ itemId, value, onChange }) {
       nextValue = Math.max(1, currentValue - 1);
     } else if (e.key >= '1' && e.key <= '5') {
       nextValue = parseInt(e.key, 10);
+    } else if (e.key === 'Enter' || e.key === ' ') {
+      // Allow enter/space to toggle current focused input if somehow needed
+      // Actually standard radio inputs natively handle Space.
+      return;
     }
 
     if (nextValue !== currentValue && nextValue >= 1 && nextValue <= 5) {
@@ -36,6 +40,13 @@ function LikertInput({ itemId, value, onChange }) {
           key={anchor.value}
           role="radio"
           aria-checked={value === anchor.value}
+          tabIndex={0}
+          onKeyDown={(e) => {
+             if (e.key === 'Enter' || e.key === ' ') {
+               e.preventDefault();
+               handleChange(anchor.value);
+             }
+          }}
           className={`likert-option ${value === anchor.value ? 'selected' : ''}`}
           title={`${anchor.label}. Keyboard shortcut: ${anchor.value}`}
         >

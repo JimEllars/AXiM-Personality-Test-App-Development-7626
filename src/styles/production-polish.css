@@ -363,3 +363,17 @@ footer::before {
     transform: none;
   }
 }
+@media (max-width: 640px) {
+  .likert-option {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .likert-circle {
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
