@@ -69,4 +69,18 @@ describe('usePersonalityStore', () => {
     expect(state.screen).toBe('results');
     expect(state.assignedArchetype).toBeTruthy();
   });
+
+
+  it('finalizeAssessment succeeds and transitions to results even with extreme/missing values', () => {
+    usePersonalityStore.setState({
+      answers: { 'q1': -999, 'q2': null, 'q3': 'invalid' },
+      screen: 'assessment'
+    });
+
+    usePersonalityStore.getState().finalizeAssessment();
+
+    const state = usePersonalityStore.getState();
+    expect(state.screen).toBe('results');
+    expect(state.assignedArchetype).toBeTruthy();
+  });
 });

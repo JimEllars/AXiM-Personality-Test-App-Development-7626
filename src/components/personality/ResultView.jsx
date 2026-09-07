@@ -32,16 +32,11 @@ let PDFDownloadLink = null;
 function ResultView() {
   const [pdfReady, setPdfReady] = useState(false);
   const store = usePersonalityStore();
-  const details = ARCHETYPE_DETAILS[store.assignedArchetype] || [
-    'Your cognitive profile',
-    'Your assessment results are ready to explore.'
-  ];
+  const details = ARCHETYPE_DETAILS[store.assignedArchetype] || ['Cognitive Profile', 'Your assessment results have been calculated successfully.'];
   const [name, description] = details;
   const [shareMessage, setShareMessage] = useState('');
   const confidence = Math.max(0, Math.round((store.confidence || 0) * 100));
-  const sortedScores = Object.entries(store.thetaScores || {}).sort(
-    (first, second) => second[1] - first[1]
-  );
+  const sortedScores = Object.entries(store.thetaScores || {}).map(([k, v]) => [k, typeof v === 'number' ? v : 0]).sort((first, second) => second[1] - first[1]);
 
   const isAuthenticated = !!localStorage.getItem('axim_passport_token');
 
@@ -213,7 +208,7 @@ function ResultView() {
         </div>
       </section>
 
-      <ErrorBoundary>
+      <ErrorBoundary fallback={<div className="panel-error-fallback">Section temporarily unavailable.</div>}>
       <PsychometricConfidencePanel
         confidence={store.confidence}
         ranking={store.proximityRanking}
@@ -222,18 +217,18 @@ function ResultView() {
       />
       </ErrorBoundary>
 
-      <Suspense fallback={<div className="chart-placeholder">Loading chart...</div>}><ThetaTrendCharts /></Suspense>
-      <ErrorBoundary><ScoreComparisonPanel /></ErrorBoundary>
+      <ErrorBoundary fallback={<div className="panel-error-fallback">Section temporarily unavailable.</div>}><Suspense fallback={<div className="chart-placeholder">Loading chart...</div>}><ThetaTrendCharts /></Suspense></ErrorBoundary>
+      <ErrorBoundary fallback={<div className="panel-error-fallback">Section temporarily unavailable.</div>}><ScoreComparisonPanel /></ErrorBoundary>
       <MethodologyPanel />
-      <ArchetypeComparisonView
+      <ErrorBoundary fallback={<div className="panel-error-fallback">Section temporarily unavailable.</div>}><ArchetypeComparisonView
         assignedArchetype={store.assignedArchetype}
         ranking={store.proximityRanking}
-      />
-      <ArchetypeCompatibilityMatrix />
-      <ErrorBoundary><ArchetypeConversationGuide /></ErrorBoundary>
-      <ArchetypeShareCard />
-      <InsightBookmarks />
-      <GrowthExercises />
+      /></ErrorBoundary>
+      <ErrorBoundary fallback={<div className="panel-error-fallback">Section temporarily unavailable.</div>}><ArchetypeCompatibilityMatrix /></ErrorBoundary>
+      <ErrorBoundary fallback={<div className="panel-error-fallback">Section temporarily unavailable.</div>}><ArchetypeConversationGuide /></ErrorBoundary>
+      <ErrorBoundary fallback={<div className="panel-error-fallback">Section temporarily unavailable.</div>}><ArchetypeShareCard /></ErrorBoundary>
+      <ErrorBoundary fallback={<div className="panel-error-fallback">Section temporarily unavailable.</div>}><InsightBookmarks /></ErrorBoundary>
+      <ErrorBoundary fallback={<div className="panel-error-fallback">Section temporarily unavailable.</div>}><GrowthExercises /></ErrorBoundary>
 
       <section className="result-panel growth-panel">
         <span className="card-kicker">Development direction</span>

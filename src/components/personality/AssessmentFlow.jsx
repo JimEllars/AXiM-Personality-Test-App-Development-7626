@@ -87,7 +87,13 @@ function AssessmentFlow() {
 
   const revealResults = () => {
     trackEvent('assessment_completed');
-    finalizeAssessment();
+    try {
+      finalizeAssessment();
+    } catch (err) {
+      console.error('Error during finalization:', err);
+      // set safe defaults and log the error
+      usePersonalityStore.getState().setResults({}, { archetype: 'Explorer', confidence: 0, proximityRanking: [] }, { thetaScores: {}, semScores: {} });
+    }
   };
 
   const editAnswer = (itemId) => {

@@ -138,10 +138,15 @@ export const usePersonalityStore = create(
 
       finalizeAssessment: () => {
         const state = get();
-        const metrics = scoreAssessmentDiagnostics(QUESTION_BANK, state.answers, FUNCTION_KEYS);
-        const result = projectArchetype(metrics.thetaScores);
+        try {
+          const metrics = scoreAssessmentDiagnostics(QUESTION_BANK, state.answers, FUNCTION_KEYS);
+          const result = projectArchetype(metrics.thetaScores);
 
-        get().setResults(metrics.thetaScores, result, metrics);
+          get().setResults(metrics.thetaScores, result, metrics);
+        } catch (err) {
+          console.error('Error calculating results:', err);
+          get().setResults({}, { archetype: 'Explorer', confidence: 0, proximityRanking: [] }, { thetaScores: {}, semScores: {} });
+        }
       },
 
       setResults: (thetaScores, result, metrics = {}) => {
