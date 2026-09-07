@@ -61,11 +61,11 @@ function ThetaTrendCharts() {
     value: attempt.confidenceValue * 100
   }));
 
-  const latestScore = scoreValues.at(-1)?.value || 0;
-  const previousScore = scoreValues.at(-2)?.value;
+  const latestScore = scoreValues.length > 0 ? scoreValues[scoreValues.length - 1]?.value || 0 : 0;
+  const previousScore = scoreValues.length > 1 ? scoreValues[scoreValues.length - 2]?.value : undefined;
   const scoreChange =
     previousScore === undefined ? 0 : latestScore - previousScore;
-  const latestConfidence = confidenceValues.at(-1)?.value || 0;
+  const latestConfidence = confidenceValues.length > 0 ? confidenceValues[confidenceValues.length - 1]?.value || 0 : 0;
   const hasMultipleAttempts = attempts.length > 1;
   const scoreChangeLabel = hasMultipleAttempts
     ? getChangeLabel(scoreChange)
