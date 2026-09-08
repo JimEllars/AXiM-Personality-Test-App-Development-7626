@@ -47,3 +47,19 @@
 - Polyfilled/replaced `Array.prototype.at()` in `ThetaTrendCharts.jsx` for universal mobile/WebKit compatibility.
 - Wrapped all 8 result subcomponents in dedicated `ErrorBoundary` fallbacks to ensure the main profile header and radar chart never crash.
 - Added `tests/ResultView.test.jsx` verifying defensive rendering on null/empty initial states.
+
+## Sprint 2.1 — Production Edge Telemetry Ingestion & Session Hydration Resilience
+- **Cloudflare Edge Worker Ingest (`personality-edge-worker`)**:
+  - Updated telemetry worker to parse, validate, and respond to incoming event bodies securely.
+  - Returns `200` upon success and `400` when validation fails (missing `event`, `sessionId`, `timestamp`, or `metadata`).
+  - Added unit tests checking these error paths and schema conditions.
+- **Client Telemetry Hardening (`src/services/telemetry.js`)**:
+  - Wired offline queuing into `localStorage` leveraging the `axim_telemetry_queue`.
+  - Restored payloads automatically whenever `window.addEventListener('online')` fires.
+  - Added schema adherence directly to `trackEvent` generation (`sessionId` and `metadata`).
+- **Assessment Session Hydration (`src/store/usePersonalityStore.js` & `AssessmentFlow.jsx`)**:
+  - Upgraded session store to version `5` integrating keys: `responses`, `currentQuestionIndex`, and `startedAt`.
+  - Allowed safe resume flow so users are not blocked navigating away or refreshing during an active assessment.
+- **UI Accessibility & Mobile Polish**:
+  - Upgraded components and `.likert-option` CSS variables for the 44x44px standard mobile touch target baseline.
+  - Enhanced ARIA `radiogroup` navigation semantics with arrow-key keyboard bindings directly applied in `LikertInput.jsx`.

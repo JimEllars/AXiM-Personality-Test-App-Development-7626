@@ -32,7 +32,7 @@ function PsychometricConfidencePanel({
 
   const orderedRanking = useMemo(
     () =>
-      [...ranking].sort(
+      [...(ranking || [])].sort(
         (first, second) => second.similarity - first.similarity
       ),
     [ranking]

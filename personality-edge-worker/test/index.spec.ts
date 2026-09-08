@@ -22,31 +22,49 @@ describe('Edge Worker', () => {
     expect(data.status).toBe('healthy');
   });
 
-  it('telemetry accepts payload', async () => {
+  it('telemetry accepts valid payload', async () => {
     const request = new Request('http://localhost/api/v1/telemetry', {
       method: 'POST',
-      body: JSON.stringify([{ event: 'test' }])
+      body: JSON.stringify([{ event: 'test', sessionId: '123', timestamp: new Date().toISOString(), metadata: { some: 'data' } }])
     });
     const response = await worker.fetch(request, {} as any, {} as any);
-    expect(response.status).toBe(202);
+    expect(response.status).toBe(200);
   });
 
-  it('telemetry accepts payload even with subpath', async () => {
+  it('telemetry accepts valid payload even with subpath', async () => {
     const request = new Request('http://localhost/personalitytest/api/v1/telemetry', {
       method: 'POST',
-      body: JSON.stringify([{ event: 'test' }])
+      body: JSON.stringify([{ event: 'test', sessionId: '123', timestamp: new Date().toISOString() }])
     });
     const response = await worker.fetch(request, {} as any, {} as any);
-    expect(response.status).toBe(202);
+    expect(response.status).toBe(200);
   });
-});
+
+  it('telemetry rejects invalid schema payload (missing event)', async () => {
+    const request = new Request('http://localhost/api/v1/telemetry', {
+      method: 'POST',
+      body: JSON.stringify([{ sessionId: '123', timestamp: new Date().toISOString() }])
+    });
+    const response = await worker.fetch(request, {} as any, {} as any);
+    expect(response.status).toBe(400);
+  });
+
+  it('telemetry rejects invalid schema payload (missing sessionId)', async () => {
+    const request = new Request('http://localhost/api/v1/telemetry', {
+      method: 'POST',
+      body: JSON.stringify([{ event: 'test', timestamp: new Date().toISOString() }])
+    });
+    const response = await worker.fetch(request, {} as any, {} as any);
+    expect(response.status).toBe(400);
+  });
 
   it('telemetry rejects large payloads', async () => {
     const request = new Request('http://localhost/api/v1/telemetry', {
       method: 'POST',
       headers: { 'content-length': '70000' },
-      body: JSON.stringify([{ event: 'test' }])
+      body: JSON.stringify([{ event: 'test', sessionId: '123', timestamp: new Date().toISOString() }])
     });
     const response = await worker.fetch(request, {} as any, {} as any);
     expect(response.status).toBe(413);
   });
+});

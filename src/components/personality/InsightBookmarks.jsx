@@ -11,7 +11,7 @@ function InsightBookmarks(){
   const {thetaScores,bookmarkedInsights,toggleInsightBookmark,clearInsightBookmarks}=usePersonalityStore();
   const [showSaved,setShowSaved]=useState(false);
   const [copied,setCopied]=useState(false);
-  const insights=useMemo(()=> getAssessmentInsights(thetaScores),[thetaScores]);
+  const insights=useMemo(()=> getAssessmentInsights(thetaScores || {}),[thetaScores]);
   const saved=insights.filter((insight)=> bookmarkedInsights[insight.id]);
 
   const copySaved=async ()=>{
