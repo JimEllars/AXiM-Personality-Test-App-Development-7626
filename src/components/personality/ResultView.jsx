@@ -1,4 +1,4 @@
-import React, { useState, Suspense, lazy } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 
 // PDF dependencies are loaded on demand later
 const PersonalityReportDocument = lazy(() => import('../../lib/pdf/PersonalityReportDocument'));
@@ -29,6 +29,22 @@ const { FiCheck, FiDownload, FiRefreshCw, FiShare2, FiUserPlus } = FiIcons;
 
 let PDFDownloadLink = null;
 
+const PdfButtonContent = ({ loading, error }) => {
+  React.useEffect(() => {
+    if (!loading && !error) {
+      trackEvent('pdf_download_ready');
+    }
+  }, [loading, error]);
+
+  return (
+    <>
+      {error ? 'Report unavailable' : loading ? 'Generating dossier...' : 'Download PDF Dossier'}
+      <SafeIcon icon={FiDownload} />
+    </>
+  );
+};
+
+
 function ResultView() {
   const [pdfReady, setPdfReady] = useState(false);
   const store = usePersonalityStore();
@@ -39,6 +55,10 @@ function ResultView() {
   const sortedScores = Object.entries(store.thetaScores || {}).map(([k, v]) => [k, typeof v === 'number' ? v : 0]).sort((first, second) => second[1] - first[1]);
 
   const isAuthenticated = !!localStorage.getItem('axim_passport_token');
+
+  React.useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
 
   const share = async () => {
     const text = `My AXiM cognitive archetype is ${store.assignedArchetype} — ${name}.`;
@@ -83,7 +103,7 @@ function ResultView() {
         <div className="result-actions">
 
           {pdfReady ? (
-            <Suspense fallback={<button className="primary-button" disabled>Preparing report... <SafeIcon icon={FiDownload} /></button>}>
+            <Suspense fallback={<button className="primary-button" disabled>Generating dossier... <SafeIcon icon={FiDownload} /></button>}>
               <ErrorBoundary fallback={<button className="primary-button" disabled>Report unavailable <SafeIcon icon={FiDownload} /></button>} onError={() => trackEvent('pdf_generation_error')}>
                 {PDFDownloadLink && (
                   <PDFDownloadLink
@@ -100,12 +120,7 @@ function ResultView() {
                   >
                     {({ loading, error }) => {
                       if (error) trackEvent('pdf_generation_error', { error: error.message });
-                      return (
-                        <>
-                          {error ? 'Report unavailable' : loading ? 'Preparing report…' : 'Download report'}
-                          <SafeIcon icon={FiDownload} />
-                        </>
-                      );
+                      return <PdfButtonContent loading={loading} error={error} />;
                     }}
                   </PDFDownloadLink>
                 )}
