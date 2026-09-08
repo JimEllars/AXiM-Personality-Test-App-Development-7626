@@ -64,16 +64,39 @@ export function flushQueue() {
   }
 }
 
+function getSessionId() {
+  if (typeof localStorage === 'undefined') return 'unknown';
+  let sessionId = localStorage.getItem('axim_telemetry_session_id');
+  if (!sessionId) {
+    sessionId = 'session_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    localStorage.setItem('axim_telemetry_session_id', sessionId);
+  }
+  return sessionId;
+}
+
 export function trackEvent(eventName, payload = {}) {
   try {
+    const { sessionId, ...restPayload } = payload;
     const eventData = {
       event: eventName,
       timestamp: new Date().toISOString(),
-      url: typeof window !== 'undefined' ? window.location.href : '',
-      // Minimal UA properties, avoid full PII
-      userAgent: typeof navigator !== 'undefined' ? navigator.userAgent.substring(0, 150) : '',
-      ...payload
+      sessionId: sessionId || getSessionId(),
+      metadata: {
+        url: typeof window !== 'undefined' ? window.location.href : '',
+        // Minimal UA properties, avoid full PII
+        userAgent: typeof navigator !== 'undefined' ? navigator.userAgent.substring(0, 150) : '',
+        ...restPayload
+      }
     };
+
+    // Keep top-level keys for Worker parsing compatibility (e.g., latency, error) if they exist in payload
+    if (restPayload.latency !== undefined) eventData.latency = restPayload.latency;
+    if (restPayload.error !== undefined) eventData.error = restPayload.error;
+    if (restPayload.screen !== undefined) eventData.screen = restPayload.screen;
+    if (restPayload.timeToComplete !== undefined) eventData.timeToComplete = restPayload.timeToComplete;
+    if (restPayload.transitionLatency !== undefined) eventData.transitionLatency = restPayload.transitionLatency;
+    if (restPayload.errorCount !== undefined) eventData.errorCount = restPayload.errorCount;
+
 
     eventQueue.push(eventData);
 

@@ -90,8 +90,28 @@ export default {
 
           // Log telemetry without PII
           const events = Array.isArray(payload) ? payload : [payload];
+
+          // Validate schema
+          for (const e of events) {
+            if (!e.event || typeof e.event !== 'string') {
+              throw new Error('Invalid schema: Missing or invalid event name');
+            }
+            if (!e.sessionId || typeof e.sessionId !== 'string') {
+              throw new Error('Invalid schema: Missing or invalid session ID');
+            }
+            if (!e.timestamp || typeof e.timestamp !== 'string') {
+              throw new Error('Invalid schema: Missing or invalid timestamp');
+            }
+            if (e.metadata && typeof e.metadata !== 'object') {
+              throw new Error('Invalid schema: metadata must be an object');
+            }
+          }
+
           const logData = events.map((e: any) => ({
             event: e.event,
+            sessionId: e.sessionId,
+            timestamp: e.timestamp,
+            metadata: e.metadata || null,
             latency: e.latency || null,
             error: e.error || null,
             screen: e.screen || null,
@@ -99,18 +119,19 @@ export default {
             transitionLatency: e.transitionLatency || null,
             errorCount: e.errorCount || null
           }));
+
           console.log("Telemetry ingested:", JSON.stringify({
              region: request.cf?.colo || "local",
              events: logData
           }));
 
           return new Response(JSON.stringify({ success: true, processed: events.length }), {
-            status: 202,
+            status: 200,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
-        } catch (e) {
+        } catch (e: any) {
           console.error("Telemetry ingestion failed", e);
-          return new Response(JSON.stringify({ success: false, error: 'Bad request' }), {
+          return new Response(JSON.stringify({ success: false, error: e.message || 'Bad request' }), {
             status: 400,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });

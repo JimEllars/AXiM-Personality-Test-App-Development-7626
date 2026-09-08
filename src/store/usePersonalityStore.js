@@ -6,11 +6,12 @@ import { QUESTION_BANK, FUNCTION_KEYS } from '../data/questionBank';
 import { trackEvent } from '../services/telemetry';
 import { submitAssessment } from '../services/personalityApi';
 
-const STORAGE_VERSION = 4;
+const STORAGE_VERSION = 5;
 
 const initialState = {
   screen: 'intro',
   currentClusterIndex: 0,
+  startedAt: null,
   demographics: {
     age: '',
     region: '',
@@ -223,9 +224,10 @@ export const usePersonalityStore = create(
              return { screen: 'results' };
           }
           if (Object.keys(state.answers).length > 0) {
-             return { screen: 'assessment' }; // Preserve currentClusterIndex and answers
+             // Preserve currentClusterIndex and answers, make sure we have a startedAt
+             return { screen: 'assessment', startedAt: state.startedAt || Date.now() };
           }
-          return { screen: 'assessment', currentClusterIndex: 0 };
+          return { screen: 'assessment', currentClusterIndex: 0, startedAt: Date.now() };
         });
       },
 
@@ -306,6 +308,9 @@ export const usePersonalityStore = create(
         currentClusterIndex: state.currentClusterIndex,
         demographics: state.demographics,
         answers: state.answers,
+        responses: state.answers,
+        currentQuestionIndex: state.currentClusterIndex,
+        startedAt: state.startedAt || Date.now(),
         thetaScores: state.thetaScores,
         semScores: state.semScores,
         assessmentMetrics: state.assessmentMetrics,
@@ -335,10 +340,9 @@ export const usePersonalityStore = create(
               persistedState.assessmentMetrics
             ),
             resultHistory: normalizeHistory(persistedState.resultHistory),
-            currentClusterIndex: Math.max(
-              0,
-              Number(persistedState.currentClusterIndex) || 0
-            )
+            currentClusterIndex: Math.max(0, Number(persistedState.currentClusterIndex) || Number(persistedState.currentQuestionIndex) || 0),
+            answers: persistedState.answers || persistedState.responses || {},
+            startedAt: persistedState.startedAt || Date.now()
           };
         } catch (e) {
           console.error("Failed to migrate store", e);
