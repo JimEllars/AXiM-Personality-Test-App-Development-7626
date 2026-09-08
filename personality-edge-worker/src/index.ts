@@ -184,7 +184,7 @@ export default {
 
         return new Response(JSON.stringify(benchmarks), {
           status: 200,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=3600' },
         });
       }
 

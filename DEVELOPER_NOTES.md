@@ -42,3 +42,8 @@
 - **Telemetry Client**: Replaced `axim_telemetry_offline` with `axim_telemetry_queue` in `telemetry.js` and ensured robust offline buffering. Integrated detailed tracking inside `AssessmentFlow.jsx` to measure velocity (`assessment_advance`) and item dwell time (`likert_selection` with latency).
 - **Export Fault Isolation**: Wrapped heavy client operations (PDF generation in `ResultView.jsx` and HTML Canvas generation in `ArchetypeShareCard.jsx`) inside explicit `try/catch` and React `ErrorBoundary` blocks to gracefully emit notifications and telemetry error events instead of crashing the dashboard. Fixed a variable reference error (`safeThetas` to `store.thetaScores`).
 - **UI & Accessibility**: Added mobile touch target scaling inside `production-polish.css` to enforce a 44x44px min touch area on viewports < 640px. Updated `LikertInput.jsx` to handle explicit `Enter` and `Space` keyboard traversal triggers.
+
+## Sprint 5 & 6 Deliverables
+- Polyfilled/replaced `Array.prototype.at()` in `ThetaTrendCharts.jsx` for universal mobile/WebKit compatibility.
+- Wrapped all 8 result subcomponents in dedicated `ErrorBoundary` fallbacks to ensure the main profile header and radar chart never crash.
+- Added `tests/ResultView.test.jsx` verifying defensive rendering on null/empty initial states.
