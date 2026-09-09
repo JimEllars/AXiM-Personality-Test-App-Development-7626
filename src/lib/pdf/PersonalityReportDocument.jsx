@@ -98,8 +98,8 @@ function PersonalityReportDocument({
         <Text style={styles.brand}>AXiM / PERSONAL DEVELOPMENT</Text>
         <Text style={styles.eyebrow}>Your closest cognitive archetype</Text>
         <Text style={styles.type}>{archetype || 'PROFILE'}</Text>
-        <Text style={styles.title}>{name}</Text>
-        <Text style={styles.description}>{description}</Text>
+        <Text style={styles.title}>{name || 'Unknown Archetype'}</Text>
+        <Text style={styles.description}>{description || 'No description available.'}</Text>
 
         <Text style={styles.section}>
           Continuous cognitive function profile
@@ -111,8 +111,7 @@ function PersonalityReportDocument({
               {key} · {FUNCTION_NAMES[key] || 'Cognitive function'}
             </Text>
             <Text style={styles.value}>
-              {value > 0 ? '+' : ''}
-              {value} theta
+              {value !== undefined && value > 0 ? '+' : ''}{value !== undefined ? value : 0} theta
             </Text>
           </View>
         ))}

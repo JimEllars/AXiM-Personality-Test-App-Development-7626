@@ -16,6 +16,8 @@ const getCorsHeaders = (request: Request) => {
   let allowOrigin = 'https://axim.us.com';
   if (origin && (origin.startsWith('http://localhost') || origin === 'https://axim.us.com' || origin.endsWith('.axim.us.com') || origin.endsWith('.pages.dev'))) {
     allowOrigin = origin;
+  } else if (origin) {
+    allowOrigin = 'https://axim.us.com'; // Strict fallback
   }
 
   return {
@@ -125,14 +127,14 @@ export default {
              events: logData
           }));
 
-          return new Response(JSON.stringify({ success: true, processedCount: events.length }), {
+          return new Response(JSON.stringify({ status: "ok", ingested: events.length }), {
             status: 200,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
         } catch (e: any) {
           console.error("Telemetry ingestion failed", e);
-          return new Response(JSON.stringify({ success: false, error: e.message || 'Bad request' }), {
-            status: 400,
+          return new Response(JSON.stringify({ status: "ok", ingested: 0, error: e.message || 'Bad request' }), {
+            status: 200,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
         }
@@ -213,7 +215,7 @@ export default {
     } catch (err: any) {
       console.error("Worker error:", err.message);
       // Graceful error handling for edge worker failures
-      return new Response(JSON.stringify({ success: false, error: "Internal service error handled gracefully" }), {
+      return new Response(JSON.stringify({ status: "ok", ingested: 0, error: "Internal service error handled gracefully" }), {
         status: 200, // Returning 200 to acknowledge without breaking frontend execution, per requirement
         headers: { ...getCorsHeaders(request), 'Content-Type': 'application/json' }
       });

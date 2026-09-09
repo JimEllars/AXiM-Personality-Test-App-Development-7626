@@ -31,6 +31,7 @@ function ResultsToolbar({ archetype, title }) {
   );
   const [copied, setCopied] = useState(false);
   const [showReset, setShowReset] = useState(false);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [email, setEmail] = useState('');
   const [emailStatus, setEmailStatus] = useState(''); // 'sending', 'sent', 'error'
@@ -98,8 +99,11 @@ function ResultsToolbar({ archetype, title }) {
           <SafeIcon icon={copied ? FiCheck : FiCopy} />
           {copied ? 'Copied' : 'Copy summary'}
         </button>
-        <button type="button" onClick={printResults}>
-          <SafeIcon icon={FiPrinter} />
+        <button type="button" onClick={() => {
+    setIsGeneratingPdf(true);
+    setTimeout(() => { printResults(); setIsGeneratingPdf(false); }, 500);
+  }} disabled={isGeneratingPdf}>
+          {isGeneratingPdf ? <span className="spinner" /> : <SafeIcon icon={FiPrinter} />}
           Print
         </button>
         <button

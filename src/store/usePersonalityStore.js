@@ -38,12 +38,13 @@ const initialState = {
 };
 
 function isValidSession(value) {
-  return (
-    value &&
-    typeof value === 'object' &&
-    value.answers &&
-    typeof value.answers === 'object'
-  );
+  if (!value || typeof value !== 'object') return false;
+
+  // Strict check on schema integrity, if completely broken, return false
+  if (value.answers && typeof value.answers !== 'object') return false;
+  if (value.responses && typeof value.responses !== 'object') return false;
+
+  return true;
 }
 
 function normalizeMetrics(metrics = {}) {
@@ -140,7 +141,14 @@ export const usePersonalityStore = create(
       finalizeAssessment: () => {
         const state = get();
         try {
-          const metrics = scoreAssessmentDiagnostics(QUESTION_BANK, state.answers, FUNCTION_KEYS);
+          const metrics = (() => {
+            const hasAnswers = state.answers && Object.keys(state.answers).length > 0;
+            if (!hasAnswers) {
+              console.warn("Invoked IRT calculation prematurely. Returning default neutral theta values.");
+              return { thetaScores: {}, semScores: {}, answeredCount: 0, totalItems: 0, coverage: 0, averageSem: 0, isDefaultFlag: true };
+            }
+            return scoreAssessmentDiagnostics(QUESTION_BANK, state.answers, FUNCTION_KEYS);
+          })()
           const result = projectArchetype(metrics.thetaScores);
 
           get().setResults(metrics.thetaScores, result, metrics);

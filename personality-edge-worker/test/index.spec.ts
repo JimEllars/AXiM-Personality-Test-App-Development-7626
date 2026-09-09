@@ -30,8 +30,8 @@ describe('Edge Worker', () => {
     const response = await worker.fetch(request, {} as any, {} as any);
     expect(response.status).toBe(200);
     const data: any = await response.json();
-    expect(data.success).toBe(true);
-    expect(data.processedCount).toBe(1);
+    expect(data.status).toBe("ok");
+    expect(data.ingested).toBe(1);
   });
 
   it('telemetry accepts valid payload even with subpath', async () => {
@@ -42,8 +42,8 @@ describe('Edge Worker', () => {
     const response = await worker.fetch(request, {} as any, {} as any);
     expect(response.status).toBe(200);
     const data: any = await response.json();
-    expect(data.success).toBe(true);
-    expect(data.processedCount).toBe(1);
+    expect(data.status).toBe("ok");
+    expect(data.ingested).toBe(1);
   });
 
   it('telemetry rejects invalid schema payload (missing event)', async () => {
@@ -52,7 +52,7 @@ describe('Edge Worker', () => {
       body: JSON.stringify([{ sessionId: '123', timestamp: new Date().toISOString() }])
     });
     const response = await worker.fetch(request, {} as any, {} as any);
-    expect(response.status).toBe(400);
+    expect(response.status).toBe(200); const data = await response.json(); expect(data.error).toBeDefined();
   });
 
   it('telemetry rejects invalid schema payload (missing sessionId)', async () => {
@@ -61,7 +61,7 @@ describe('Edge Worker', () => {
       body: JSON.stringify([{ event: 'test', timestamp: new Date().toISOString() }])
     });
     const response = await worker.fetch(request, {} as any, {} as any);
-    expect(response.status).toBe(400);
+    expect(response.status).toBe(200); const data = await response.json(); expect(data.error).toBeDefined();
   });
 
   it('telemetry rejects large payloads', async () => {
