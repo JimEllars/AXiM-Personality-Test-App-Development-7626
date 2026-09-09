@@ -31,7 +31,7 @@ const GUIDE_MODES = {
 };
 
 export function getConversationGuide(archetype, thetaScores = {}) {
-  const strongest = Object.entries(thetaScores)
+  const strongest = Object.entries(thetaScores || {})
     .filter(([, value]) => Number.isFinite(value))
     .sort(([, first], [, second]) => second - first)[0]?.[0] || 'Ne';
 

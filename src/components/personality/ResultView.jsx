@@ -47,6 +47,7 @@ const PdfButtonContent = ({ loading, error }) => {
 
 function ResultView() {
   const [pdfReady, setPdfReady] = useState(false);
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const store = usePersonalityStore();
   const details = ARCHETYPE_DETAILS[store.assignedArchetype] || ['Cognitive Profile', 'Your assessment results have been calculated successfully.'];
   const [name, description] = details;
@@ -127,13 +128,21 @@ function ResultView() {
               </ErrorBoundary>
             </Suspense>
           ) : (
-            <button className="primary-button" type="button" onClick={async () => {
+            <button className="primary-button" type="button" disabled={isGeneratingPDF} onClick={async () => {
+              if (isGeneratingPDF) return;
+              setIsGeneratingPDF(true);
               trackEvent('pdf_preparation_started');
-              if (!PDFDownloadLink) {
-                 const pdfModule = await import('@react-pdf/renderer');
-                 PDFDownloadLink = pdfModule.PDFDownloadLink;
+              try {
+                if (!PDFDownloadLink) {
+                   const pdfModule = await import('@react-pdf/renderer');
+                   PDFDownloadLink = pdfModule.PDFDownloadLink;
+                }
+                setPdfReady(true);
+              } catch (err) {
+                 trackEvent('pdf_generation_error', { error: err.message });
+              } finally {
+                 setIsGeneratingPDF(false);
               }
-              setPdfReady(true);
             }}>
               Prepare report <SafeIcon icon={FiDownload} />
             </button>

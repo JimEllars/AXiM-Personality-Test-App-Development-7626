@@ -4,7 +4,7 @@
  */
 
 :root {
-  --focus-ring: 0 0 0 3px rgba(98, 229, 197, 0.2);
+  --focus-ring: 0 0 0 2px var(--mint, #62e5c5);
   --shadow-soft: 0 18px 55px rgba(0, 0, 0, 0.16);
   --shadow-elevated: 0 28px 90px rgba(0, 0, 0, 0.26);
 }
@@ -85,7 +85,8 @@ button:disabled {
 .share-card-copy:focus-visible,
 .icon-button:focus-visible,
 .results-toolbar-actions button:focus-visible,
-.reset-confirmation-actions button:focus-visible {
+.reset-confirmation-actions button:focus-visible,
+[role="tab"]:focus-visible {
   outline: 0;
   box-shadow: var(--focus-ring);
 }
@@ -364,6 +365,23 @@ footer::before {
   }
 }
 @media (max-width: 640px) {
+  .radar-wrap {
+    min-width: 0;
+    width: 100%;
+    overflow: hidden;
+  }
+  .radar-wrap svg {
+    max-width: 100%;
+    height: auto;
+  }
+  .score-comparison-panel {
+    min-width: 0;
+    overflow-x: hidden;
+  }
+  .comparison-score-list {
+    min-width: 0;
+    overflow-x: auto;
+  }
   .likert {
     display: flex;
     justify-content: space-between;

@@ -59,11 +59,11 @@ function PsychometricConfidencePanel({
     0,
     Math.min(
       100,
-      Math.round((assessmentMetrics.coverage || 0) * 100)
+      Math.round(((assessmentMetrics?.coverage || 0) || 0) * 100)
     )
   );
 
-  const averageSem = Number(assessmentMetrics.averageSem) || 0;
+  const averageSem = Number((assessmentMetrics?.averageSem || 0)) || 0;
 
   return (
     <section

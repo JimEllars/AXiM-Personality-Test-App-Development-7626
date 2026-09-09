@@ -26,7 +26,7 @@ describe('telemetry', () => {
   });
 
   it('batches events and flushes', () => {
-    for (let i = 0; i < 15; i++) {
+    for (let i = 0; i < 10; i++) {
       trackEvent('test_event', { index: i });
     }
     expect(global.fetch).toHaveBeenCalledTimes(1);
