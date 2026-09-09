@@ -76,7 +76,7 @@ export default {
         });
       }
 
-      if (request.method === 'POST' && (normalizedPathname === '/api/v1/telemetry' || normalizedPathname === '/api/telemetry')) {
+      if (request.method === 'POST' && (normalizedPathname === '/api/telemetry/events')) {
         try {
           const payloadSize = parseInt(request.headers.get('content-length') || '0', 10);
           if (payloadSize > 64 * 1024) {
@@ -125,7 +125,7 @@ export default {
              events: logData
           }));
 
-          return new Response(JSON.stringify({ success: true, processed: events.length }), {
+          return new Response(JSON.stringify({ success: true, processedCount: events.length }), {
             status: 200,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });

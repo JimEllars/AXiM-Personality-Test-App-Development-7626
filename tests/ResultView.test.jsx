@@ -1,6 +1,6 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach, beforeAll } from 'vitest';
+import { render, screen, cleanup } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, beforeAll, afterEach } from 'vitest';
 import ResultView from '../src/components/personality/ResultView';
 import { usePersonalityStore } from '../src/store/usePersonalityStore';
 
@@ -28,6 +28,10 @@ global.ResizeObserver = class ResizeObserver {
 
 describe('ResultView', () => {
   beforeAll(() => { window.scrollTo = vi.fn(); });
+  afterEach(() => {
+    cleanup();
+  });
+
   beforeEach(() => {
     vi.clearAllMocks();
   });

@@ -29,7 +29,7 @@ function ArchetypeComparisonView({ assignedArchetype, ranking = [] }) {
   }, [assignedArchetype]);
 
   const completeRanking = useMemo(() => {
-    if (ranking.length) return ranking;
+    if (ranking?.length) return ranking;
 
     return Object.keys(ARCHETYPE_REFERENCE_VECTORS).map((archetype) => ({
       archetype,

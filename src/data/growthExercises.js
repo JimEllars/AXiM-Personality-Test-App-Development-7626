@@ -138,7 +138,7 @@ const EXERCISE_LIBRARY = {
 };
 
 export function getPersonalizedExercises(thetaScores = {}) {
-  const ranked = Object.entries(thetaScores)
+  const ranked = Object.entries(thetaScores || {})
     .sort(([, first], [, second]) => second - first)
     .map(([key]) => key);
 

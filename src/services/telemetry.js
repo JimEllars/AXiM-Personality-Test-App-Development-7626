@@ -1,11 +1,11 @@
 const WORKER_URL = import.meta.env.VITE_EDGE_WORKER_URL || (import.meta.env.PROD ? (import.meta.env.BASE_URL.replace(/\/$/, '') || '') : 'http://localhost:8787');
-const TELEMETRY_ENDPOINT = `${WORKER_URL}/api/telemetry`;
+const TELEMETRY_ENDPOINT = `${WORKER_URL}/api/telemetry/events`;
 
 let eventQueue = [];
 let flushTimeout = null;
 
-const QUEUE_SIZE_LIMIT = 15;
-const FLUSH_INTERVAL_MS = 10000;
+const QUEUE_SIZE_LIMIT = 10;
+const FLUSH_INTERVAL_MS = 15000;
 const MAX_PAYLOAD_SIZE = 50; // Truncate queue to prevent oversized payloads
 
 export function flushQueue() {
@@ -60,7 +60,7 @@ export function flushQueue() {
       });
     }
   } catch (error) {
-    console.error('Telemetry flush error:', error);
+    // Silently catch
   }
 }
 
@@ -107,7 +107,7 @@ export function trackEvent(eventName, payload = {}) {
     }
   } catch (error) {
     // Silently catch to prevent telemetry from breaking the app
-    console.error('Telemetry trackEvent error:', error);
+
   }
 }
 

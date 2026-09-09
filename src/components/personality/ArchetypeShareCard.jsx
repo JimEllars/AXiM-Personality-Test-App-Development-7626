@@ -86,10 +86,14 @@ function ArchetypeShareCard() {
     }
   };
 
-const downloadCard = () => {
+const [isGeneratingCard, setIsGeneratingCard] = useState(false);
+
+  const downloadCard = async () => {
+    if (isGeneratingCard) return;
+    setIsGeneratingCard(true);
     trackEvent('share_card_download_attempt');
     try {
-      const dataUrl = createArchetypeCard({
+      const result = await createArchetypeCard({
         archetype: assignedArchetype,
         title,
         description,
@@ -97,16 +101,22 @@ const downloadCard = () => {
         strongestName
       });
 
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+
       const safeArchetype = (assignedArchetype || 'Profile')
         .replace(/[^a-z0-9-_]/gi, '-')
         .replace(/-+/g, '-');
 
-      downloadDataUrl(dataUrl, `AXiM-${safeArchetype}-Share-Card.png`);
+      downloadDataUrl(result.dataUrl, `AXiM-${safeArchetype}-Share-Card.png`);
       showMessage('Share card downloaded.');
       trackEvent('share_card_download_success');
     } catch (err) {
       showMessage('Share card generation is unavailable.');
       trackEvent('share_card_download_error', { error: err.message });
+    } finally {
+      setIsGeneratingCard(false);
     }
   };
 
@@ -147,7 +157,7 @@ const downloadCard = () => {
       </div>
 
       <div className="share-card-actions">
-        <button className="primary-button" type="button" onClick={downloadCard}>
+        <button className="primary-button" type="button" onClick={downloadCard} disabled={isGeneratingCard}>
           <SafeIcon icon={FiDownload} /> Download card
         </button>
         <button className="secondary-button" type="button" onClick={shareSummary}>

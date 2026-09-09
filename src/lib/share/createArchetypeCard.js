@@ -63,84 +63,98 @@ function drawOrbit(context, centerX, centerY) {
   context.textAlign = 'left';
 }
 
-export function createArchetypeCard({
+export async function createArchetypeCard({
   archetype,
   title,
   description,
   strongestFunction,
   strongestName
 }) {
-  const canvas = document.createElement('canvas');
-  const context = canvas.getContext('2d');
+  try {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
 
-  if (!context) {
-    throw new Error('Canvas is unavailable in this browser.');
+    if (!context) {
+      return { success: false, error: 'Canvas is unavailable in this browser.' };
+    }
+
+    if (document.fonts && document.fonts.ready) {
+      try {
+        await document.fonts.ready;
+      } catch (fontErr) {
+        console.warn('Font loading failed, proceeding with system fonts:', fontErr);
+      }
+    }
+
+    const width = 1200;
+    const height = 760;
+    const scale = window.devicePixelRatio || 2;
+
+    canvas.width = width * scale;
+    canvas.height = height * scale;
+    context.scale(scale, scale);
+
+    const gradient = context.createLinearGradient(0, 0, width, height);
+    gradient.addColorStop(0, COLORS.backgroundStart);
+    gradient.addColorStop(0.55, COLORS.background);
+    gradient.addColorStop(1, '#0a1d2b');
+
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, width, height);
+
+    context.strokeStyle = 'rgba(98, 229, 197, 0.28)';
+    context.lineWidth = 2;
+    context.strokeRect(28, 28, width - 56, height - 56);
+
+    context.fillStyle = COLORS.mint;
+    context.font = '700 23px Manrope, sans-serif, system-ui';
+    context.fillText('AXiM / PERSONAL DEVELOPMENT', 74, 92);
+
+    context.fillStyle = COLORS.muted;
+    context.font = '600 16px Manrope, sans-serif, system-ui';
+    context.fillText('MY COGNITIVE ARCHETYPE', 74, 158);
+
+    const displayArchetype = archetype || 'PROFILE';
+    context.font = '800 104px Manrope, sans-serif, system-ui';
+    fitText(context, displayArchetype, 620, 104, 54);
+
+    const archetypeGradient = context.createLinearGradient(74, 190, 620, 290);
+    archetypeGradient.addColorStop(0, '#ffffff');
+    archetypeGradient.addColorStop(1, COLORS.mint);
+    context.fillStyle = archetypeGradient;
+    context.fillText(displayArchetype, 74, 278);
+
+    context.fillStyle = COLORS.mint;
+    context.font = '600 28px Manrope, sans-serif, system-ui';
+    context.fillText(title || 'Your Cognitive Profile', 78, 336);
+
+    context.fillStyle = COLORS.body;
+    context.font = '400 21px DM Sans, sans-serif, system-ui';
+
+    wrapText(context, description, 560).forEach((line, index) => {
+      context.fillText(line, 74, 397 + index * 32);
+    });
+
+    drawOrbit(context, 980, 338);
+
+    context.fillStyle = '#a9bbc2';
+    context.font = '600 18px Manrope, sans-serif, system-ui';
+    context.textAlign = 'center';
+    context.fillText(strongestFunction || '—', 980, 515);
+
+    context.fillStyle = COLORS.muted;
+    context.font = '400 16px DM Sans, sans-serif, system-ui';
+    context.fillText(strongestName || 'Cognitive flexibility', 980, 545);
+
+    context.textAlign = 'left';
+    context.fillText('axim.us.com', 74, 682);
+
+    const dataUrl = canvas.toDataURL('image/png');
+    return { success: true, dataUrl };
+  } catch (err) {
+    console.error('Failed to generate archetype card:', err);
+    return { success: false, error: err.message };
   }
-
-  const width = 1200;
-  const height = 760;
-  const scale = window.devicePixelRatio || 2;
-
-  canvas.width = width * scale;
-  canvas.height = height * scale;
-  context.scale(scale, scale);
-
-  const gradient = context.createLinearGradient(0, 0, width, height);
-  gradient.addColorStop(0, COLORS.backgroundStart);
-  gradient.addColorStop(0.55, COLORS.background);
-  gradient.addColorStop(1, '#0a1d2b');
-
-  context.fillStyle = gradient;
-  context.fillRect(0, 0, width, height);
-
-  context.strokeStyle = 'rgba(98, 229, 197, 0.28)';
-  context.lineWidth = 2;
-  context.strokeRect(28, 28, width - 56, height - 56);
-
-  context.fillStyle = COLORS.mint;
-  context.font = '700 23px Manrope, sans-serif';
-  context.fillText('AXiM / PERSONAL DEVELOPMENT', 74, 92);
-
-  context.fillStyle = COLORS.muted;
-  context.font = '600 16px Manrope, sans-serif';
-  context.fillText('MY COGNITIVE ARCHETYPE', 74, 158);
-
-  const displayArchetype = archetype || 'PROFILE';
-  context.font = '800 104px Manrope, sans-serif';
-  fitText(context, displayArchetype, 620, 104, 54);
-
-  const archetypeGradient = context.createLinearGradient(74, 190, 620, 290);
-  archetypeGradient.addColorStop(0, '#ffffff');
-  archetypeGradient.addColorStop(1, COLORS.mint);
-  context.fillStyle = archetypeGradient;
-  context.fillText(displayArchetype, 74, 278);
-
-  context.fillStyle = COLORS.mint;
-  context.font = '600 28px Manrope, sans-serif';
-  context.fillText(title || 'Your Cognitive Profile', 78, 336);
-
-  context.fillStyle = COLORS.body;
-  context.font = '400 21px DM Sans, sans-serif';
-
-  wrapText(context, description, 560).forEach((line, index) => {
-    context.fillText(line, 74, 397 + index * 32);
-  });
-
-  drawOrbit(context, 980, 338);
-
-  context.fillStyle = '#a9bbc2';
-  context.font = '600 18px Manrope, sans-serif';
-  context.textAlign = 'center';
-  context.fillText(strongestFunction || '—', 980, 515);
-
-  context.fillStyle = COLORS.muted;
-  context.font = '400 16px DM Sans, sans-serif';
-  context.fillText(strongestName || 'Cognitive flexibility', 980, 545);
-
-  context.textAlign = 'left';
-  context.fillText('axim.us.com', 74, 682);
-
-  return canvas.toDataURL('image/png');
 }
 
 export function downloadDataUrl(dataUrl, fileName) {
