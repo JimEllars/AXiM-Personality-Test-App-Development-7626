@@ -492,6 +492,7 @@ footer {
 }
 
 .question-list {
+  min-height: 800px; /* Prevent layout shift during transitions */
   display: grid;
   gap: 11px;
   margin-top: 19px;
@@ -548,7 +549,7 @@ footer {
   display: grid;
   justify-items: center;
   gap: 7px;
-  color: #6e8892;
+  color: #a3b6c2;
   font-size: 9px;
   cursor: pointer;
 
@@ -1267,4 +1268,7 @@ footer {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }

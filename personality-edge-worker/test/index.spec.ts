@@ -3,7 +3,7 @@ import worker from '../src/index';
 
 describe('Edge Worker', () => {
   it('responds to OPTIONS with CORS headers', async () => {
-    const request = new Request('http://localhost/api/telemetry/events', { method: 'OPTIONS' });
+    const request = new Request('http://localhost/api/telemetry', { method: 'OPTIONS' });
     const response = await worker.fetch(request, {} as any, {} as any);
     expect(response.headers.get('Access-Control-Allow-Origin')).toBe('https://axim.us.com');
   });
@@ -23,7 +23,7 @@ describe('Edge Worker', () => {
   });
 
   it('telemetry accepts valid payload', async () => {
-    const request = new Request('http://localhost/api/telemetry/events', {
+    const request = new Request('http://localhost/api/telemetry', {
       method: 'POST',
       body: JSON.stringify([{ event: 'test', sessionId: '123', timestamp: new Date().toISOString(), metadata: { some: 'data' } }])
     });
@@ -35,7 +35,7 @@ describe('Edge Worker', () => {
   });
 
   it('telemetry accepts valid payload even with subpath', async () => {
-    const request = new Request('http://localhost/personalitytest/api/telemetry/events', {
+    const request = new Request('http://localhost/personalitytest/api/telemetry', {
       method: 'POST',
       body: JSON.stringify([{ event: 'test', sessionId: '123', timestamp: new Date().toISOString() }])
     });
@@ -47,7 +47,7 @@ describe('Edge Worker', () => {
   });
 
   it('telemetry rejects invalid schema payload (missing event)', async () => {
-    const request = new Request('http://localhost/api/telemetry/events', {
+    const request = new Request('http://localhost/api/telemetry', {
       method: 'POST',
       body: JSON.stringify([{ sessionId: '123', timestamp: new Date().toISOString() }])
     });
@@ -56,7 +56,7 @@ describe('Edge Worker', () => {
   });
 
   it('telemetry rejects invalid schema payload (missing sessionId)', async () => {
-    const request = new Request('http://localhost/api/telemetry/events', {
+    const request = new Request('http://localhost/api/telemetry', {
       method: 'POST',
       body: JSON.stringify([{ event: 'test', timestamp: new Date().toISOString() }])
     });
@@ -65,7 +65,7 @@ describe('Edge Worker', () => {
   });
 
   it('telemetry rejects large payloads', async () => {
-    const request = new Request('http://localhost/api/telemetry/events', {
+    const request = new Request('http://localhost/api/telemetry', {
       method: 'POST',
       headers: { 'content-length': '70000' },
       body: JSON.stringify([{ event: 'test', sessionId: '123', timestamp: new Date().toISOString() }])

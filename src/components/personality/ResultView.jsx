@@ -1,7 +1,7 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 
 // PDF dependencies are loaded on demand later
-const PersonalityReportDocument = lazy(() => import('../../lib/pdf/PersonalityReportDocument'));
+
 
 
 import ErrorBoundary from '../common/ErrorBoundary';
@@ -47,6 +47,7 @@ const PdfButtonContent = ({ loading, error }) => {
 
 function ResultView() {
   const [pdfReady, setPdfReady] = useState(false);
+  const [PdfDocComponent, setPdfDocComponent] = useState(null);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const store = usePersonalityStore();
   const details = ARCHETYPE_DETAILS[store.assignedArchetype] || ['Cognitive Profile', 'Your assessment results have been calculated successfully.'];
@@ -110,7 +111,7 @@ function ResultView() {
                   <PDFDownloadLink
                     className="primary-button"
                     document={
-                      <PersonalityReportDocument
+                      <PdfDocComponent
                         archetype={store.assignedArchetype}
                         thetaScores={store.thetaScores}
                         generatedAt={new Date().toLocaleDateString()}
@@ -135,6 +136,8 @@ function ResultView() {
               try {
                 if (!PDFDownloadLink) {
                    const pdfModule = await import('@react-pdf/renderer');
+                   const docModule = await import('../../lib/pdf/PersonalityReportDocument');
+                   setPdfDocComponent(() => docModule.default);
                    PDFDownloadLink = pdfModule.PDFDownloadLink;
                 }
                 setPdfReady(true);
@@ -144,7 +147,7 @@ function ResultView() {
                  setIsGeneratingPDF(false);
               }
             }}>
-              Prepare report <SafeIcon icon={FiDownload} />
+              {isGeneratingPDF ? ( <><span className="spinner" style={{ display: 'inline-block', width: '1em', height: '1em', border: '2px solid rgba(255,255,255,0.3)', borderRadius: '50%', borderTopColor: '#fff', animation: 'spin 1s ease-in-out infinite' }} /> Loading... </> ) : ( <>Prepare report <SafeIcon icon={FiDownload} /></> )}
             </button>
           )}
 

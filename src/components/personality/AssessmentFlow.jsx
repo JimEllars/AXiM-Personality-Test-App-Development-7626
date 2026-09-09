@@ -64,6 +64,18 @@ function AssessmentFlow() {
 
   useEffect(() => {
     const handleKeyboardAnswer = (event) => {
+      if (event.key === 'Enter') {
+        const activeElement = document.activeElement;
+        if (
+          activeElement?.matches('input, textarea, select') ||
+          activeElement?.isContentEditable
+        ) {
+          return;
+        }
+        advance();
+        return;
+      }
+
       if (!/^[1-5]$/.test(event.key)) return;
 
       const activeElement = document.activeElement;
