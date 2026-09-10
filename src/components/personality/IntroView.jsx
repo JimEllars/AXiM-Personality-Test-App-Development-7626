@@ -57,7 +57,7 @@ function IntroView({
             <div className="resume-card-copy" style={{ marginBottom: '1.5rem' }}>
               <span className="card-kicker" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#666', textTransform: 'uppercase', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>
                 <SafeIcon icon={FiPlay} />
-                Resume In-Progress Assessment
+                Resume assessment where you left off?
               </span>
 
               <strong style={{ fontSize: '1.2rem', display: 'block', marginBottom: '1rem' }}>

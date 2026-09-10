@@ -8,6 +8,10 @@
     {
       "binding": "PERSONALITY_CACHE_KV",
       "id": "ab970870e412443baf4e146699576ceb"
+    },
+    {
+      "binding": "TELEMETRY_DB",
+      "id": "mock_id_for_telemetry_db"
     }
   ],
   "vars": {

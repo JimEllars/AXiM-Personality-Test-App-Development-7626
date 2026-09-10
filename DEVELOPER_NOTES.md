@@ -63,3 +63,10 @@
 - **UI Accessibility & Mobile Polish**:
   - Upgraded components and `.likert-option` CSS variables for the 44x44px standard mobile touch target baseline.
   - Enhanced ARIA `radiogroup` navigation semantics with arrow-key keyboard bindings directly applied in `LikertInput.jsx`.
+
+## Telemetry, Dependencies, UI Polish (Latest)
+- **Cloudflare Edge Worker Telemetry**: Implemented `POST /api/telemetry` which accepts batched telemetry events, and stores aggregated events in `TELEMETRY_DB` KV namespace. Added a health check returning `200 OK` with worker version, timestamp, and bindings status.
+- **Client-Side Telemetry & Beacon Fallback**: Added `beforeunload` event to flush telemetry queue. Added exponential backoff (up to 3 retries) when `fetch` fallback fails, before queuing locally.
+- **Code-Splitting Exports**: Deferred loading of `@react-pdf/renderer` inside `ResultView.jsx` dynamically to vastly decrease main bundle chunk size (reducing main payload and decoupling heavy PDF generation scripts). Improved UI state while PDF prepares.
+- **State Hydration**: Ensured Zustand's `persist` loads correctly on start and updated the prompt text in `IntroView.jsx` for unfinished assessments to `Resume assessment where you left off?`
+- **Accessibility & UI**: Added `Enter` keyboard handler to advance items within `AssessmentFlow.jsx`. Adjusted disabled colors inside `App.css` to improve baseline contrast ratio against dark backgrounds. Added minimum height constraint to question groups to prevent layout layout shifts.

@@ -1,5 +1,5 @@
 const WORKER_URL = import.meta.env.VITE_EDGE_WORKER_URL || (import.meta.env.PROD ? (import.meta.env.BASE_URL.replace(/\/$/, '') || '') : 'http://localhost:8787');
-const TELEMETRY_ENDPOINT = `${WORKER_URL}/api/telemetry/events`;
+const TELEMETRY_ENDPOINT = `${WORKER_URL}/api/telemetry`;
 
 let eventQueue = [];
 let flushTimeout = null;
@@ -47,19 +47,26 @@ export function flushQueue() {
 
     // Fallback to fetch with keepalive
     if (typeof fetch !== 'undefined') {
-      fetch(TELEMETRY_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: data,
-        keepalive: true
-      }).catch((e) => {
-          // Add back to offline buffer on fail
-          try {
-            const stored = JSON.parse(localStorage.getItem('axim_telemetry_queue') || '[]');
-            stored.push(...payload);
-            localStorage.setItem('axim_telemetry_queue', JSON.stringify(stored.slice(-MAX_PAYLOAD_SIZE)));
-        } catch (err) { /* silent catch */ }
-      });
+      const attemptFetch = (retries) => {
+        fetch(TELEMETRY_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: data,
+          keepalive: true
+        }).catch((e) => {
+          if (retries > 0) {
+            setTimeout(() => attemptFetch(retries - 1), (4 - retries) * 1000); // exponential-ish backoff
+          } else {
+            // Add back to offline buffer on fail after retries
+            try {
+              const stored = JSON.parse(localStorage.getItem('axim_telemetry_queue') || '[]');
+              stored.push(...payload);
+              localStorage.setItem('axim_telemetry_queue', JSON.stringify(stored.slice(-MAX_PAYLOAD_SIZE)));
+            } catch (err) { /* silent catch */ }
+          }
+        });
+      };
+      attemptFetch(3);
     }
   } catch (error) {
     // Silently catch
@@ -136,9 +143,11 @@ export function flushOfflineQueue() {
     }
 }
 
+
 // Ensure delivery during navigation/unload
 if (typeof window !== 'undefined') {
   window.addEventListener('pagehide', flushQueue);
+  window.addEventListener('beforeunload', flushQueue);
   window.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') {
       flushQueue();

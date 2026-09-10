@@ -1,4 +1,5 @@
 export interface Env {
+  TELEMETRY_DB: KVNamespace;
   PERSONALITY_CACHE_KV: KVNamespace;
   PERSONALITY_TEST_ORIGIN: string;
   SUPABASE_URL: string;
@@ -72,13 +73,17 @@ export default {
         return new Response(JSON.stringify({
           status: "healthy",
           region: request.cf?.colo || "local",
-          timestamp: Date.now()
+          timestamp: Date.now(),
+          bindings: {
+             TELEMETRY_DB: !!env.TELEMETRY_DB,
+             PERSONALITY_CACHE_KV: !!env.PERSONALITY_CACHE_KV
+          }
         }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
 
-      if (request.method === 'POST' && (normalizedPathname === '/api/telemetry/events')) {
+      if (request.method === 'POST' && (normalizedPathname === '/api/telemetry')) {
         try {
           const payloadSize = parseInt(request.headers.get('content-length') || '0', 10);
           if (payloadSize > 64 * 1024) {
@@ -109,6 +114,7 @@ export default {
             }
           }
 
+
           const logData = events.map((e: any) => ({
             event: e.event,
             sessionId: e.sessionId,
@@ -126,6 +132,16 @@ export default {
              region: request.cf?.colo || "local",
              events: logData
           }));
+
+          if (env.TELEMETRY_DB) {
+             try {
+                const batchId = Date.now().toString() + '-' + Math.random().toString(36).substring(2, 9);
+                await env.TELEMETRY_DB.put('telemetry_batch_' + batchId, JSON.stringify(logData));
+             } catch (err) {
+                console.error("Failed to write to TELEMETRY_DB KV", err);
+             }
+          }
+
 
           return new Response(JSON.stringify({ status: "ok", ingested: events.length }), {
             status: 200,
