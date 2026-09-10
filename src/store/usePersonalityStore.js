@@ -333,9 +333,18 @@ export const usePersonalityStore = create(
         pendingSync: state.pendingSync || []
       }),
 
-      migrate: (persistedState) => {
+      migrate: (persistedState, version) => {
         try {
           if (!isValidSession(persistedState)) return initialState;
+
+          let migratedAnswers = persistedState.answers || persistedState.responses || {};
+          let migratedClusterIndex = Math.max(0, Number(persistedState.currentClusterIndex) || Number(persistedState.currentQuestionIndex) || 0);
+
+          if (version !== STORAGE_VERSION) {
+             // Schema mismatch - preserve demographics but reset incompatible answers & indexes
+             migratedAnswers = {};
+             migratedClusterIndex = 0;
+          }
 
           return {
             ...initialState,
@@ -348,8 +357,8 @@ export const usePersonalityStore = create(
               persistedState.assessmentMetrics
             ),
             resultHistory: normalizeHistory(persistedState.resultHistory),
-            currentClusterIndex: Math.max(0, Number(persistedState.currentClusterIndex) || Number(persistedState.currentQuestionIndex) || 0),
-            answers: persistedState.answers || persistedState.responses || {},
+            currentClusterIndex: migratedClusterIndex,
+            answers: migratedAnswers,
             startedAt: persistedState.startedAt || Date.now()
           };
         } catch (e) {
