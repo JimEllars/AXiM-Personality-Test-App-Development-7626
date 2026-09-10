@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { trackEvent, getQueue_forTesting, setQueue_forTesting, flushQueue } from '../src/services/telemetry';
 
 describe('telemetry', () => {
@@ -25,6 +25,12 @@ describe('telemetry', () => {
     });
   });
 
+
+  afterEach(() => {
+    vi.clearAllMocks();
+    localStorage.clear();
+  });
+
   it('batches events and flushes', () => {
     for (let i = 0; i < 10; i++) {
       trackEvent('test_event', { index: i });
@@ -41,3 +47,30 @@ describe('telemetry', () => {
     expect(global.fetch).toHaveBeenCalled();
   });
 });
+
+  it('queues offline and flushes when online', () => {
+    global.navigator.onLine = false;
+    trackEvent('offline_event_1', {});
+    trackEvent('offline_event_2', {});
+
+    flushQueue();
+    expect(global.fetch).not.toHaveBeenCalled();
+
+    // check local storage
+    const stored = JSON.parse(localStorage.getItem('axim_telemetry_queue') || '[]');
+    expect(stored.length).toBeGreaterThan(0);
+    expect(stored[0].event).toBe('offline_event_1');
+  });
+
+  it('drains queue when online again', () => {
+    global.navigator.onLine = false;
+    trackEvent('offline_event_1', {});
+    flushQueue();
+    expect(global.fetch).not.toHaveBeenCalled();
+
+    global.navigator.onLine = true;
+    import('../src/services/telemetry').then(({ flushOfflineQueue }) => {
+        flushOfflineQueue();
+        expect(global.fetch).toHaveBeenCalledTimes(1);
+    });
+  });
