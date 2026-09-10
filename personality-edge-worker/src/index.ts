@@ -134,12 +134,14 @@ export default {
           }));
 
           if (env.TELEMETRY_DB) {
-             try {
-                const batchId = Date.now().toString() + '-' + Math.random().toString(36).substring(2, 9);
-                await env.TELEMETRY_DB.put('telemetry_batch_' + batchId, JSON.stringify(logData));
-             } catch (err) {
-                console.error("Failed to write to TELEMETRY_DB KV", err);
-             }
+             ctx.waitUntil((async () => {
+                 try {
+                    const batchId = Date.now().toString() + '-' + Math.random().toString(36).substring(2, 9);
+                    await env.TELEMETRY_DB.put('telemetry_batch_' + batchId, JSON.stringify(logData));
+                 } catch (err) {
+                    console.error("Failed to write to TELEMETRY_DB KV", err);
+                 }
+             })());
           }
 
 
@@ -170,14 +172,16 @@ export default {
 
           // Write a rolling aggregation summary of anonymous completions (counts per archetype) if KV bound
           if (env.PERSONALITY_CACHE_KV && payload.assignedArchetype) {
-            try {
-              const countsStr = await env.PERSONALITY_CACHE_KV.get('archetype_counts');
-              const counts = countsStr ? JSON.parse(countsStr) : {};
-              counts[payload.assignedArchetype] = (counts[payload.assignedArchetype] || 0) + 1;
-              await env.PERSONALITY_CACHE_KV.put('archetype_counts', JSON.stringify(counts));
-            } catch (err) {
-              console.error("Failed to update archetype_counts in KV", err);
-            }
+            ctx.waitUntil((async () => {
+                try {
+                  const countsStr = await env.PERSONALITY_CACHE_KV.get('archetype_counts');
+                  const counts = countsStr ? JSON.parse(countsStr) : {};
+                  counts[payload.assignedArchetype] = (counts[payload.assignedArchetype] || 0) + 1;
+                  await env.PERSONALITY_CACHE_KV.put('archetype_counts', JSON.stringify(counts));
+                } catch (err) {
+                  console.error("Failed to update archetype_counts in KV", err);
+                }
+            })());
           }
         } catch (e) {
           console.error("Assessment submit failed", e);

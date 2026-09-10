@@ -4,10 +4,7 @@ import SafeIcon from '../../common/SafeIcon';
 import { ARCHETYPE_DETAILS, FUNCTION_NAMES } from '../../data/archetypes';
 import { usePersonalityStore } from '../../store/usePersonalityStore';
 import { trackEvent } from '../../services/telemetry';
-import {
-  createArchetypeCard,
-  downloadDataUrl
-} from '../../lib/share/createArchetypeCard';
+
 import './ArchetypeShareCard.css';
 
 const { FiCheck, FiCopy, FiDownload, FiShare2, FiZap } = FiIcons;
@@ -93,6 +90,7 @@ const [isGeneratingCard, setIsGeneratingCard] = useState(false);
     setIsGeneratingCard(true);
     trackEvent('share_card_download_attempt');
     try {
+      const { createArchetypeCard } = await import('../../lib/share/createArchetypeCard');
       const result = await createArchetypeCard({
         archetype: assignedArchetype,
         title,
@@ -109,6 +107,7 @@ const [isGeneratingCard, setIsGeneratingCard] = useState(false);
         .replace(/[^a-z0-9-_]/gi, '-')
         .replace(/-+/g, '-');
 
+      const { downloadDataUrl } = await import('../../lib/share/createArchetypeCard');
       downloadDataUrl(result.dataUrl, `AXiM-${safeArchetype}-Share-Card.png`);
       showMessage('Share card downloaded.');
       trackEvent('share_card_download_success');

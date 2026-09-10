@@ -13,8 +13,13 @@ const handleKeyDown = (e) => {
     } else if (e.key >= '1' && e.key <= '5') {
       nextValue = parseInt(e.key, 10);
     } else if (e.key === 'Enter' || e.key === ' ') {
-      // Allow enter/space to toggle current focused input if somehow needed
-      // Actually standard radio inputs natively handle Space.
+      // Let the parent QuestionCluster handle scrolling to the next item
+      if (currentValue >= 1 && currentValue <= 5) {
+        // Find the closest question card and fire a custom event
+        const event = new CustomEvent('axim-likert-confirm', { bubbles: true });
+        e.currentTarget.dispatchEvent(event);
+      }
+      e.preventDefault();
       return;
     }
 
