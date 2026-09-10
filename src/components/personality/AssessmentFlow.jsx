@@ -160,6 +160,8 @@ function AssessmentFlow() {
 
   if (reviewMode) {
     return (
+      <>
+      <div className="sr-only" aria-live="polite" aria-atomic="true">Reviewing your answers</div>
       <AnswerReview
         items={QUESTION_BANK}
         answers={answers}
@@ -167,11 +169,17 @@ function AssessmentFlow() {
         onBack={() => setReviewMode(false)}
         onReveal={revealResults}
       />
+    </>
     );
   }
 
   return (
     <main className="assessment-shell">
+
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {reviewMode ? 'Reviewing your answers' : `Section ${currentClusterIndex + 1} of ${ASSESSMENT_CLUSTERS.length}`}
+      </div>
+
       <div className="assessment-heading">
         <div>
           <span className="eyebrow">

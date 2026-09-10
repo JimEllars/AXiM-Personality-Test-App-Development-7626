@@ -82,3 +82,12 @@
 *   **Assessment UX & Keyboard**: Restructured `LikertInput.jsx` and `QuestionCluster.jsx` keyboard interactions. Users can now confirm selections utilizing `Enter` and `Space`. This fires a custom `axim-likert-confirm` event that gracefully triggers scroll progression via `scrollIntoView()` on the next article focus point. All elements now observe appropriate WCAG ARIA labels (`role="radiogroup"`, `role="radio"`, `aria-checked`).
 *   **Lazy Loading Share Card & PDF**: Re-configured `createArchetypeCard` invocation in `ArchetypeShareCard.jsx` with an asynchronous dynamic import mechanism to minimize frontend initialization latency. Validation through chunk output demonstrated reductions on index scripts footprint.
 *   **Production Checks**: Vitest execution and `finish_verification.py` concluded smoothly asserting functional integrity of IRT store algorithms alongside newly defined telemetry operations.
+
+## Fixes & Polish Updates
+- **Telemetry & Edge Routing Fixes**: Extended `personality-edge-worker/src/index.ts` to capture `/api/telemetry`, `/api/telemetry/events`, and `/api/v1/telemetry` properly so aliases trigger the KV capture logic. Added a 24-hour cache-control `Access-Control-Max-Age` header directly to the edge worker responses to slash redundant pre-flight OPTIONS request load for users. Handled health check responses on both root and API namespace.
+- **Client Artifact Optimization**: Excluded temporary artifact paths (`axim-personality-test@*`, `finish_verification.py`, `vite`) in `.gitignore` and removed dangling instances from the repository root to maintain clean pipelines.
+- **Test Block Repairs**: Fixed the `tests/telemetry.test.js` structure by restoring orphaned offline cache flush tests back inside the central describe block so that the Vitest teardown/mocking context applies uniformly, rectifying false positive passing behavior. Refactored dynamic imports in `ArchetypeShareCard.jsx` to de-duplicate chunk boundaries.
+- **Accessibility Enhancements**:
+  - Bound `aria-live="polite"` inside `AssessmentFlow.jsx` to guarantee screen readers are correctly updated whenever `currentClusterIndex` or `reviewMode` is mutated.
+  - Implemented an imperative `preventScroll: true` flag in `QuestionCluster.jsx` focus handoff logic to stop browsers from performing un-styled page jump scrolling before the `smooth` intersection observer handles it.
+  - Adjusted the SSO token hydration check in `AppHeader.jsx` to defensively handle string modification failures in environments where replacing state pushes fail.

@@ -24,7 +24,7 @@ function QuestionCluster({ items, answers, onAnswer, clusterIndex }) {
         }
 
         if (nextCard) {
-           nextCard.focus();
+           nextCard.focus({ preventScroll: true });
            nextCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
       }
