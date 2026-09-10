@@ -25,7 +25,7 @@ function RadarProfileChart({ scores }) {
         viewBox={`0 0 ${SIZE} ${SIZE}`}
         role="img"
         aria-label="Eight-function radar profile"
-        style={{ maxWidth: '100%', maxHeight: '400px' }}
+        style={{ maxWidth: '100%', maxHeight: '400px', width: '100%', height: 'auto' }}
       >
         <defs>
           <linearGradient id="radarFill" x1="0" x2="1">

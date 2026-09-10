@@ -144,13 +144,13 @@ export default {
 
 
           return new Response(JSON.stringify({ status: "ok", ingested: events.length }), {
-            status: 200,
+            status: 202,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
         } catch (e: any) {
           console.error("Telemetry ingestion failed", e);
           return new Response(JSON.stringify({ status: "ok", ingested: 0, error: e.message || 'Bad request' }), {
-            status: 200,
+            status: 202,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
         }
@@ -184,7 +184,7 @@ export default {
         }
 
         return new Response(JSON.stringify({ success: true, timestamp: Date.now() }), {
-          status: 200,
+          status: 202,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
@@ -200,7 +200,7 @@ export default {
         }
 
         return new Response(JSON.stringify({ success: true, message: 'Email dispatched' }), {
-          status: 200,
+          status: 202,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
@@ -222,7 +222,7 @@ export default {
         }
 
         return new Response(JSON.stringify(benchmarks), {
-          status: 200,
+          status: 202,
           headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=3600' },
         });
       }
@@ -232,7 +232,7 @@ export default {
       console.error("Worker error:", err.message);
       // Graceful error handling for edge worker failures
       return new Response(JSON.stringify({ status: "ok", ingested: 0, error: "Internal service error handled gracefully" }), {
-        status: 200, // Returning 200 to acknowledge without breaking frontend execution, per requirement
+        status: 202, // Returning 200 to acknowledge without breaking frontend execution, per requirement
         headers: { ...getCorsHeaders(request), 'Content-Type': 'application/json' }
       });
     }

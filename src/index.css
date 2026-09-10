@@ -85,7 +85,10 @@ a {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.15s ease, background-color 0.15s ease;
+    cursor: pointer;
+    touch-action: manipulation;
+    will-change: transform;
+    transition: transform 0.1s cubic-bezier(0.2, 0, 0, 1), background-color 0.1s linear;
 }
 
 .likert-option:active {
@@ -98,7 +101,7 @@ a {
 
 @keyframes pop {
     0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
+    50% { transform: scale(1.08); }
     100% { transform: scale(1); }
 }
 
