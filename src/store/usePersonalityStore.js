@@ -40,9 +40,9 @@ const initialState = {
 function isValidSession(value) {
   if (!value || typeof value !== 'object') return false;
 
-  // Strict check on schema integrity, if completely broken, return false
-  if (value.answers && typeof value.answers !== 'object') return false;
-  if (value.responses && typeof value.responses !== 'object') return false;
+  // Strict check on schema integrity
+  if (value.answers !== undefined && (typeof value.answers !== 'object' || value.answers === null)) return false;
+  if (value.demographics !== undefined && (typeof value.demographics !== 'object' || value.demographics === null)) return false;
 
   return true;
 }
@@ -138,18 +138,34 @@ export const usePersonalityStore = create(
         })),
 
 
-      finalizeAssessment: () => {
+      finalizeAssessment: async () => {
         const state = get();
         try {
-          const metrics = (() => {
-            const hasAnswers = state.answers && Object.keys(state.answers).length > 0;
-            if (!hasAnswers) {
-              console.warn("Invoked IRT calculation prematurely. Returning default neutral theta values.");
-              return { thetaScores: {}, semScores: {}, answeredCount: 0, totalItems: 0, coverage: 0, averageSem: 0, isDefaultFlag: true };
-            }
-            return scoreAssessmentDiagnostics(QUESTION_BANK, state.answers, FUNCTION_KEYS);
-          })()
+          const hasAnswers = state.answers && Object.keys(state.answers).length > 0;
+          let metrics;
+
+          if (!hasAnswers) {
+            console.warn("Invoked IRT calculation prematurely. Returning default neutral theta values.");
+            metrics = { thetaScores: {}, semScores: {}, answeredCount: 0, totalItems: 0, coverage: 0, averageSem: 0, isDefaultFlag: true };
+          } else {
+            metrics = scoreAssessmentDiagnostics(QUESTION_BANK, state.answers, FUNCTION_KEYS);
+          }
+
           const result = projectArchetype(metrics.thetaScores);
+
+          // Try to score externally if available (fallback handles the rest in scoreAssessment API)
+          try {
+             const apiModule = await import('../services/personalityApi');
+             if (apiModule.scoreAssessment) {
+                const apiResult = await apiModule.scoreAssessment({ answers: state.answers, metrics });
+                if (apiResult && apiResult.success && apiResult.result) {
+                   // We could use the API result here if it differed from local calculation
+                   // For now we just use it for side-effects / fallback logging
+                }
+             }
+          } catch(e) {
+             // Ignore API module loading error
+          }
 
           get().setResults(metrics.thetaScores, result, metrics);
         } catch (err) {
@@ -305,7 +321,7 @@ export const usePersonalityStore = create(
           exerciseStartedAt: {}
         }),
 
-      resetAssessment: () => set({ ...initialState })
+      resetAssessment: () => set((state) => ({ ...initialState, demographics: { ...state.demographics } }))
     }),
     {
       name: 'axim_personality_session',

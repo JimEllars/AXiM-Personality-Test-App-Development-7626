@@ -80,7 +80,7 @@ export default {
              PERSONALITY_CACHE_KV: !!env.PERSONALITY_CACHE_KV
           }
         }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
         });
       }
 
@@ -90,7 +90,7 @@ export default {
           if (payloadSize > 64 * 1024) {
             return new Response(JSON.stringify({ success: false, error: 'Payload too large' }), {
               status: 413,
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
             });
           }
 
@@ -148,13 +148,13 @@ export default {
 
           return new Response(JSON.stringify({ status: "ok", ingested: events.length }), {
             status: 202,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
           });
         } catch (e: any) {
           console.error("Telemetry ingestion failed", e);
           return new Response(JSON.stringify({ status: "ok", ingested: 0, error: e.message || 'Bad request' }), {
             status: 202,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
           });
         }
       }
@@ -162,6 +162,12 @@ export default {
       if (request.method === 'POST' && (normalizedPathname === '/api/v1/assessment/submit' || normalizedPathname === '/api/v1/personality/submit')) {
         try {
           const payload = await request.json() as any;
+          if (!payload || typeof payload !== 'object' || !payload.assignedArchetype || typeof payload.assignedArchetype !== 'string') {
+             return new Response(JSON.stringify({ success: false, error: 'Invalid payload schema' }), {
+                status: 400,
+                headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
+             });
+          }
 
           // Structured logging for psychometric outcome distribution without logging PII
           console.log("Ingesting completed assessment session into public.personality_user_assessments", {
@@ -190,7 +196,7 @@ export default {
 
         return new Response(JSON.stringify({ success: true, timestamp: Date.now() }), {
           status: 202,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
         });
       }
 
@@ -206,7 +212,7 @@ export default {
 
         return new Response(JSON.stringify({ success: true, message: 'Email dispatched' }), {
           status: 202,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
         });
       }
 

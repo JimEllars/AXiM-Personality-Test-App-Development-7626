@@ -30,6 +30,11 @@ const handleKeyDown = (e) => {
   };
 
   const handleChange = (val) => {
+    const label = document.getElementById(`${itemId}-option-${val}`);
+    if (label) {
+      label.focus();
+    }
+
     // Add mobile haptics
     if (navigator.vibrate) {
       navigator.vibrate(20);
@@ -43,6 +48,7 @@ const handleKeyDown = (e) => {
       {LIKERT_ANCHORS.map((anchor) => (
         <label
           key={anchor.value}
+          id={`${itemId}-option-${anchor.value}`}
           role="radio"
           aria-checked={value === anchor.value}
           tabIndex={value === anchor.value || (!value && anchor.value === 1) ? 0 : -1}
