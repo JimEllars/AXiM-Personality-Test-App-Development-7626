@@ -46,7 +46,6 @@ describe('telemetry', () => {
 
     expect(global.fetch).toHaveBeenCalled();
   });
-});
 
   it('queues offline and flushes when online', () => {
     global.navigator.onLine = false;
@@ -62,15 +61,15 @@ describe('telemetry', () => {
     expect(stored[0].event).toBe('offline_event_1');
   });
 
-  it('drains queue when online again', () => {
+  it('drains queue when online again', async () => {
     global.navigator.onLine = false;
     trackEvent('offline_event_1', {});
     flushQueue();
     expect(global.fetch).not.toHaveBeenCalled();
 
     global.navigator.onLine = true;
-    import('../src/services/telemetry').then(({ flushOfflineQueue }) => {
-        flushOfflineQueue();
-        expect(global.fetch).toHaveBeenCalledTimes(1);
-    });
+    const { flushOfflineQueue } = await import('../src/services/telemetry');
+    flushOfflineQueue();
+    expect(global.fetch).toHaveBeenCalledTimes(1);
   });
+});

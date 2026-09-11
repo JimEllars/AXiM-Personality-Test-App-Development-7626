@@ -90,7 +90,7 @@ const [isGeneratingCard, setIsGeneratingCard] = useState(false);
     setIsGeneratingCard(true);
     trackEvent('share_card_download_attempt');
     try {
-      const { createArchetypeCard } = await import('../../lib/share/createArchetypeCard');
+      const { createArchetypeCard, downloadDataUrl } = await import('../../lib/share/createArchetypeCard');
       const result = await createArchetypeCard({
         archetype: assignedArchetype,
         title,
@@ -106,8 +106,6 @@ const [isGeneratingCard, setIsGeneratingCard] = useState(false);
       const safeArchetype = (assignedArchetype || 'Profile')
         .replace(/[^a-z0-9-_]/gi, '-')
         .replace(/-+/g, '-');
-
-      const { downloadDataUrl } = await import('../../lib/share/createArchetypeCard');
       downloadDataUrl(result.dataUrl, `AXiM-${safeArchetype}-Share-Card.png`);
       showMessage('Share card downloaded.');
       trackEvent('share_card_download_success');

@@ -18,7 +18,7 @@ function AppHeader() {
       // Mock validating token and fetching profile
       localStorage.setItem('axim_passport_token', token);
       // Clean URL
-      window.history.replaceState({}, document.title, window.location.pathname);
+      try { window.history.replaceState({}, document.title, window.location.pathname); } catch (e) { /* ignore */ }
     }
 
     const storedToken = localStorage.getItem('axim_passport_token');
