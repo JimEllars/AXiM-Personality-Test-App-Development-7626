@@ -45,7 +45,7 @@ describe('usePersonalityStore', () => {
     localStorage.setItem('axim_passport_token', 'test-token');
 
     usePersonalityStore.setState({ answers: { 'q1': 5, 'q2': 1 }, screen: 'assessment' });
-    usePersonalityStore.getState().finalizeAssessment();
+    await await usePersonalityStore.getState().finalizeAssessment();
 
     const state = usePersonalityStore.getState();
     expect(state.screen).toBe('results');
@@ -60,10 +60,10 @@ describe('usePersonalityStore', () => {
     expect(submitAssessment).toHaveBeenCalled();
   });
 
-  it('handles result generation with partial/irregular answer payloads', () => {
+  it('handles result generation with partial/irregular answer payloads', async () => {
     usePersonalityStore.setState({ answers: { 'q1': null, 'q2': undefined, 'q3': 3 }, screen: 'assessment' });
 
-    usePersonalityStore.getState().finalizeAssessment();
+    await usePersonalityStore.getState().finalizeAssessment();
 
     const state = usePersonalityStore.getState();
     expect(state.screen).toBe('results');
@@ -71,16 +71,33 @@ describe('usePersonalityStore', () => {
   });
 
 
-  it('finalizeAssessment succeeds and transitions to results even with extreme/missing values', () => {
+  it('finalizeAssessment succeeds and transitions to results even with extreme/missing values', async () => {
     usePersonalityStore.setState({
       answers: { 'q1': -999, 'q2': null, 'q3': 'invalid' },
       screen: 'assessment'
     });
 
-    usePersonalityStore.getState().finalizeAssessment();
+    await usePersonalityStore.getState().finalizeAssessment();
 
     const state = usePersonalityStore.getState();
     expect(state.screen).toBe('results');
     expect(state.assignedArchetype).toBeTruthy();
   });
 });
+
+  it('resetAssessment purges assessment data but keeps demographics', () => {
+    usePersonalityStore.setState({
+      demographics: { age: '25', region: 'NA', explicitConsent: true },
+      answers: { 'q1': 5, 'q2': 1 },
+      screen: 'assessment',
+      currentClusterIndex: 3
+    });
+
+    usePersonalityStore.getState().resetAssessment();
+    const state = usePersonalityStore.getState();
+
+    expect(state.screen).toBe('intro');
+    expect(state.currentClusterIndex).toBe(0);
+    expect(Object.keys(state.answers).length).toBe(0);
+    expect(state.demographics.age).toBe('25');
+  });

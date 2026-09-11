@@ -91,3 +91,20 @@
   - Bound `aria-live="polite"` inside `AssessmentFlow.jsx` to guarantee screen readers are correctly updated whenever `currentClusterIndex` or `reviewMode` is mutated.
   - Implemented an imperative `preventScroll: true` flag in `QuestionCluster.jsx` focus handoff logic to stop browsers from performing un-styled page jump scrolling before the `smooth` intersection observer handles it.
   - Adjusted the SSO token hydration check in `AppHeader.jsx` to defensively handle string modification failures in environments where replacing state pushes fail.
+
+## Session Persistence & Telemetry Resilience (Latest Updates)
+- **Session Hydration (`usePersonalityStore.js`)**:
+  - Implemented `resetAssessment` to safely purge all active test state while maintaining `demographics` continuity for the user session.
+  - Enhanced `isValidSession` schema integrity verification during Zustand migration to protect against corrupt/stale object properties throwing hydration errors.
+  - Refactored `finalizeAssessment` to explicitly fallback to `irtEngine.js` computations upon network failure, persisting data via the background `pendingSync` array for eventual consistency.
+- **Edge Resilience (`personalityApi.js`)**:
+  - Configured a 3000ms `AbortController` timeout wrap for all `/api/submit` and newly structured scoring operations, aggressively falling back to local computation (`fallback: true`) with telemetry tracking.
+- **Telemetry Dispatches (`telemetry.js`)**:
+  - Validated strict adherence to `navigator.sendBeacon` for all queue flushes, eliminating arbitrary `DEV` constraints. Unhandled promise rejections on legacy `fetch` fallbacks are securely logged via local `axim_telemetry_queue`.
+- **Keyboard Optimization (`LikertInput.jsx`)**:
+  - Upgraded semantic keyboard trapping. Standardized `focus()` shifts dynamically on label IDs, restoring complete Left/Down and Right/Up arrow navigation selection fidelity for accessibility.
+- **Worker Hardening (`personality-edge-worker`)**:
+  - Enforced `Cache-Control: no-store` strictly on all mutating endpoints (`/api/telemetry`, `/api/submit`) alongside production-ready CORS `Access-Control-Allow-Origin` definitions.
+  - Implemented robust `payload.assignedArchetype` schema validation to intercept and `400 Bad Request` malformed packets prior to KV aggregation queries.
+- **Test Integrity**:
+  - Authored comprehensive `vitest` implementations validating `resetAssessment` mutations and payload structure resilience on the edge worker API layer.

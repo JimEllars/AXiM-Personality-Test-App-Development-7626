@@ -8,7 +8,7 @@ describe('telemetry', () => {
 
         Object.defineProperty(global, 'navigator', {
       value: {
-        sendBeacon: vi.fn().mockReturnValue(true),
+        sendBeacon: vi.fn().mockReturnValue(false),
         userAgent: 'test-agent',
         onLine: true
       },
@@ -73,3 +73,11 @@ describe('telemetry', () => {
     expect(global.fetch).toHaveBeenCalledTimes(1);
   });
 });
+
+  it('calls sendBeacon and falls back to fetch if sendBeacon fails', () => {
+    global.navigator.sendBeacon = vi.fn().mockReturnValue(false);
+    trackEvent('test_beacon', {});
+    flushQueue();
+    expect(global.navigator.sendBeacon).toHaveBeenCalled();
+    expect(global.fetch).toHaveBeenCalled();
+  });
