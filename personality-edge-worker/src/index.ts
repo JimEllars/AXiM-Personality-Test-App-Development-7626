@@ -155,7 +155,7 @@ export default {
         } catch (e: any) {
           console.error("Telemetry ingestion failed", e);
           return new Response(JSON.stringify({ status: "ok", ingested: 0, error: e.message || 'Bad request' }), {
-            status: 202,
+            status: 400,
             headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
           });
         }

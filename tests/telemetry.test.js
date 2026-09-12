@@ -29,6 +29,7 @@ describe('telemetry', () => {
   afterEach(() => {
     vi.clearAllMocks();
     localStorage.clear();
+    sessionStorage.clear();;
   });
 
   it('batches events and flushes', () => {
@@ -56,7 +57,7 @@ describe('telemetry', () => {
     expect(global.fetch).not.toHaveBeenCalled();
 
     // check local storage
-    const stored = JSON.parse(localStorage.getItem('axim_telemetry_queue') || '[]');
+    const stored = JSON.parse(sessionStorage.getItem('axim_telemetry_queue') || '[]');
     expect(stored.length).toBeGreaterThan(0);
     expect(stored[0].event).toBe('offline_event_1');
   });
