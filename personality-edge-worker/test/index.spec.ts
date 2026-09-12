@@ -97,4 +97,34 @@ describe('Edge Worker', () => {
     expect(data.status).toBe("ok");
     expect(data.ingested).toBe(1);
   });
+
+  it('creates and retrieves a share link', async () => {
+    // Note: the test mock env needs to have a PERSONALITY_CACHE_KV
+    const request = new Request('http://localhost/api/results/share', {
+      method: 'POST',
+      body: JSON.stringify({ result: { archetype: 'Explorer' } }),
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+    // We mock ctx and env
+    let kvStore = {};
+    const env = {
+      PERSONALITY_CACHE_KV: {
+        put: async (k, v) => { kvStore[k] = v; },
+        get: async (k) => kvStore[k],
+      }
+    };
+    const ctx = { waitUntil: (p) => p };
+
+    const res = await worker.fetch(request, env, ctx);
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data.shareId).toBeDefined();
+
+    const getReq = new Request(`http://localhost/api/results/${data.shareId}`);
+    const getRes = await worker.fetch(getReq, env, ctx);
+    expect(getRes.status).toBe(200);
+    const getData = await getRes.json();
+    expect(getData.archetype).toBe('Explorer');
+  });
 });

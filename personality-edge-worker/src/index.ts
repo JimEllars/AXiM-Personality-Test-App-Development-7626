@@ -75,11 +75,13 @@ export default {
           status: "healthy",
           region: request.cf?.colo || "local",
           timestamp: Date.now(),
+          runtime: "cloudflare-worker",
           bindings: {
              TELEMETRY_DB: !!env.TELEMETRY_DB,
              PERSONALITY_CACHE_KV: !!env.PERSONALITY_CACHE_KV
           }
         }), {
+          status: 200,
           headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
         });
       }
@@ -156,6 +158,53 @@ export default {
             status: 202,
             headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
           });
+        }
+      }
+
+
+      if (request.method === 'POST' && normalizedPathname === '/api/results/share') {
+        try {
+          const payload = await request.json() as any;
+          if (!payload || !payload.result) {
+            return new Response(JSON.stringify({ error: 'Missing result data' }), { status: 400, headers: corsHeaders });
+          }
+
+          const shareId = Math.random().toString(36).substring(2, 15);
+          if (env.PERSONALITY_CACHE_KV) {
+            ctx.waitUntil(env.PERSONALITY_CACHE_KV.put(`share_${shareId}`, JSON.stringify(payload.result), { expirationTtl: 604800 })); // 7 days
+          }
+
+          return new Response(JSON.stringify({ shareId, url: `${url.origin}/results/${shareId}` }), {
+            status: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        } catch (e) {
+          return new Response(JSON.stringify({ error: 'Failed to create share link' }), { status: 500, headers: corsHeaders });
+        }
+      }
+
+      if (request.method === 'GET' && normalizedPathname.startsWith('/api/results/')) {
+        const shareId = normalizedPathname.split('/').pop();
+        if (!shareId || shareId === 'share') {
+           return new Response('Not Found', { status: 404, headers: corsHeaders });
+        }
+
+        try {
+          let resultData = null;
+          if (env.PERSONALITY_CACHE_KV) {
+            resultData = await env.PERSONALITY_CACHE_KV.get(`share_${shareId}`);
+          }
+
+          if (!resultData) {
+             return new Response(JSON.stringify({ error: 'Share link not found or expired' }), { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+          }
+
+          return new Response(resultData, {
+            status: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=3600' },
+          });
+        } catch (e) {
+          return new Response(JSON.stringify({ error: 'Failed to retrieve share link' }), { status: 500, headers: corsHeaders });
         }
       }
 
