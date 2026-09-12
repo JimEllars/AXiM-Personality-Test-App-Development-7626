@@ -108,3 +108,39 @@ a {
 .question-card {
     min-height: 44px;
 }
+
+/* Accessibility & Mobile improvements */
+.likert-option {
+    min-width: 44px !important;
+    min-height: 44px !important;
+}
+
+.likert-option:focus-visible {
+    outline: 2px solid #50e3c2 !important;
+    outline-offset: 2px !important;
+    border-radius: 4px;
+}
+
+/* Additional scaling rules for < 380px to avoid horizontal scroll and clipping */
+@media (max-width: 380px) {
+  .radar-wrap {
+    padding: 0 10px;
+    width: 100% !important;
+    overflow-x: hidden;
+  }
+  .radar-wrap svg {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+  }
+  .trend-svg {
+    width: 100% !important;
+    min-width: unset !important;
+  }
+  .theta-chart-grid {
+    gap: 8px !important;
+  }
+  .theta-chart-card {
+    padding: 10px !important;
+  }
+}

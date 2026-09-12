@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import { scoreAssessmentDiagnostics } from '../services/psychometrics/irtEngine';
 import { projectArchetype } from '../services/psychometrics/archetypeProjector';
 import { QUESTION_BANK, FUNCTION_KEYS } from '../data/questionBank';
@@ -87,9 +87,38 @@ function createResultSnapshot(state) {
   };
 }
 
+
+// Safe storage wrapper to handle QuotaExceededError and incognito
+const safeStorage = {
+  getItem: (name) => {
+    try {
+      const value = localStorage.getItem(name);
+      return value;
+    } catch (e) {
+      console.warn('Storage unavailable or corrupted (getItem)', e);
+      return null;
+    }
+  },
+  setItem: (name, value) => {
+    try {
+      localStorage.setItem(name, value);
+    } catch (e) {
+      console.warn('Storage unavailable or quota exceeded (setItem)', e);
+    }
+  },
+  removeItem: (name) => {
+    try {
+      localStorage.removeItem(name);
+    } catch (e) {
+      console.warn('Storage unavailable (removeItem)', e);
+    }
+  }
+};
+
 export const usePersonalityStore = create(
   persist(
     (set, get) => ({
+
       ...initialState,
 
       setScreen: (screen) => {
@@ -326,6 +355,7 @@ export const usePersonalityStore = create(
     {
       name: 'axim_personality_session',
       version: STORAGE_VERSION,
+      storage: createJSONStorage(() => safeStorage),
 
       partialize: (state) => ({
         screen: state.screen,

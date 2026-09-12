@@ -85,3 +85,33 @@ export async function getBenchmarks() {
     };
   }
 }
+
+export async function shareResult(resultData) {
+  try {
+    const response = await fetchWithTimeout(`${WORKER_URL}/api/results/share`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ result: resultData }),
+      timeout: 3000
+    });
+    return await response.json();
+  } catch (error) {
+    console.error('Failed to create share link:', error);
+    return { error: error.message };
+  }
+}
+
+export async function getSharedResult(shareId) {
+  try {
+    const response = await fetchWithTimeout(`${WORKER_URL}/api/results/${shareId}`, {
+      timeout: 3000
+    });
+    if (!response.ok) {
+       throw new Error('Not found');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Failed to get shared result:', error);
+    return { error: error.message };
+  }
+}

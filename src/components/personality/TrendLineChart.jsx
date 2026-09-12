@@ -50,8 +50,10 @@ function TrendLineChart({ values, min, max, color, label }) {
     <svg
       className="trend-svg"
       viewBox={`0 0 ${width} ${height}`}
+      preserveAspectRatio="none"
       role="img"
       aria-label={label}
+      style={{ maxWidth: '100%', height: 'auto', display: 'block' }}
     >
       {[0, 0.5, 1].map((position) => {
         const y = 12 + position * (height - 24);
