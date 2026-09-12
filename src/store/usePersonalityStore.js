@@ -278,9 +278,9 @@ export const usePersonalityStore = create(
           }
           if (Object.keys(state.answers).length > 0) {
              // Preserve currentClusterIndex and answers, make sure we have a startedAt
-             return { screen: 'assessment', startedAt: state.startedAt || Date.now() };
+             return { screen: 'assessment', startedAt: state.startedAt || Date.now(), demographics: state.demographics };
           }
-          return { screen: 'assessment', currentClusterIndex: 0, startedAt: Date.now() };
+          return { screen: 'assessment', currentClusterIndex: 0, startedAt: Date.now(), demographics: state.demographics };
         });
       },
 
