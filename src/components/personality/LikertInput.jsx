@@ -1,18 +1,29 @@
 import React from 'react';
 import { LIKERT_ANCHORS } from '../../data/questionBank';
 
-function LikertInput({ itemId, value, onChange }) {
-const handleKeyDown = (e) => {
-    const currentValue = value || 0;
-    let nextValue = currentValue;
+export function resolveLikertKey(currentValue = 0, key) {
+  let nextValue = currentValue;
 
-    if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
-      nextValue = Math.min(5, currentValue + 1);
-    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
-      nextValue = Math.max(1, currentValue - 1);
-    } else if (e.key >= '1' && e.key <= '5') {
-      nextValue = parseInt(e.key, 10);
-    } else if (e.key === 'Enter' || e.key === ' ') {
+  if (key === 'ArrowRight' || key === 'ArrowUp') {
+    nextValue = Math.min(5, currentValue + 1);
+  } else if (key === 'ArrowLeft' || key === 'ArrowDown') {
+    nextValue = Math.max(1, currentValue - 1);
+  } else if (key >= '1' && key <= '5') {
+    nextValue = parseInt(key, 10);
+  } else if (key === '7') {
+    nextValue = 5; // Support 7-point keyboard scale mapping to 5
+  }
+
+  return nextValue !== currentValue && nextValue >= 1 && nextValue <= 5
+    ? nextValue
+    : null;
+}
+
+function LikertInput({ itemId, value, onChange }) {
+  const handleKeyDown = (e) => {
+    const currentValue = value || 0;
+
+    if (e.key === 'Enter' || e.key === ' ') {
       // Let the parent QuestionCluster handle scrolling to the next item
       if (currentValue >= 1 && currentValue <= 5) {
         // Find the closest question card and fire a custom event
@@ -23,7 +34,8 @@ const handleKeyDown = (e) => {
       return;
     }
 
-    if (nextValue !== currentValue && nextValue >= 1 && nextValue <= 5) {
+    const nextValue = resolveLikertKey(currentValue, e.key);
+    if (nextValue !== null) {
       handleChange(nextValue);
       e.preventDefault();
     }
@@ -60,8 +72,9 @@ const handleKeyDown = (e) => {
           }}
           className={`likert-option ${value === anchor.value ? 'selected' : ''}`}
           title={`${anchor.label}. Keyboard shortcut: ${anchor.value}`}
+          onClick={() => handleChange(anchor.value)}
         >
-          <input type="radio" name={itemId} value={anchor.value} checked={value === anchor.value} onChange={() => handleChange(anchor.value)} tabIndex={-1} aria-hidden="true" />
+          <input type="radio" name={itemId} value={anchor.value} checked={value === anchor.value} readOnly tabIndex={-1} aria-hidden="true" />
           <span className="likert-circle">{anchor.value}</span>
           <small>{anchor.short}</small>
         </label>

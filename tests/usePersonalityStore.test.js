@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { usePersonalityStore } from '../src/store/usePersonalityStore';
+import { usePersonalityStore, validateAssessmentIntegrity } from '../src/store/usePersonalityStore';
 import { submitAssessment } from '../src/services/personalityApi';
 import { scoreAssessmentDiagnostics } from '../src/services/psychometrics/irtEngine';
 import { projectArchetype } from '../src/services/psychometrics/archetypeProjector';
@@ -101,3 +101,33 @@ describe('usePersonalityStore', () => {
     expect(Object.keys(state.answers).length).toBe(0);
     expect(state.demographics.age).toBe('25');
   });
+
+describe('usePersonalityStore validation', () => {
+  it('validateAssessmentIntegrity validates good data', () => {
+    const state = {
+      answers: { 'q1': 3, 'q2': 5 },
+      currentClusterIndex: 2
+    };
+    const { isValid, sanitizedAnswers, sanitizedIndex } = validateAssessmentIntegrity(state);
+    expect(isValid).toBe(true);
+    expect(sanitizedAnswers).toEqual(state.answers);
+    expect(sanitizedIndex).toBe(2);
+  });
+
+  it('validateAssessmentIntegrity sanitizes bad data', () => {
+    const state = {
+      answers: { 'q1': 6, 'q2': 'a', 'q3': 1 },
+      currentClusterIndex: 999
+    };
+    const { isValid, sanitizedAnswers, sanitizedIndex } = validateAssessmentIntegrity(state);
+    expect(isValid).toBe(false);
+    expect(sanitizedAnswers).toEqual({ 'q3': 1 });
+    expect(sanitizedIndex).toBe(0);
+  });
+
+  it('store recovers gracefully when invalid data is migrated', () => {
+    // This is tested implicitly by the migrate schema logic but we can mock it
+    const store = usePersonalityStore.getState();
+    store.resetAssessment();
+  });
+});

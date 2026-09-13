@@ -5,6 +5,7 @@ import { projectArchetype } from '../services/psychometrics/archetypeProjector';
 import { QUESTION_BANK, FUNCTION_KEYS } from '../data/questionBank';
 import { trackEvent } from '../services/telemetry';
 import { submitAssessment } from '../services/personalityApi';
+import { ASSESSMENT_CLUSTERS } from '../data/questionBank';
 
 const STORAGE_VERSION = 5;
 
@@ -115,7 +116,33 @@ const safeStorage = {
   }
 };
 
+
+export function validateAssessmentIntegrity(state) {
+  let isValid = true;
+  const sanitizedAnswers = {};
+
+  if (state.answers) {
+    Object.entries(state.answers).forEach(([key, value]) => {
+      const numValue = Number(value);
+      if (Number.isInteger(numValue) && numValue >= 1 && numValue <= 5) {
+        sanitizedAnswers[key] = numValue;
+      } else {
+        isValid = false;
+      }
+    });
+  }
+
+  let sanitizedIndex = Number(state.currentClusterIndex);
+  if (!Number.isInteger(sanitizedIndex) || sanitizedIndex < 0 || sanitizedIndex >= ASSESSMENT_CLUSTERS.length) {
+    isValid = false;
+    sanitizedIndex = 0;
+  }
+
+  return { isValid, sanitizedAnswers, sanitizedIndex };
+}
+
 export const usePersonalityStore = create(
+
   persist(
     (set, get) => ({
 
@@ -343,12 +370,28 @@ export const usePersonalityStore = create(
 
       clearInsightBookmarks: () => set({ bookmarkedInsights: {} }),
 
+
       clearExerciseProgress: () =>
         set({
           completedExercises: {},
           exerciseNotes: {},
           exerciseStartedAt: {}
         }),
+
+      auditStoreIntegrity: () => {
+        const state = get();
+        const { isValid, sanitizedAnswers, sanitizedIndex } = validateAssessmentIntegrity(state);
+
+        if (!isValid) {
+          set({
+            answers: sanitizedAnswers,
+            currentClusterIndex: sanitizedIndex
+          });
+        }
+
+        return { isValid, sanitizedAnswers, sanitizedIndex };
+      },
+
 
       resetAssessment: () => set((state) => ({ ...initialState, demographics: { ...state.demographics } }))
     }),
@@ -386,11 +429,23 @@ export const usePersonalityStore = create(
           let migratedAnswers = persistedState.answers || persistedState.responses || {};
           let migratedClusterIndex = Math.max(0, Number(persistedState.currentClusterIndex) || Number(persistedState.currentQuestionIndex) || 0);
 
+
           if (version !== STORAGE_VERSION) {
              // Schema mismatch - preserve demographics but reset incompatible answers & indexes
              migratedAnswers = {};
              migratedClusterIndex = 0;
           }
+
+          const { isValid, sanitizedAnswers, sanitizedIndex } = validateAssessmentIntegrity({
+             answers: migratedAnswers,
+             currentClusterIndex: migratedClusterIndex
+          });
+
+          if (!isValid) {
+             migratedAnswers = sanitizedAnswers;
+             migratedClusterIndex = sanitizedIndex;
+          }
+
 
           return {
             ...initialState,
