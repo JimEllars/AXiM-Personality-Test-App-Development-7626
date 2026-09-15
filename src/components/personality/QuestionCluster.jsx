@@ -51,6 +51,9 @@ function QuestionCluster({ items, answers, onAnswer, clusterIndex }) {
       exit={{ opacity: 0, x: -28 }}
       transition={{ duration: 0.28 }}
     >
+      <div aria-live="polite" className="sr-only" aria-atomic="true">
+        Showing question cluster {clusterIndex + 1}
+      </div>
       {items.map((item, index) => {
         const answered = Number.isInteger(answers[item.id]);
         const questionNumber = questionOffset + index + 1;

@@ -145,6 +145,7 @@ function ArchetypeCompatibilityMatrix() {
       </div>
 
       <div className="compatibility-layout">
+        <div className="compatibility-grid-wrapper" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', width: '100%' }}>
         <div
           className="compatibility-grid"
           role="grid"
@@ -171,6 +172,7 @@ function ArchetypeCompatibilityMatrix() {
               </button>
             );
           })}
+        </div>
         </div>
 
         <div className="compatibility-detail">

@@ -27,28 +27,11 @@ import ScoreComparisonPanel from './ScoreComparisonPanel';
 
 const { FiCheck, FiDownload, FiRefreshCw, FiShare2, FiUserPlus } = FiIcons;
 
-let PDFDownloadLink = null;
 
-const PdfButtonContent = ({ loading, error }) => {
-  React.useEffect(() => {
-    if (!loading && !error) {
-      trackEvent('pdf_download_ready');
-    }
-  }, [loading, error]);
 
-  return (
-    <>
-      {error ? 'Report unavailable' : loading ? 'Generating dossier...' : 'Download PDF Dossier'}
-      <SafeIcon icon={FiDownload} />
-    </>
-  );
-};
 
 
 function ResultView() {
-  const [pdfReady, setPdfReady] = useState(false);
-  const [PdfDocComponent, setPdfDocComponent] = useState(null);
-  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const store = usePersonalityStore();
   const details = ARCHETYPE_DETAILS[store.assignedArchetype] || ['Cognitive Profile', 'Your assessment results have been calculated successfully.'];
   const [name, description] = details;
@@ -104,52 +87,12 @@ function ResultView() {
 
         <div className="result-actions">
 
-          {pdfReady ? (
-            <Suspense fallback={<button className="primary-button" disabled>Generating dossier... <SafeIcon icon={FiDownload} /></button>}>
-              <ErrorBoundary fallback={<button className="primary-button" disabled>Report unavailable <SafeIcon icon={FiDownload} /></button>} onError={() => trackEvent('pdf_generation_error')}>
-                {PDFDownloadLink && (
-                  <PDFDownloadLink
-                    className="primary-button"
-                    document={
-                      <PdfDocComponent
-                        archetype={store.assignedArchetype}
-                        thetaScores={store.thetaScores}
-                        generatedAt={new Date().toLocaleDateString()}
-                      />
-                    }
-                    fileName={`AXiM-${store.assignedArchetype || 'Profile'}-Profile.pdf`}
-                    onClick={() => trackEvent('pdf_download_attempt')}
-                  >
-                    {({ loading, error }) => {
-                      if (error) trackEvent('pdf_generation_error', { error: error.message });
-                      return <PdfButtonContent loading={loading} error={error} />;
-                    }}
-                  </PDFDownloadLink>
-                )}
-              </ErrorBoundary>
-            </Suspense>
-          ) : (
-            <button className="primary-button" type="button" disabled={isGeneratingPDF} onClick={async () => {
-              if (isGeneratingPDF) return;
-              setIsGeneratingPDF(true);
-              trackEvent('pdf_preparation_started');
-              try {
-                if (!PDFDownloadLink) {
-                   const pdfModule = await import('@react-pdf/renderer');
-                   const docModule = await import('../../lib/pdf/PersonalityReportDocument');
-                   setPdfDocComponent(() => docModule.default);
-                   PDFDownloadLink = pdfModule.PDFDownloadLink;
-                }
-                setPdfReady(true);
-              } catch (err) {
-                 trackEvent('pdf_generation_error', { error: err.message });
-              } finally {
-                 setIsGeneratingPDF(false);
-              }
-            }}>
-              {isGeneratingPDF ? ( <><span className="spinner" style={{ display: 'inline-block', width: '1em', height: '1em', border: '2px solid rgba(255,255,255,0.3)', borderRadius: '50%', borderTopColor: '#fff', animation: 'spin 1s ease-in-out infinite' }} /> Loading... </> ) : ( <>Prepare report <SafeIcon icon={FiDownload} /></> )}
-            </button>
-          )}
+          <button className="primary-button" type="button" onClick={() => {
+            const resultsToolbar = document.querySelector('.results-toolbar');
+            if (resultsToolbar) resultsToolbar.scrollIntoView({ behavior: 'smooth' });
+          }}>
+            Download Report <SafeIcon icon={FiDownload} />
+          </button>
 
 
           <button className="secondary-button" type="button" onClick={share}>

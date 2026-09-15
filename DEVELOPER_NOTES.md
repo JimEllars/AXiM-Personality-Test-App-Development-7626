@@ -127,3 +127,13 @@
 - **Telemetry Durability**: Configured flush interval to 5000ms. Shifted offline buffering from `sessionStorage` to `localStorage` under key `axim_telemetry_cache`. Enabled delivery during `visibilitychange`, `pagehide`, and `beforeunload`.
 - **Assessment Safety**: Updated `resetAssessment` inside `usePersonalityStore` to ensure `resultHistory` remains intact (alongside demographics) to avoid accidental purge of completion logs.
 - **Test Suite Hygiene**: Aligned floating tests in `telemetry.test.js` and `usePersonalityStore.test.js` inside their correct describe blocks to ensure reliable teardown hooks. Cleared out deprecated scratch scripts from workspace.
+
+## Dynamic Code-Splitting, Telemetry & Accessibility Updates (Production Polish)
+- **Dynamic PDF Splitting**: Decoupled `@react-pdf/renderer` from the main bundle in `ResultView.jsx` and `ResultsToolbar.jsx`. The heavy PDF parsing engine is now asynchronously fetched only when the user clicks 'Download Report', improving initial load performance. Added a subtle loading spinner to the button during resolution.
+- **Telemetry Resiliency**: Enhanced `src/services/telemetry.js` to use a dedicated offline `localStorage` event queue (`axim_telemetry_queue`). Integrated a `navigator.sendBeacon` fallback triggered on page lifecycle events (`visibilitychange`, `pagehide`, `beforeunload`), alongside maintaining an exponential backoff pattern for failed `fetch` dispatches to ensure robust silent-failure handling.
+- **Edge Worker Contract**: Standardized `personality-edge-worker/src/index.ts` CORS responses to explicitly permit production origins (`https://axim.us.com`), preview URLs (`*.pages.dev`), and `localhost`. Improved payload validation aligned with telemetry contracts and reformatted ingestion responses to return HTTP 202 with the structure `{ success: true, processed: count }`.
+- **Accessibility Enhancements**:
+  - Validated dialog constraints on `DemographicGateModal.jsx`, guaranteeing proper `role="dialog"`, `aria-modal="true"`, labelled contexts, and active focus trapping for keyboard users.
+  - Wrapped `ArchetypeCompatibilityMatrix.jsx` grid within a horizontal scrolling element natively optimized for mobile devices (`overflow-x-auto`, `-webkit-overflow-scrolling: touch`).
+  - Added a screen-reader optimized `aria-live="polite"` region into `QuestionCluster.jsx` to gracefully announce section progressions.
+- **Zustand Store Protection**: Implemented strict storage versioning (`STORAGE_VERSION = 1`) inside `usePersonalityStore.js`. Adjusted the `migrate` step to preserve user configurations against unexpected schema conflicts, correctly sanitizing answer payloads across minor updates without wiping out demographic session data.

@@ -3,9 +3,11 @@ import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../../common/SafeIcon';
 import { usePersonalityStore } from '../../store/usePersonalityStore';
 import { emailReport } from '../../services/personalityApi';
+import { trackEvent } from '../../services/telemetry';
 import './ResultsToolbar.css';
 
-const { FiCheck, FiCopy, FiPrinter, FiShield, FiTrash2, FiMail } = FiIcons;
+const { FiCheck, FiCopy, FiPrinter, FiShield, FiTrash2, FiMail, FiDownload } = FiIcons;
+
 
 async function copyText(text) {
   if (navigator.clipboard) {
@@ -32,6 +34,36 @@ function ResultsToolbar({ archetype, title }) {
   const [copied, setCopied] = useState(false);
   const [showReset, setShowReset] = useState(false);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
+  const thetaScores = usePersonalityStore((state) => state.thetaScores);
+
+  const downloadReport = async () => {
+    if (isDownloadingPdf) return;
+    setIsDownloadingPdf(true);
+    trackEvent('pdf_download_clicked', { archetype });
+    try {
+      const [{ pdf }, { default: PersonalityReportDocument }] = await Promise.all([
+        import('@react-pdf/renderer'),
+        import('../../lib/pdf/PersonalityReportDocument')
+      ]);
+      const blob = await pdf(<PersonalityReportDocument archetype={archetype} thetaScores={thetaScores} generatedAt={new Date().toLocaleDateString()} />).toBlob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `AXiM-${archetype || 'Profile'}-Report.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('PDF generation failed', err);
+      trackEvent('pdf_generation_error', { error: err.message });
+    } finally {
+      setIsDownloadingPdf(false);
+    }
+  };
+
+
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [email, setEmail] = useState('');
   const [emailStatus, setEmailStatus] = useState(''); // 'sending', 'sent', 'error'
@@ -99,11 +131,15 @@ function ResultsToolbar({ archetype, title }) {
           <SafeIcon icon={copied ? FiCheck : FiCopy} />
           {copied ? 'Copied' : 'Copy summary'}
         </button>
+        <button type="button" onClick={downloadReport} disabled={isDownloadingPdf}>
+          {isDownloadingPdf ? <span className="spinner" style={{ display: 'inline-block', width: '1em', height: '1em', border: '2px solid rgba(255,255,255,0.3)', borderRadius: '50%', borderTopColor: 'currentColor', animation: 'spin 1s ease-in-out infinite' }} /> : <SafeIcon icon={FiDownload} />}
+          Download Report
+        </button>
         <button type="button" onClick={() => {
     setIsGeneratingPdf(true);
     setTimeout(() => { printResults(); setIsGeneratingPdf(false); }, 500);
   }} disabled={isGeneratingPdf}>
-          {isGeneratingPdf ? <span className="spinner" /> : <SafeIcon icon={FiPrinter} />}
+          {isGeneratingPdf ? <span className="spinner" style={{ display: 'inline-block', width: '1em', height: '1em', border: '2px solid rgba(255,255,255,0.3)', borderRadius: '50%', borderTopColor: 'currentColor', animation: 'spin 1s ease-in-out infinite' }} /> : <SafeIcon icon={FiPrinter} />}
           Print
         </button>
         <button
