@@ -7,7 +7,7 @@ import { trackEvent } from '../services/telemetry';
 import { submitAssessment } from '../services/personalityApi';
 import { ASSESSMENT_CLUSTERS } from '../data/questionBank';
 
-const STORAGE_VERSION = 5;
+const STORAGE_VERSION = 1;
 
 const initialState = {
   screen: 'intro',
@@ -430,7 +430,7 @@ export const usePersonalityStore = create(
           let migratedClusterIndex = Math.max(0, Number(persistedState.currentClusterIndex) || Number(persistedState.currentQuestionIndex) || 0);
 
 
-          if (version !== STORAGE_VERSION) {
+          if (version !== STORAGE_VERSION && version !== 0 && version !== undefined) {
              // Schema mismatch - preserve demographics but reset incompatible answers & indexes
              migratedAnswers = {};
              migratedClusterIndex = 0;

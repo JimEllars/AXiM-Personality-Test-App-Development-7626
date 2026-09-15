@@ -55,7 +55,7 @@ describe('telemetry', () => {
     expect(global.fetch).not.toHaveBeenCalled();
 
     // check local storage
-    const stored = JSON.parse(localStorage.getItem('axim_telemetry_cache') || '[]');
+    const stored = JSON.parse(localStorage.getItem('axim_telemetry_queue') || '[]');
     expect(stored.length).toBeGreaterThan(0);
     expect(stored[0].event).toBe('offline_event_1');
   });

@@ -27,9 +27,9 @@ export function flushQueue() {
     if (typeof navigator !== 'undefined' && !navigator.onLine) {
         // Offline buffer
         try {
-            const stored = JSON.parse(localStorage.getItem('axim_telemetry_cache') || '[]');
+            const stored = JSON.parse(localStorage.getItem('axim_telemetry_queue') || '[]');
             stored.push(...payload);
-            localStorage.setItem('axim_telemetry_cache', JSON.stringify(stored.slice(-MAX_PAYLOAD_SIZE)));
+            localStorage.setItem('axim_telemetry_queue', JSON.stringify(stored.slice(-MAX_PAYLOAD_SIZE)));
         } catch (e) {
             console.warn("Failed to write to offline telemetry buffer");
         }
@@ -59,9 +59,9 @@ export function flushQueue() {
           } else {
             // Add back to offline buffer on fail after retries
             try {
-              const stored = JSON.parse(localStorage.getItem('axim_telemetry_cache') || '[]');
+              const stored = JSON.parse(localStorage.getItem('axim_telemetry_queue') || '[]');
               stored.push(...payload);
-              localStorage.setItem('axim_telemetry_cache', JSON.stringify(stored.slice(-MAX_PAYLOAD_SIZE)));
+              localStorage.setItem('axim_telemetry_queue', JSON.stringify(stored.slice(-MAX_PAYLOAD_SIZE)));
             } catch (err) { /* silent catch */ }
           }
         });
@@ -132,10 +132,10 @@ export function trackError(error, errorInfo = {}) {
 export function flushOfflineQueue() {
     if (typeof navigator !== 'undefined' && !navigator.onLine) return;
     try {
-        const stored = JSON.parse(localStorage.getItem('axim_telemetry_cache') || '[]');
+        const stored = JSON.parse(localStorage.getItem('axim_telemetry_queue') || '[]');
         if (stored.length > 0) {
             eventQueue.push(...stored);
-            localStorage.removeItem('axim_telemetry_cache');
+            localStorage.removeItem('axim_telemetry_queue');
             flushQueue();
         }
     } catch (e) {
@@ -146,6 +146,8 @@ export function flushOfflineQueue() {
 
 // Ensure delivery during navigation/unload
 if (typeof window !== 'undefined') {
+  // Attempt flush on load with slight delay
+  setTimeout(flushOfflineQueue, 1000);
   window.addEventListener('pagehide', flushQueue);
   window.addEventListener('beforeunload', flushQueue);
   window.addEventListener('visibilitychange', () => {

@@ -30,8 +30,8 @@ describe('Edge Worker', () => {
     const response = await worker.fetch(request, {} as any, {} as any);
     expect(response.status).toBe(202);
     const data: any = await response.json();
-    expect(data.status).toBe("ok");
-    expect(data.ingested).toBe(1);
+    expect(data.success).toBe(true);
+    expect(data.processed).toBe(1);
   });
 
   it('telemetry accepts valid payload even with subpath', async () => {
@@ -42,8 +42,8 @@ describe('Edge Worker', () => {
     const response = await worker.fetch(request, {} as any, {} as any);
     expect(response.status).toBe(202);
     const data: any = await response.json();
-    expect(data.status).toBe("ok");
-    expect(data.ingested).toBe(1);
+    expect(data.success).toBe(true);
+    expect(data.processed).toBe(1);
   });
 
   it('telemetry rejects invalid schema payload (missing event)', async () => {
@@ -82,8 +82,8 @@ describe('Edge Worker', () => {
     const response = await worker.fetch(request, {} as any, {} as any);
     expect(response.status).toBe(202);
     const data: any = await response.json();
-    expect(data.status).toBe("ok");
-    expect(data.ingested).toBe(1);
+    expect(data.success).toBe(true);
+    expect(data.processed).toBe(1);
   });
 
   it('telemetry accepts valid payload on /api/v1/telemetry', async () => {
@@ -94,8 +94,8 @@ describe('Edge Worker', () => {
     const response = await worker.fetch(request, {} as any, {} as any);
     expect(response.status).toBe(202);
     const data: any = await response.json();
-    expect(data.status).toBe("ok");
-    expect(data.ingested).toBe(1);
+    expect(data.success).toBe(true);
+    expect(data.processed).toBe(1);
   });
 
   it('creates and retrieves a share link', async () => {
