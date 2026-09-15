@@ -5,7 +5,7 @@ let eventQueue = [];
 let flushTimeout = null;
 
 const QUEUE_SIZE_LIMIT = 10;
-const FLUSH_INTERVAL_MS = 15000;
+const FLUSH_INTERVAL_MS = 5000;
 const MAX_PAYLOAD_SIZE = 50; // Truncate queue to prevent oversized payloads
 
 export function flushQueue() {
@@ -27,9 +27,9 @@ export function flushQueue() {
     if (typeof navigator !== 'undefined' && !navigator.onLine) {
         // Offline buffer
         try {
-            const stored = JSON.parse(sessionStorage.getItem('axim_telemetry_queue') || '[]');
+            const stored = JSON.parse(localStorage.getItem('axim_telemetry_cache') || '[]');
             stored.push(...payload);
-            sessionStorage.setItem('axim_telemetry_queue', JSON.stringify(stored.slice(-MAX_PAYLOAD_SIZE)));
+            localStorage.setItem('axim_telemetry_cache', JSON.stringify(stored.slice(-MAX_PAYLOAD_SIZE)));
         } catch (e) {
             console.warn("Failed to write to offline telemetry buffer");
         }
@@ -59,9 +59,9 @@ export function flushQueue() {
           } else {
             // Add back to offline buffer on fail after retries
             try {
-              const stored = JSON.parse(sessionStorage.getItem('axim_telemetry_queue') || '[]');
+              const stored = JSON.parse(localStorage.getItem('axim_telemetry_cache') || '[]');
               stored.push(...payload);
-              sessionStorage.setItem('axim_telemetry_queue', JSON.stringify(stored.slice(-MAX_PAYLOAD_SIZE)));
+              localStorage.setItem('axim_telemetry_cache', JSON.stringify(stored.slice(-MAX_PAYLOAD_SIZE)));
             } catch (err) { /* silent catch */ }
           }
         });
@@ -132,10 +132,10 @@ export function trackError(error, errorInfo = {}) {
 export function flushOfflineQueue() {
     if (typeof navigator !== 'undefined' && !navigator.onLine) return;
     try {
-        const stored = JSON.parse(sessionStorage.getItem('axim_telemetry_queue') || '[]');
+        const stored = JSON.parse(localStorage.getItem('axim_telemetry_cache') || '[]');
         if (stored.length > 0) {
             eventQueue.push(...stored);
-            sessionStorage.removeItem('axim_telemetry_queue');
+            localStorage.removeItem('axim_telemetry_cache');
             flushQueue();
         }
     } catch (e) {

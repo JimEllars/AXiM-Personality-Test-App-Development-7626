@@ -27,3 +27,6 @@ dist-ssr
 finish_verification.py
 axim-personality-test@*
 vite
+# test/build dumps
+coverage
+.nyc_output
