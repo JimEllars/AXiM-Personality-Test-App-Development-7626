@@ -122,3 +122,8 @@
   - `src/components/personality/LikertInput.jsx` fully observes `ArrowLeft/Right/Up/Down` and standard numeral `1-5` keystrokes. Keyboard tabbing correctly navigates standard 44x44px radiogroup elements conforming to the WCAG 2.1 AA specifications.
   - Implemented responsive scalable `<svg>` behaviors using `.radar-wrap` viewport restrictions and `preserveAspectRatio="xMidYMid meet"` properties on `RadarProfileChart.jsx` alongside `preserveAspectRatio="none"` in `TrendLineChart.jsx`.
 - **Test Integrity**: Validated full 100% functional adherence executing `vitest run`, encompassing Edge worker, Likert states, State Hydration configurations, and offline fallback queue functionality.
+
+### Sprint 7626.2 Updates
+- **Telemetry Durability**: Configured flush interval to 5000ms. Shifted offline buffering from `sessionStorage` to `localStorage` under key `axim_telemetry_cache`. Enabled delivery during `visibilitychange`, `pagehide`, and `beforeunload`.
+- **Assessment Safety**: Updated `resetAssessment` inside `usePersonalityStore` to ensure `resultHistory` remains intact (alongside demographics) to avoid accidental purge of completion logs.
+- **Test Suite Hygiene**: Aligned floating tests in `telemetry.test.js` and `usePersonalityStore.test.js` inside their correct describe blocks to ensure reliable teardown hooks. Cleared out deprecated scratch scripts from workspace.

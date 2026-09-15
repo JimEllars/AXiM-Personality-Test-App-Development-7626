@@ -45,7 +45,7 @@ describe('usePersonalityStore', () => {
     localStorage.setItem('axim_passport_token', 'test-token');
 
     usePersonalityStore.setState({ answers: { 'q1': 5, 'q2': 1 }, screen: 'assessment' });
-    await await usePersonalityStore.getState().finalizeAssessment();
+    await usePersonalityStore.getState().finalizeAssessment();
 
     const state = usePersonalityStore.getState();
     expect(state.screen).toBe('results');
@@ -83,14 +83,14 @@ describe('usePersonalityStore', () => {
     expect(state.screen).toBe('results');
     expect(state.assignedArchetype).toBeTruthy();
   });
-});
 
-  it('resetAssessment purges assessment data but keeps demographics', () => {
+  it('resetAssessment purges assessment data but keeps demographics and result history', () => {
     usePersonalityStore.setState({
       demographics: { age: '25', region: 'NA', explicitConsent: true },
       answers: { 'q1': 5, 'q2': 1 },
       screen: 'assessment',
-      currentClusterIndex: 3
+      currentClusterIndex: 3,
+      resultHistory: [{ archetype: 'Explorer', date: '2023-10-01' }]
     });
 
     usePersonalityStore.getState().resetAssessment();
@@ -100,7 +100,12 @@ describe('usePersonalityStore', () => {
     expect(state.currentClusterIndex).toBe(0);
     expect(Object.keys(state.answers).length).toBe(0);
     expect(state.demographics.age).toBe('25');
+    expect(state.resultHistory.length).toBe(1);
+    expect(state.resultHistory[0].archetype).toBe('Explorer');
   });
+
+});
+
 
 describe('usePersonalityStore validation', () => {
   it('validateAssessmentIntegrity validates good data', () => {

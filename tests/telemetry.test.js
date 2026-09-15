@@ -6,7 +6,7 @@ describe('telemetry', () => {
     vi.useFakeTimers();
     global.fetch = vi.fn().mockResolvedValue({ ok: true });
 
-        Object.defineProperty(global, 'navigator', {
+    Object.defineProperty(global, 'navigator', {
       value: {
         sendBeacon: vi.fn().mockReturnValue(false),
         userAgent: 'test-agent',
@@ -25,11 +25,9 @@ describe('telemetry', () => {
     });
   });
 
-
   afterEach(() => {
     vi.clearAllMocks();
     localStorage.clear();
-    sessionStorage.clear();;
   });
 
   it('batches events and flushes', () => {
@@ -57,7 +55,7 @@ describe('telemetry', () => {
     expect(global.fetch).not.toHaveBeenCalled();
 
     // check local storage
-    const stored = JSON.parse(sessionStorage.getItem('axim_telemetry_queue') || '[]');
+    const stored = JSON.parse(localStorage.getItem('axim_telemetry_cache') || '[]');
     expect(stored.length).toBeGreaterThan(0);
     expect(stored[0].event).toBe('offline_event_1');
   });
@@ -73,7 +71,6 @@ describe('telemetry', () => {
     flushOfflineQueue();
     expect(global.fetch).toHaveBeenCalledTimes(1);
   });
-});
 
   it('calls sendBeacon and falls back to fetch if sendBeacon fails', () => {
     global.navigator.sendBeacon = vi.fn().mockReturnValue(false);
@@ -82,3 +79,4 @@ describe('telemetry', () => {
     expect(global.navigator.sendBeacon).toHaveBeenCalled();
     expect(global.fetch).toHaveBeenCalled();
   });
+});

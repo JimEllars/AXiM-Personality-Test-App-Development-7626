@@ -393,7 +393,7 @@ export const usePersonalityStore = create(
       },
 
 
-      resetAssessment: () => set((state) => ({ ...initialState, demographics: { ...state.demographics } }))
+      resetAssessment: () => set((state) => ({ ...initialState, demographics: { ...state.demographics }, resultHistory: state.resultHistory }))
     }),
     {
       name: 'axim_personality_session',
