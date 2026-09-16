@@ -68,9 +68,23 @@ export function computeEAPTheta(responses) {
       0
     ) / denominator;
 
+  let finalTheta = Number.isNaN(theta) ? 0 : Number(theta.toFixed(3));
+  if (finalTheta < -4.0) finalTheta = -4.0;
+  if (finalTheta > 4.0) finalTheta = 4.0;
+
+  // Expected posterior variance acts as 1/I(theta).
+  // If variance is non-finite or <= 0, SEM defaults to 1.5.
+  let semValue = 1.5;
+  if (Number.isFinite(variance) && variance > 0) {
+    const calculatedSem = Math.sqrt(variance);
+    if (Number.isFinite(calculatedSem)) {
+      semValue = Number(calculatedSem.toFixed(3));
+    }
+  }
+
   return {
-    theta: Number(theta.toFixed(3)),
-    sem: Number(Math.sqrt(variance).toFixed(3))
+    theta: finalTheta,
+    sem: semValue
   };
 }
 

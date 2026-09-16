@@ -52,7 +52,7 @@ describe('Edge Worker', () => {
       body: JSON.stringify([{ sessionId: '123', timestamp: new Date().toISOString() }])
     });
     const response = await worker.fetch(request, {} as any, {} as any);
-    expect(response.status).toBe(400); const data = await response.json(); expect(data.error).toBeDefined();
+    expect(response.status).toBe(400); const data: any = await response.json(); expect(data.error).toBeDefined();
   });
 
   it('telemetry rejects invalid schema payload (missing sessionId)', async () => {
@@ -61,7 +61,7 @@ describe('Edge Worker', () => {
       body: JSON.stringify([{ event: 'test', timestamp: new Date().toISOString() }])
     });
     const response = await worker.fetch(request, {} as any, {} as any);
-    expect(response.status).toBe(400); const data = await response.json(); expect(data.error).toBeDefined();
+    expect(response.status).toBe(400); const data: any = await response.json(); expect(data.error).toBeDefined();
   });
 
   it('telemetry rejects large payloads', async () => {
@@ -107,24 +107,24 @@ describe('Edge Worker', () => {
     });
 
     // We mock ctx and env
-    let kvStore = {};
-    const env = {
+    let kvStore: Record<string, string> = {};
+    const env: any = {
       PERSONALITY_CACHE_KV: {
-        put: async (k, v) => { kvStore[k] = v; },
-        get: async (k) => kvStore[k],
+        put: async (k: string, v: string) => { kvStore[k] = v; },
+        get: async (k: string) => kvStore[k],
       }
     };
-    const ctx = { waitUntil: (p) => p };
+    const ctx: any = { waitUntil: (p: any) => p };
 
     const res = await worker.fetch(request, env, ctx);
     expect(res.status).toBe(200);
-    const data = await res.json();
+    const data: any = await res.json();
     expect(data.shareId).toBeDefined();
 
     const getReq = new Request(`http://localhost/api/results/${data.shareId}`);
     const getRes = await worker.fetch(getReq, env, ctx);
     expect(getRes.status).toBe(200);
-    const getData = await getRes.json();
+    const getData: any = await getRes.json();
     expect(getData.archetype).toBe('Explorer');
   });
 });
