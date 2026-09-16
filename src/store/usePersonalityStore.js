@@ -11,6 +11,7 @@ const STORAGE_VERSION = 1;
 
 const initialState = {
   screen: 'intro',
+  activeSessionId: null,
   currentClusterIndex: 0,
   startedAt: null,
   demographics: {
@@ -93,7 +94,8 @@ function createResultSnapshot(state) {
 const safeStorage = {
   getItem: (name) => {
     try {
-      const value = localStorage.getItem(name);
+      // Requirements dictate using sessionStorage for active mid-test persist where possible.
+      const value = sessionStorage.getItem(name) || localStorage.getItem(name);
       return value;
     } catch (e) {
       console.warn('Storage unavailable or corrupted (getItem)', e);
@@ -102,6 +104,9 @@ const safeStorage = {
   },
   setItem: (name, value) => {
     try {
+      // Defaulting to sessionStorage for mid-assessment state
+      sessionStorage.setItem(name, value);
+      // We still backup to localStorage for demographics/history sync just in case
       localStorage.setItem(name, value);
     } catch (e) {
       console.warn('Storage unavailable or quota exceeded (setItem)', e);
@@ -109,6 +114,7 @@ const safeStorage = {
   },
   removeItem: (name) => {
     try {
+      sessionStorage.removeItem(name);
       localStorage.removeItem(name);
     } catch (e) {
       console.warn('Storage unavailable (removeItem)', e);
@@ -305,9 +311,10 @@ export const usePersonalityStore = create(
           }
           if (Object.keys(state.answers).length > 0) {
              // Preserve currentClusterIndex and answers, make sure we have a startedAt
-             return { screen: 'assessment', startedAt: state.startedAt || Date.now(), demographics: state.demographics };
+             return { screen: 'assessment', activeSessionId: state.activeSessionId || `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+        startedAt: state.startedAt || Date.now(), demographics: state.demographics };
           }
-          return { screen: 'assessment', currentClusterIndex: 0, startedAt: Date.now(), demographics: state.demographics };
+          return { screen: 'assessment', currentClusterIndex: 0, activeSessionId: state.activeSessionId || `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`, startedAt: Date.now(), demographics: state.demographics };
         });
       },
 
@@ -393,7 +400,7 @@ export const usePersonalityStore = create(
       },
 
 
-      resetAssessment: () => set((state) => ({ ...initialState, demographics: { ...state.demographics }, resultHistory: state.resultHistory }))
+      resetAssessment: () => set((state) => ({ ...initialState, activeSessionId: null, demographics: { ...state.demographics }, resultHistory: [...state.resultHistory] }))
     }),
     {
       name: 'axim_personality_session',
@@ -402,6 +409,7 @@ export const usePersonalityStore = create(
 
       partialize: (state) => ({
         screen: state.screen,
+        activeSessionId: state.activeSessionId,
         currentClusterIndex: state.currentClusterIndex,
         demographics: state.demographics,
         answers: state.answers,

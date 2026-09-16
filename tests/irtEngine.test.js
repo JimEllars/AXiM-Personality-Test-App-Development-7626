@@ -2,6 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { scoreAssessmentDiagnostics } from '../src/services/psychometrics/irtEngine.js';
 
 describe('irtEngine', () => {
+
+
   it('EAP should yield valid ranges', () => {
     const mockQuestionBank = [
       { id: '1', functionKey: 'Ti', parameters: { a: 1.5, b: [-1.5, -0.5, 0.5, 1.5] }, reverseScored: false }
