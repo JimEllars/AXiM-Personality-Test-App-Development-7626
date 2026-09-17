@@ -14,6 +14,13 @@ export default defineConfig(({ mode }) => ({
     historyApiFallback: true,
   },
    build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-pdf': ['@react-pdf/renderer']
+        }
+      }
+    },
     outDir: 'dist',
     sourcemap: true
   },
