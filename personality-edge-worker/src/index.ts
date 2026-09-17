@@ -82,7 +82,7 @@ export default {
         });
       }
 
-      if (request.method === 'POST' && (normalizedPathname === '/api/telemetry' || normalizedPathname === '/api/telemetry/events' || normalizedPathname === '/api/v1/telemetry')) {
+      if (request.method === 'POST' && (normalizedPathname === '/api/telemetry' || normalizedPathname === '/api/telemetry/events' || normalizedPathname === '/api/v1/telemetry' || normalizedPathname === '/api/assessment/session')) {
         try {
           const payloadSize = parseInt(request.headers.get('content-length') || '0', 10);
           if (payloadSize > 64 * 1024) {

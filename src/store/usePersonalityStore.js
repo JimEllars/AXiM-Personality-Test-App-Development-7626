@@ -4,7 +4,7 @@ import { scoreAssessmentDiagnostics } from '../services/psychometrics/irtEngine'
 import { projectArchetype } from '../services/psychometrics/archetypeProjector';
 import { QUESTION_BANK, FUNCTION_KEYS } from '../data/questionBank';
 import { trackEvent } from '../services/telemetry';
-import { submitAssessment } from '../services/personalityApi';
+import { submitAssessment, scoreAssessment } from '../services/personalityApi';
 import { ASSESSMENT_CLUSTERS } from '../data/questionBank';
 
 const STORAGE_VERSION = 1;
@@ -217,9 +217,9 @@ export const usePersonalityStore = create(
 
           // Try to score externally if available (fallback handles the rest in scoreAssessment API)
           try {
-             const apiModule = await import('../services/personalityApi');
-             if (apiModule.scoreAssessment) {
-                const apiResult = await apiModule.scoreAssessment({ answers: state.answers, metrics });
+
+             if (scoreAssessment) {
+                const apiResult = await scoreAssessment({ answers: state.answers, metrics });
                 if (apiResult && apiResult.success && apiResult.result) {
                    // We could use the API result here if it differed from local calculation
                    // For now we just use it for side-effects / fallback logging
