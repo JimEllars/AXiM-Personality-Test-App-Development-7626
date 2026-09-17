@@ -150,9 +150,13 @@ export default {
           }
 
 
+          const headers: Record<string, string> = { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' };
+          if (!env.TELEMETRY_DB) {
+            headers['X-Edge-Warning'] = 'Storage-Unprovisioned';
+          }
           return new Response(JSON.stringify({ success: true, processed: events.length }), {
             status: 202,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+            headers,
           });
         } catch (e: any) {
           console.error("Telemetry ingestion failed", e);
@@ -245,9 +249,13 @@ export default {
           console.error("Assessment submit failed", e);
         }
 
+        const headers: Record<string, string> = { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' };
+        if (!env.PERSONALITY_CACHE_KV) {
+           headers['X-Edge-Warning'] = 'Storage-Unprovisioned';
+        }
         return new Response(JSON.stringify({ success: true, timestamp: Date.now() }), {
           status: 202,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+          headers,
         });
       }
 
