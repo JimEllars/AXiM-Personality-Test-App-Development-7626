@@ -36,7 +36,8 @@ const initialState = {
   exerciseNotes: {},
   exerciseStartedAt: {},
   bookmarkedInsights: {},
-  pendingSync: []
+  pendingSync: [],
+  isSyncing: false
 };
 
 function isValidSession(value) {
@@ -284,9 +285,11 @@ export const usePersonalityStore = create(
 
       flushPendingSync: async () => {
         const state = get();
+        if (state.isSyncing) return;
         if (!state.pendingSync || state.pendingSync.length === 0) return;
 
         if (!navigator.onLine) return;
+        set({ isSyncing: true });
 
         const stillPending = [];
         for (const payload of state.pendingSync) {
@@ -300,7 +303,7 @@ export const usePersonalityStore = create(
           }
         }
 
-        set({ pendingSync: stillPending });
+        set({ pendingSync: stillPending, isSyncing: false });
       },
 
 
@@ -406,6 +409,7 @@ export const usePersonalityStore = create(
       name: 'axim_personality_session',
       version: STORAGE_VERSION,
       storage: createJSONStorage(() => safeStorage),
+      onRehydrateStorage: () => (state, error) => { if (error) { console.error("Hydration failed", error); state?.resetAssessment?.(); } },
 
       partialize: (state) => ({
         screen: state.screen,
@@ -427,7 +431,8 @@ export const usePersonalityStore = create(
         exerciseNotes: state.exerciseNotes,
         exerciseStartedAt: state.exerciseStartedAt,
         bookmarkedInsights: state.bookmarkedInsights,
-        pendingSync: state.pendingSync || []
+        pendingSync: state.pendingSync || [],
+        isSyncing: state.isSyncing || false
       }),
 
       migrate: (persistedState, version) => {

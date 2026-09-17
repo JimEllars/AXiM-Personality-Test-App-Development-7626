@@ -70,7 +70,7 @@ function LikertInput({ itemId, value, onChange }) {
                handleChange(anchor.value);
              }
           }}
-          className={`likert-option ${value === anchor.value ? 'selected' : ''}`}
+          className={`likert-option focus-visible:ring-2 ${value === anchor.value ? 'selected' : ''}`}
           title={`${anchor.label}. Keyboard shortcut: ${anchor.value}`}
           onClick={() => handleChange(anchor.value)}
         >

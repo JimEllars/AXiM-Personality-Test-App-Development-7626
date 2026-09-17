@@ -155,7 +155,7 @@ const [isGeneratingCard, setIsGeneratingCard] = useState(false);
 
       <div className="share-card-actions">
         <button className="primary-button" type="button" onClick={downloadCard} disabled={isGeneratingCard}>
-          <SafeIcon icon={FiDownload} /> Download card
+          {isGeneratingCard ? <span className="spinner" style={{ display: 'inline-block', width: '1em', height: '1em', border: '2px solid rgba(255,255,255,0.3)', borderRadius: '50%', borderTopColor: 'currentColor', animation: 'spin 1s ease-in-out infinite' }} /> : <SafeIcon icon={FiDownload} />} Download card
         </button>
         <button className="secondary-button" type="button" onClick={shareSummary}>
           <SafeIcon icon={FiShare2} /> Share summary

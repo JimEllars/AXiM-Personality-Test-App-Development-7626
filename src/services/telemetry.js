@@ -55,7 +55,8 @@ export function flushQueue() {
           keepalive: true
         }).catch((e) => {
           if (retries > 0) {
-            setTimeout(() => attemptFetch(retries - 1), (4 - retries) * 1000); // exponential-ish backoff
+            const delay = Math.min(2500, Math.pow(2, 3 - retries) * 500); // Exponential backoff capped at 2.5s
+            setTimeout(() => attemptFetch(retries - 1), delay);
           } else {
             // Add back to offline buffer on fail after retries
             try {
