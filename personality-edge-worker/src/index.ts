@@ -14,7 +14,7 @@ const getCorsHeaders = (request: Request) => {
 
   // Allow localhost for dev, staging preview domains, and our production domains.
   let allowOrigin = '*';
-  if (origin.startsWith('http://localhost') || origin === 'https://axim.us.com' || origin.endsWith('.axim.us.com') || origin.endsWith('.pages.dev')) {
+  if (origin === 'http://localhost:5173' || origin === 'https://axim.us.com' || origin === 'http://axim.us.com' || origin.endsWith('.axim.us.com')) {
     allowOrigin = origin;
   }
 
@@ -162,7 +162,7 @@ export default {
         } catch (e: any) {
           console.error("Telemetry ingestion failed", e);
           return new Response(JSON.stringify({ success: false, processed: 0, error: e.message || 'Bad request' }), {
-            status: 400,
+            status: 202,
             headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
           });
         }

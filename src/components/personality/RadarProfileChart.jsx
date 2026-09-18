@@ -21,10 +21,21 @@ function RadarProfileChart({ scores }) {
 
   return (
     <div className="radar-wrap" style={{ width: '100%', height: 'auto', display: 'flex', justifyContent: 'center' }}>
+      <div className="sr-only">
+        <table aria-label="Eight-function radar profile data">
+          <tbody>
+            {FUNCTION_KEYS.map((key) => (
+              <tr key={key}>
+                <td>{key}</td>
+                <td>{Number(scores?.[key] || 0).toFixed(2)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       <svg
         viewBox={`0 0 ${SIZE} ${SIZE}`}
-        role="img"
-        aria-label="Eight-function radar profile"
+        aria-hidden="true"
         preserveAspectRatio="xMidYMid meet"
         style={{ maxWidth: '100%', maxHeight: '400px', width: '100%', height: 'auto', display: 'block' }}
       >
