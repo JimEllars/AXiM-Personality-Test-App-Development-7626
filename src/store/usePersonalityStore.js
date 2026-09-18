@@ -36,6 +36,7 @@ const initialState = {
   exerciseNotes: {},
   exerciseStartedAt: {},
   bookmarkedInsights: {},
+          sharedResultData: null,
   pendingSync: [],
   isSyncing: false
 };
@@ -337,6 +338,7 @@ export const usePersonalityStore = create(
           exerciseNotes: {},
           exerciseStartedAt: {},
           bookmarkedInsights: {},
+          sharedResultData: null,
 
           // The completed result is already archived by setResults.
           // Keeping this list unchanged prevents duplicate attempts.
@@ -379,6 +381,9 @@ export const usePersonalityStore = create(
         })),
 
       clearInsightBookmarks: () => set({ bookmarkedInsights: {} }),
+
+      setSharedResultData: (data) => set({ sharedResultData: data, screen: "results" }),
+      clearSharedResultData: () => set({ sharedResultData: null }),
 
 
       clearExerciseProgress: () =>
