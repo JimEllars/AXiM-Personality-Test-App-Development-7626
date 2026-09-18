@@ -32,12 +32,16 @@ const { FiCheck, FiDownload, FiRefreshCw, FiShare2, FiUserPlus } = FiIcons;
 
 
 function ResultView() {
+
   const store = usePersonalityStore();
-  const details = ARCHETYPE_DETAILS[store.assignedArchetype] || ['Cognitive Profile', 'Your assessment results have been calculated successfully.'];
+  const activeData = store.sharedResultData || store;
+  const isSharedView = !!store.sharedResultData;
+  const details = ARCHETYPE_DETAILS[activeData.assignedArchetype] || ['Cognitive Profile', 'Your assessment results have been calculated successfully.'];
   const [name, description] = details;
   const [shareMessage, setShareMessage] = useState('');
-  const confidence = Math.max(0, Math.round((store.confidence || 0) * 100));
-  const sortedScores = Object.entries(store.thetaScores || {}).map(([k, v]) => [k, typeof v === 'number' ? v : 0]).sort((first, second) => second[1] - first[1]);
+  const confidence = Math.max(0, Math.round((activeData.confidence || 0) * 100));
+  const sortedScores = Object.entries(activeData.thetaScores || {}).map(([k, v]) => [k, typeof v === 'number' ? v : 0]).sort((first, second) => second[1] - first[1]);
+
 
   const isAuthenticated = !!localStorage.getItem('axim_passport_token');
 
@@ -46,7 +50,7 @@ function ResultView() {
   }, []);
 
   const share = async () => {
-    const text = `My AXiM cognitive archetype is ${store.assignedArchetype} — ${name}.`;
+    const text = `My AXiM cognitive archetype is ${activeData.assignedArchetype} — ${name}.`;
 
     try {
       if (navigator.share) {
@@ -68,6 +72,31 @@ function ResultView() {
 
   return (
     <main className="results-shell">
+
+      {isSharedView && (
+        <section className="guest-cta-banner" style={{
+          background: '#e0f2fe', padding: '1.5rem', borderRadius: '8px',
+          border: '1px solid #bae6fd', margin: '2rem auto', maxWidth: '800px',
+          textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem'
+        }}>
+          <div>
+            <h3 style={{ margin: '0 0 0.5rem 0', color: '#0369a1' }}>Viewing Shared Report</h3>
+            <p style={{ margin: 0, color: '#0c4a6e' }}>
+              You are viewing someone else's cognitive profile. Take the assessment yourself to discover your own archetype.
+            </p>
+          </div>
+          <button
+            onClick={() => {
+              store.clearSharedResultData();
+              store.setScreen('intro');
+            }}
+            className="primary-button"
+          >
+            Take Your Own Assessment
+          </button>
+        </section>
+      )}
+
       <motion.section
         className="result-hero"
         initial={{ opacity: 0 }}
@@ -81,7 +110,7 @@ function ResultView() {
           Assessment complete
         </span>
         <p>Your closest cognitive archetype is</p>
-        <h1>{store.assignedArchetype || 'Profile'}</h1>
+        <h1>{activeData.assignedArchetype || 'Profile'}</h1>
         <h2>{name}</h2>
         <p className="result-description">{description}</p>
 
@@ -132,7 +161,7 @@ function ResultView() {
       )}
 
       <ResultsToolbar
-        archetype={store.assignedArchetype}
+        archetype={activeData.assignedArchetype}
         title={name}
       />
 
@@ -148,7 +177,7 @@ function ResultView() {
               <small>pattern match</small>
             </div>
           </div>
-          <ErrorBoundary><Suspense fallback={<div className="chart-placeholder">Loading chart...</div>}><RadarProfileChart scores={store.thetaScores} /></Suspense></ErrorBoundary>
+          <ErrorBoundary><Suspense fallback={<div className="chart-placeholder">Loading chart...</div>}><RadarProfileChart scores={activeData.thetaScores} /></Suspense></ErrorBoundary>
         </div>
 
         <div className="result-panel">
@@ -180,10 +209,10 @@ function ResultView() {
 
       <ErrorBoundary fallback={<div className="panel-error-fallback">Section temporarily unavailable.</div>}>
       <PsychometricConfidencePanel
-        confidence={store.confidence}
-        ranking={store.proximityRanking}
-        assignedArchetype={store.assignedArchetype}
-        assessmentMetrics={store.assessmentMetrics}
+        confidence={activeData.confidence}
+        ranking={activeData.proximityRanking}
+        assignedArchetype={activeData.assignedArchetype}
+        assessmentMetrics={activeData.assessmentMetrics}
       />
       </ErrorBoundary>
 
@@ -191,8 +220,8 @@ function ResultView() {
       <ErrorBoundary fallback={<div className="panel-error-fallback">Section temporarily unavailable.</div>}><ScoreComparisonPanel /></ErrorBoundary>
       <MethodologyPanel />
       <ErrorBoundary fallback={<div className="panel-error-fallback">Section temporarily unavailable.</div>}><ArchetypeComparisonView
-        assignedArchetype={store.assignedArchetype}
-        ranking={store.proximityRanking}
+        assignedArchetype={activeData.assignedArchetype}
+        ranking={activeData.proximityRanking}
       /></ErrorBoundary>
       <ErrorBoundary fallback={<div className="panel-error-fallback">Section temporarily unavailable.</div>}><ArchetypeCompatibilityMatrix /></ErrorBoundary>
       <ErrorBoundary fallback={<div className="panel-error-fallback">Section temporarily unavailable.</div>}><ArchetypeConversationGuide /></ErrorBoundary>
@@ -233,7 +262,7 @@ function ResultView() {
         padding: '2rem'
       }}>
         <h3 style={{ color: '#3730a3', marginBottom: '0.5rem' }}>
-          Master Your {store.assignedArchetype || 'Profile'} Cognitive Strengths on Teachable
+          Master Your {activeData.assignedArchetype || 'Profile'} Cognitive Strengths on Teachable
         </h3>
         <p style={{ color: '#4f46e5', maxWidth: '600px', marginBottom: '1.5rem' }}>
           Explore structured video masterclasses and operational blueprints designed for your dominant cognitive function stack.

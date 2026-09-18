@@ -7,16 +7,20 @@ import IntroView from './components/personality/IntroView';
 import ResultView from './components/personality/ResultView';
 import { QUESTION_BANK } from './data/questionBank';
 import { usePersonalityStore } from './store/usePersonalityStore';
+import { getSharedResult } from './services/personalityApi';
+
 import './App.css';
 import './styles/production-polish.css';
 
 function App() {
   const [showGate, setShowGate] = useState(false);
+  const [isHydratingShared, setIsHydratingShared] = useState(false);
   const {
     screen,
     setScreen,
     answers,
-    resetAssessment
+    resetAssessment,
+    setSharedResultData
   } = usePersonalityStore();
 
   const answeredCount = Object.keys(answers).length;
@@ -31,6 +35,25 @@ function App() {
 
     document.title = titles[screen] || titles.intro;
   }, [screen]);
+
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const resultId = params.get('resultId') || params.get('shareId');
+    if (resultId) {
+      setIsHydratingShared(true);
+      getSharedResult(resultId).then((data) => {
+        setIsHydratingShared(false);
+        if (data && !data.error) {
+          setSharedResultData(data);
+        } else {
+          // Fallback handled in ResultView or just alert
+        }
+        // Clean up URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+      });
+    }
+  }, [setSharedResultData]);
 
   const beginAssessment = () => setShowGate(true);
 
@@ -59,8 +82,15 @@ function App() {
 
       <AppHeader />
 
+
       <div id="main-content">
+        {isHydratingShared ? (
+           <div className="result-hero" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+             <div className="spinner" style={{ width: '3rem', height: '3rem', border: '4px solid rgba(0,0,0,0.1)', borderRadius: '50%', borderTopColor: '#5ee4c4', animation: 'spin 1s ease-in-out infinite' }} />
+           </div>
+        ) : (
         <ErrorBoundary>
+
           {screen === 'intro' && (
             <IntroView
               onStart={beginAssessment}
@@ -75,6 +105,7 @@ function App() {
           {screen === 'assessment' && <AssessmentFlow />}
           {screen === 'results' && <ResultView />}
         </ErrorBoundary>
+        )}
       </div>
 
       {showGate && (

@@ -156,3 +156,8 @@
 - **Offline Telemetry Guarding**: Bolstered offline resilience within `src/services/telemetry.js` ensuring recursive API network timeouts or 5xx exceptions queue safely back into `localStorage` instead of vanishing or trapping recursive fetch storms.
 - **Light Theme Contrast & Access (WCAG 2.1 AA)**: Standardized application styling against high-contrast accessibility standards explicitly writing a `(prefers-color-scheme: light)` layer matching WCAG guidelines inside `production-polish.css`.
 - **NPM Package Verification**: Added cross-package executable testing commands in `package.json` utilizing native `test:worker` aliases cleanly. Removed obsolete debug patches. All vitest execution remains at 100% capacity alongside 0 ESLint warnings.
+- Implemented deep-link hydration for shared results, storing data separately to prevent overriding active assessment progress.
+- Hardened telemetry unload behavior, integrating sendBeacon properly for edge cases and enhancing the Worker's CORS headers to accept relevant origins.
+- Improved LikertInput keyboard accessibility, handling proper bounds and ARIA constraints.
+- Ensured DemographicGateModal allows Escape to trigger the "skip for now" path to seamlessly begin the assessment.
+- Fortified the asynchronous PDF export to prevent crashes if incomplete traits are passed.

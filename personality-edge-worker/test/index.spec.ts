@@ -5,7 +5,7 @@ describe('Edge Worker', () => {
   it('responds to OPTIONS with CORS headers', async () => {
     const request = new Request('http://localhost/api/telemetry', { method: 'OPTIONS' });
     const response = await worker.fetch(request, {} as any, {} as any);
-    expect(response.headers.get('Access-Control-Allow-Origin')).toBe('https://axim.us.com');
+    expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*');
   });
 
   it('health check returns status', async () => {

@@ -82,12 +82,25 @@ const styles = StyleSheet.create({
   }
 });
 
+
 function PersonalityReportDocument({
   archetype,
   thetaScores = {},
   generatedAt
 }) {
+  if (!archetype || !thetaScores || Object.keys(thetaScores).length === 0) {
+    return (
+      <Document>
+        <Page size="A4" style={styles.page}>
+          <Text style={styles.brand}>AXiM / PERSONAL DEVELOPMENT</Text>
+          <Text style={styles.description}>Report generation failed due to incomplete data.</Text>
+        </Page>
+      </Document>
+    );
+  }
+
   const [name, description] = ARCHETYPE_DETAILS[archetype] || [
+
     'Your Cognitive Profile',
     'Explore your unique cognitive-function signature.'
   ];

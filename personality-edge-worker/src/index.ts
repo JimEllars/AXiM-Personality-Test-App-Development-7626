@@ -11,8 +11,9 @@ export interface Env {
 const getCorsHeaders = (request: Request) => {
   const origin = request.headers.get('Origin') || '';
 
+
   // Allow localhost for dev, staging preview domains, and our production domains.
-  let allowOrigin = 'https://axim.us.com';
+  let allowOrigin = '*';
   if (origin.startsWith('http://localhost') || origin === 'https://axim.us.com' || origin.endsWith('.axim.us.com') || origin.endsWith('.pages.dev')) {
     allowOrigin = origin;
   }

@@ -17,7 +17,7 @@ function DemographicGateModal({ onClose, onContinue }) {
 
     const handleKeyDown = (event) => {
       if (event.key === 'Escape') {
-        onClose();
+        onContinue();
         return;
       }
 
@@ -74,7 +74,7 @@ function DemographicGateModal({ onClose, onContinue }) {
       aria-labelledby="gate-title"
       aria-describedby="gate-description"
       onMouseDown={(event) => {
-        if (event.target === event.currentTarget) onClose();
+        if (event.target === event.currentTarget) onContinue();
       }}
     >
       <form className="gate-modal" ref={modalRef} onSubmit={submit}>
