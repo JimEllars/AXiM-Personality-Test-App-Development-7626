@@ -83,7 +83,7 @@ export default {
         });
       }
 
-      if (request.method === 'POST' && (normalizedPathname === '/api/telemetry' || normalizedPathname === '/api/telemetry/events' || normalizedPathname === '/api/v1/telemetry' || normalizedPathname === '/api/assessment/session')) {
+      if (request.method === 'POST' && (normalizedPathname === '/api/telemetry' || normalizedPathname === '/api/telemetry/events' || normalizedPathname === '/api/v1/telemetry' || normalizedPathname === '/api/assessment/session' || normalizedPathname === '/api/state')) {
         try {
           const payloadSize = parseInt(request.headers.get('content-length') || '0', 10);
           if (payloadSize > 64 * 1024) {
@@ -93,7 +93,15 @@ export default {
             });
           }
 
-          const payload = await request.json() as any;
+          let payload;
+          try {
+            payload = await request.json() as any;
+          } catch (err) {
+            return new Response(JSON.stringify({ success: false, error: 'Malformed JSON payload' }), {
+              status: 400,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+            });
+          }
 
           // Log telemetry without PII
           const events = Array.isArray(payload) ? payload : [payload];
@@ -103,7 +111,7 @@ export default {
           for (const e of events) {
             if (!e.event || typeof e.event !== 'string') {
               return new Response(JSON.stringify({ success: false, processed: 0, error: 'Invalid schema: Missing or invalid event name' }), {
-                status: 202,
+                status: 400,
                 headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
               });
             }
@@ -114,19 +122,19 @@ export default {
             }
             if (!e.sessionId || typeof e.sessionId !== 'string') {
               return new Response(JSON.stringify({ success: false, processed: 0, error: 'Invalid schema: Missing or invalid session ID' }), {
-                status: 202,
+                status: 400,
                 headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
               });
             }
             if (!e.timestamp || typeof e.timestamp !== 'string') {
               return new Response(JSON.stringify({ success: false, processed: 0, error: 'Invalid schema: Missing or invalid timestamp' }), {
-                status: 202,
+                status: 400,
                 headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
               });
             }
             if (e.metadata && typeof e.metadata !== 'object') {
               return new Response(JSON.stringify({ success: false, processed: 0, error: 'Invalid schema: metadata must be an object' }), {
-                status: 202,
+                status: 400,
                 headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
               });
             }
@@ -211,7 +219,12 @@ export default {
         try {
           let resultData = null;
           if (env.PERSONALITY_CACHE_KV) {
-            resultData = await env.PERSONALITY_CACHE_KV.get(`share_${shareId}`);
+            try {
+              resultData = await env.PERSONALITY_CACHE_KV.get(`share_${shareId}`);
+            } catch (kvErr) {
+              console.error("KV GET Error", kvErr);
+              resultData = null; // fallback
+            }
           }
 
           if (!resultData) {

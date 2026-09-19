@@ -28,6 +28,7 @@ describe('telemetry', () => {
   afterEach(() => {
     vi.clearAllMocks();
     localStorage.clear();
+    sessionStorage.clear();
   });
 
   it('batches events and flushes', () => {
@@ -96,3 +97,9 @@ describe('telemetry', () => {
   });
 
 });
+  it('saves queue to sessionStorage and recovers it', async () => {
+    trackEvent('session_storage_event', {});
+    const stored = JSON.parse(sessionStorage.getItem('axim_telemetry_live_queue') || '[]');
+    expect(stored.length).toBeGreaterThan(0);
+    expect(stored[stored.length - 1].event).toBe('session_storage_event');
+  });

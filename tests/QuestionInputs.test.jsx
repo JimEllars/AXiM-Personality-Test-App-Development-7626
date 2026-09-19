@@ -9,6 +9,36 @@ import {
 } from '../src/components/personality/inputs';
 
 describe('Question Input Components', () => {
+  it('ScenarioCardInput supports keyboard navigation', () => {
+    const item = { id: 'q2', type: 'scenario', options: { left: 'A', right: 'B' } };
+    const onChange = vi.fn();
+    const { getByRole } = render(<ScenarioCardInput item={item} value={null} onChange={onChange} />);
+
+    const radioGroup = getByRole('radiogroup');
+    fireEvent.keyDown(radioGroup, { key: 'ArrowRight' });
+    expect(onChange).toHaveBeenCalledWith(1);
+  });
+
+  it('TradeoffSliderInput supports keyboard navigation', () => {
+    const item = { id: 'q3', type: 'tradeoff', options: { left: 'A', right: 'B' } };
+    const onChange = vi.fn();
+    const { getByRole } = render(<TradeoffSliderInput item={item} value={3} onChange={onChange} />);
+
+    const radioGroup = getByRole('radiogroup');
+    fireEvent.keyDown(radioGroup, { key: 'ArrowRight' });
+    expect(onChange).toHaveBeenCalledWith(4);
+  });
+
+  it('ReactionDilemmaInput supports keyboard navigation', () => {
+    const item = { id: 'q4', type: 'reaction', options: { choices: [{label: 'A'}, {label: 'B'}] } };
+    const onChange = vi.fn();
+    const { getByRole } = render(<ReactionDilemmaInput item={item} value={3} onChange={onChange} />);
+
+    const radioGroup = getByRole('radiogroup');
+    fireEvent.keyDown(radioGroup, { key: 'ArrowLeft' });
+    expect(onChange).toHaveBeenCalledWith(2);
+  });
+
   afterEach(() => {
     cleanup();
   });
