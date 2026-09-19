@@ -73,12 +73,15 @@ describe('telemetry', () => {
     expect(global.fetch).toHaveBeenCalledTimes(1);
   });
 
-  it('calls sendBeacon and falls back to fetch if sendBeacon fails', () => {
+  it('calls sendBeacon and falls back to fetch with keepalive if sendBeacon fails', () => {
     global.navigator.sendBeacon = vi.fn().mockReturnValue(false);
     trackEvent('test_beacon', {});
     flushQueue();
     expect(global.navigator.sendBeacon).toHaveBeenCalled();
-    expect(global.fetch).toHaveBeenCalled();
+    expect(global.fetch).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({
+      keepalive: true,
+      method: 'POST'
+    }));
   });
   it('verifies the payload structure for Edge Worker compatibility', () => {
     trackEvent('structured_event', { customProp: 'value', latency: 150 });
