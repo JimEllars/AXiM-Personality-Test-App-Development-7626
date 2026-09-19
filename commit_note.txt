@@ -1,5 +1,5 @@
-- Edge Worker Telemetry Validation: Catch errors safely to avoid crashing and correctly return OPTIONS headers.
-- Telemetry Fallback: Set exponential retry limit for fallback flush to 2.
-- Store Hydration Defensive: Validate integrity on local state rehydration and wipe corrupted state dynamically.
-- UI Design Polish: Apply universal focus indicators (focus-visible:ring-2), min 44px hit areas, hardware accelerated animation and responsive border radius standardization.
-- Tests: Add integration test checking telemetry payload struct compat. Tests pass successfully.
+- Question Bank Redesign: Replaced 64 corporate Likert items with four multi-modal typologies (Scenario, Trade-off, Reaction, Modern Likert) featuring relatable language.
+- Architectural Integrity: Ensured all new question typologies resolve to a 1-5 scale format, maintaining 100% parity with the existing Graded Response Model (IRT) scoring engine.
+- Interactive Components: Built and integrated `ScenarioCardInput`, `TradeoffSliderInput`, `ReactionDilemmaInput`, and `ModernLikertInput` inside `QuestionCluster` with framer-motion transitions and WCAG 2.1 AA keyboard support.
+- Answer Review Refactor: Updated `AnswerReview` to display contextual answer summaries reflecting the user's specific selection format instead of generic anchors.
+- Testing: Added interaction tests for new UI inputs and fixed related Vitest assertions. All tests and lint checks pass cleanly.

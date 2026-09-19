@@ -6,11 +6,36 @@ import './AnswerReview.css';
 
 const { FiArrowLeft, FiCheck, FiEdit3, FiLock } = FiIcons;
 
-function getAnswerLabel(value) {
-  return (
-    LIKERT_ANCHORS.find((anchor) => anchor.value === value)?.label ||
-    'Not answered'
-  );
+function getAnswerLabel(item, value) {
+  if (value === undefined || value === null || !Number.isInteger(value)) {
+    return 'Not answered';
+  }
+
+  if (item.type === 'scenario') {
+    if (value === 1) return `Strongly ${item.options.left}`;
+    if (value === 2) return `Lean ${item.options.left}`;
+    if (value === 3) return 'Equal / Both';
+    if (value === 4) return `Lean ${item.options.right}`;
+    if (value === 5) return `Strongly ${item.options.right}`;
+  }
+
+  if (item.type === 'tradeoff') {
+    if (value === 1) return item.options.left;
+    if (value === 5) return item.options.right;
+    if (value === 3) return 'Neutral';
+    return `Level ${value}`;
+  }
+
+  if (item.type === 'reaction') {
+    if (value === 1) return item.options.choices[0].label;
+    if (value === 2) return `Lean ${item.options.choices[0].label}`;
+    if (value === 3) return 'Unsure / Middle';
+    if (value === 4) return `Lean ${item.options.choices[1].label}`;
+    if (value === 5) return item.options.choices[1].label;
+  }
+
+  // fallback / likert
+  return LIKERT_ANCHORS.find((anchor) => anchor.value === value)?.label || `Selected ${value}`;
 }
 
 function AnswerReview({ items, answers, onEdit, onReveal, onBack }) {
@@ -55,7 +80,7 @@ function AnswerReview({ items, answers, onEdit, onReveal, onBack }) {
 
             <div className="answer-review-copy">
               <p id={`review-${item.id}`}>{item.prompt}</p>
-              <strong>{getAnswerLabel(answers[item.id])}</strong>
+              <strong>{getAnswerLabel(item, answers[item.id])}</strong>
             </div>
 
             <button

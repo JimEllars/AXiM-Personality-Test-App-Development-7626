@@ -40,8 +40,8 @@ describe('LikertInput Component', () => {
     const handleChange = vi.fn();
     render(<LikertInput itemId="q1" value={2} onChange={handleChange} />);
 
-    // Using getByText now that cleanup is in place
-    fireEvent.click(screen.getByText('Strongly agree'));
+    // Update with conversational label since questionBank was updated
+    fireEvent.click(screen.getByText('Totally Me'));
     expect(handleChange).toHaveBeenCalledWith(5);
   });
 });
