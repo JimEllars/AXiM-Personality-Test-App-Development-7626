@@ -102,7 +102,10 @@ export default {
           const allowedEvents = ['assessment_start', 'item_response', 'cluster_complete', 'assessment_complete', 'error'];
           for (const e of events) {
             if (!e.event || typeof e.event !== 'string') {
-              throw new Error('Invalid schema: Missing or invalid event name');
+              return new Response(JSON.stringify({ success: false, processed: 0, error: 'Invalid schema: Missing or invalid event name' }), {
+                status: 202,
+                headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
+              });
             }
             if (e.event !== 'test' && !allowedEvents.includes(e.event) && !e.event.startsWith('pdf_') && e.event !== 'assessment_retake') {
               // We'll just skip validating exact names to not break unknown future events,
@@ -110,13 +113,22 @@ export default {
               // The tests track "test_event", "offline_event_1", etc. so I won't strict block on event name, but I will make sure the response is { success: true, processed: events.length }
             }
             if (!e.sessionId || typeof e.sessionId !== 'string') {
-              throw new Error('Invalid schema: Missing or invalid session ID');
+              return new Response(JSON.stringify({ success: false, processed: 0, error: 'Invalid schema: Missing or invalid session ID' }), {
+                status: 202,
+                headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
+              });
             }
             if (!e.timestamp || typeof e.timestamp !== 'string') {
-              throw new Error('Invalid schema: Missing or invalid timestamp');
+              return new Response(JSON.stringify({ success: false, processed: 0, error: 'Invalid schema: Missing or invalid timestamp' }), {
+                status: 202,
+                headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
+              });
             }
             if (e.metadata && typeof e.metadata !== 'object') {
-              throw new Error('Invalid schema: metadata must be an object');
+              return new Response(JSON.stringify({ success: false, processed: 0, error: 'Invalid schema: metadata must be an object' }), {
+                status: 202,
+                headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
+              });
             }
           }
 

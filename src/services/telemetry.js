@@ -67,7 +67,7 @@ export function flushQueue() {
           }
         });
       };
-      attemptFetch(3);
+      attemptFetch(2);
     }
   } catch (error) {
     // Silently catch

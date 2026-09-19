@@ -86,9 +86,15 @@ button:disabled {
 .icon-button:focus-visible,
 .results-toolbar-actions button:focus-visible,
 .reset-confirmation-actions button:focus-visible,
-[role="tab"]:focus-visible {
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[role=\"tab\"]:focus-visible {
   outline: 0;
   box-shadow: var(--focus-ring);
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--mint);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
 }
 
 .site-header {
@@ -290,6 +296,7 @@ button:disabled {
 
 .gate-modal {
   animation: modal-in 0.25s cubic-bezier(0.2, 0.75, 0.25, 1) both;
+  will-change: transform, opacity;
 }
 
 footer {
@@ -319,12 +326,12 @@ footer::before {
 @keyframes modal-in {
   from {
     opacity: 0;
-    transform: translateY(12px) scale(0.98);
+    transform: translateY(12px) scale(0.98) translateZ(0);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0) scale(1) translateZ(0);
   }
 }
 
@@ -423,4 +430,23 @@ footer::before {
 }
 .theta-chart-title, .theta-chart-scale, .theta-attempt-labels, .theta-trend-change {
   color: #c3d2d5 !important;
+}
+
+
+/* Responsive touch targets */
+button, .primary-button, .secondary-button, input, select, textarea, [role="tab"], .icon-button {
+  min-height: 44px;
+}
+
+
+/* Unify card border radiuses, dark/light surface tokens */
+.method-card, .result-panel, .resume-card, .question-card, .gate-modal, .comparison-item, .exercise-card, .insight-card {
+  border-radius: 12px;
+  background-color: var(--surface-light, rgba(255, 255, 255, 0.05));
+}
+
+@media (prefers-color-scheme: dark) {
+  .method-card, .result-panel, .resume-card, .question-card, .gate-modal, .comparison-item, .exercise-card, .insight-card {
+    background-color: var(--surface-dark, rgba(12, 29, 42, 0.74));
+  }
 }
