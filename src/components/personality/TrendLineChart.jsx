@@ -47,12 +47,24 @@ function TrendLineChart({ values, min, max, color, label }) {
     .join(' ');
 
   return (
+    <>
+    <div className="sr-only">
+      <table aria-label={label}>
+        <tbody>
+          {points.map((point, index) => (
+            <tr key={`${point.x}-${index}`}>
+              <td>{formatDate(point.date, index)}</td>
+              <td>{point.value.toFixed(2)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
     <svg
       className="trend-svg"
       viewBox={`0 0 ${width} ${height}`}
       preserveAspectRatio="none"
-      role="img"
-      aria-label={label}
+      aria-hidden="true"
       style={{ maxWidth: '100%', height: 'auto', display: 'block' }}
     >
       {[0, 0.5, 1].map((position) => {
@@ -87,6 +99,7 @@ function TrendLineChart({ values, min, max, color, label }) {
         </circle>
       ))}
     </svg>
+    </>
   );
 }
 

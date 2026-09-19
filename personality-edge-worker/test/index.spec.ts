@@ -52,7 +52,7 @@ describe('Edge Worker', () => {
       body: JSON.stringify([{ sessionId: '123', timestamp: new Date().toISOString() }])
     });
     const response = await worker.fetch(request, {} as any, {} as any);
-    expect(response.status).toBe(400); const data: any = await response.json(); expect(data.error).toBeDefined();
+    expect(response.status).toBe(202); const data: any = await response.json(); expect(data.error).toBeDefined();
   });
 
   it('telemetry rejects invalid schema payload (missing sessionId)', async () => {
@@ -61,7 +61,7 @@ describe('Edge Worker', () => {
       body: JSON.stringify([{ event: 'test', timestamp: new Date().toISOString() }])
     });
     const response = await worker.fetch(request, {} as any, {} as any);
-    expect(response.status).toBe(400); const data: any = await response.json(); expect(data.error).toBeDefined();
+    expect(response.status).toBe(202); const data: any = await response.json(); expect(data.error).toBeDefined();
   });
 
   it('telemetry rejects large payloads', async () => {

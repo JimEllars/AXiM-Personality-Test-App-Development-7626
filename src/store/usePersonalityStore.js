@@ -7,7 +7,7 @@ import { trackEvent } from '../services/telemetry';
 import { submitAssessment, scoreAssessment } from '../services/personalityApi';
 import { ASSESSMENT_CLUSTERS } from '../data/questionBank';
 
-const STORAGE_VERSION = 1;
+const STORAGE_VERSION = 2;
 
 const initialState = {
   screen: 'intro',
@@ -449,9 +449,7 @@ export const usePersonalityStore = create(
 
 
           if (version !== STORAGE_VERSION && version !== 0 && version !== undefined) {
-             // Schema mismatch - preserve demographics but reset incompatible answers & indexes
-             migratedAnswers = {};
-             migratedClusterIndex = 0;
+             // Schema mismatch - preserve existing data and try to sanitize it later instead of wiping
           }
 
           const { isValid, sanitizedAnswers, sanitizedIndex } = validateAssessmentIntegrity({

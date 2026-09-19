@@ -5,7 +5,7 @@ let eventQueue = [];
 let flushTimeout = null;
 
 const QUEUE_SIZE_LIMIT = 10;
-const FLUSH_INTERVAL_MS = 10000;
+const FLUSH_INTERVAL_MS = 5000;
 const MAX_PAYLOAD_SIZE = 50; // Truncate queue to prevent oversized payloads
 
 export function flushQueue() {
