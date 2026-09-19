@@ -79,4 +79,20 @@ describe('telemetry', () => {
     expect(global.navigator.sendBeacon).toHaveBeenCalled();
     expect(global.fetch).toHaveBeenCalled();
   });
+  it('verifies the payload structure for Edge Worker compatibility', () => {
+    trackEvent('structured_event', { customProp: 'value', latency: 150 });
+
+    const queue = getQueue_forTesting();
+    expect(queue.length).toBeGreaterThan(0);
+
+    const event = queue[queue.length - 1];
+    expect(event).toHaveProperty('event', 'structured_event');
+    expect(event).toHaveProperty('sessionId');
+    expect(event).toHaveProperty('timestamp');
+    expect(event).toHaveProperty('latency', 150);
+    expect(event.metadata).toHaveProperty('customProp', 'value');
+    expect(event.metadata).toHaveProperty('userAgent');
+    expect(event.metadata).toHaveProperty('url');
+  });
+
 });

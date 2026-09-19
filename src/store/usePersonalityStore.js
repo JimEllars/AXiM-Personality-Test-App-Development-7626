@@ -414,7 +414,7 @@ export const usePersonalityStore = create(
       name: 'axim_personality_session',
       version: STORAGE_VERSION,
       storage: createJSONStorage(() => safeStorage),
-      onRehydrateStorage: () => (state, error) => { if (error) { console.error("Hydration failed", error); state?.resetAssessment?.(); } },
+      onRehydrateStorage: () => (state, error) => { if (error || !state) { console.error("Hydration failed", error); state?.resetAssessment?.(); } else { const { isValid } = state.auditStoreIntegrity?.() || {}; if (isValid === false) { state.resetAssessment?.(); } } },
 
       partialize: (state) => ({
         screen: state.screen,
@@ -457,9 +457,9 @@ export const usePersonalityStore = create(
              currentClusterIndex: migratedClusterIndex
           });
 
-          if (!isValid) {
-             migratedAnswers = sanitizedAnswers;
-             migratedClusterIndex = sanitizedIndex;
+          if (!isValid || typeof migratedClusterIndex !== 'number' || typeof migratedAnswers !== 'object') {
+             migratedAnswers = {};
+             migratedClusterIndex = 0;
           }
 
 
