@@ -1,3 +1,4 @@
-- Telemetry Hardening: Enabled sessionStorage buffering in telemetry.js, ensuring unsent payloads gracefully survive navigation or app unmounts without loss. Enforced 64KB upload restrictions on Edge Worker.
-- Input Polish & Accessibility: Verified explicit ARIA attributes across `TradeoffSliderInput`, `ScenarioCardInput`, and `ReactionDilemmaInput`. Improved focus states and keyboard arrow navigation limits. Standardized 44x44px minimum tap targets.
-- Export Reliability: Added explicit defensive error handling to `ResultsToolbar.jsx` PDF download link to safely prevent UI freezing on network failure or generation exceptions.
+- Psychometric scoring alignment fix on Items 4 and 5 across all 8 functions in questionBank.js.
+- Telemetry sessionStorage lifecycle fix and queue leak resolution in telemetry.js.
+- Test suite encapsulation fix in telemetry.test.js.
+- Mobile touch-action containment and focus rings in TradeoffSliderInput.jsx and other inputs.

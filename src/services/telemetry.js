@@ -2,9 +2,14 @@ const WORKER_URL = import.meta.env.VITE_EDGE_WORKER_URL || (import.meta.env.PROD
 const TELEMETRY_ENDPOINT = `${WORKER_URL}/api/telemetry`;
 
 let eventQueue = [];
+
+
   try {
     if (typeof sessionStorage !== 'undefined') {
-      sessionStorage.removeItem('axim_telemetry_live_queue');
+      const stored = JSON.parse(sessionStorage.getItem('axim_telemetry_live_queue') || '[]');
+      if (stored.length > 0) {
+          eventQueue.push(...stored);
+      }
     }
   } catch (e) {
     // silent
@@ -157,6 +162,15 @@ export function flushOfflineQueue() {
         if (stored.length > 0) {
             eventQueue.push(...stored);
             localStorage.removeItem('axim_telemetry_queue');
+        }
+        if (typeof sessionStorage !== 'undefined') {
+            const liveQueue = JSON.parse(sessionStorage.getItem('axim_telemetry_live_queue') || '[]');
+            if (liveQueue.length > 0) {
+                eventQueue.push(...liveQueue);
+                sessionStorage.removeItem('axim_telemetry_live_queue');
+            }
+        }
+        if (eventQueue.length > 0) {
             flushQueue();
         }
     } catch (e) {
