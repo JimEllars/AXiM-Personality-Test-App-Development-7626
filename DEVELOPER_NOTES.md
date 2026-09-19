@@ -162,3 +162,11 @@
 - Ensured DemographicGateModal allows Escape to trigger the "skip for now" path to seamlessly begin the assessment.
 - Fortified the asynchronous PDF export to prevent crashes if incomplete traits are passed.
 Additional hardening and polish for edge worker, telemetry, defensive state migration and UI interaction styles done.
+
+## AXiM Personality Micro-App — Multi-Modal Question Modernization & Humanized Verbiage (Sprint Phase 4)
+
+- **Question Bank Redesign**: Replaced the previous 64-item corporate Likert scale with four distinct question typologies (Scenario Dilemmas, Polarity Trade-offs, Instinctive Reactions, and Modern Quick-Pulse Likert). Verbiage was translated to be highly conversational, relatable, and applicable to modern users aged 16 and older.
+- **Architectural Preservation**: Maintained 100% mathematical parity with the underlying Graded Response Model (IRT) scoring engine and Bayesian EAP theta estimation. All multi-modal question types resolve purely into an internal 1-5 integer scale format.
+- **Dynamic UX/UI Dispatch**: Built a new suite of modular React input components (`ScenarioCardInput`, `TradeoffSliderInput`, `ReactionDilemmaInput`, `ModernLikertInput`) integrated securely inside `QuestionCluster` featuring `framer-motion` entrance transitions and strict adherence to WCAG 2.1 AA accessibility (focus rings, ARIA).
+- **Answer Review Polish**: Refactored `AnswerReview` to contextually describe the selected answer strings based on the specific question typology type (e.g., "Leaning towards [Path A]", or "Level 4").
+- **Quality Assurance**: Added dedicated Vitest components checking multi-modal dispatch inputs, interactions, and accurate keyboard navigation. Fixed one upstream unit test that originally mapped numeric shortcuts strictly to "Strongly agree" rather than the updated humanized conversational copy.
