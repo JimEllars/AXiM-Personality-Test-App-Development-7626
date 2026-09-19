@@ -176,3 +176,13 @@ Additional hardening and polish for edge worker, telemetry, defensive state migr
 - **Edge Worker Payload Restrictions**: Implemented strict schema evaluation for malformed API inputs and a hard 64KB payload check limit on `/api/telemetry` within `personality-edge-worker` to shield from oversized requests. Added try/catch and fallback null states to ensure Cloudflare KV operations fail silently without breaking the downstream proxy.
 - **A11y (Accessibility) Polish - Inputs**: Fixed arrow key navigation bugs in `ScenarioCardInput` that inadvertently triggered bounds out of alignment. Enhanced micro-interactions on `TradeoffSliderInput` (added `hover:scale-110 active:scale-95`). Enforced a strictly compliant minimum touch target area of `44x44px` across all radio components.
 - **Export Guardrails**: Augmented the standard `@react-pdf/renderer` behavior by gracefully setting a scoped `pdfError` in `ResultsToolbar.jsx` if rendering fails.
+
+### Sprint AXiM-7626-PROD-02 Updates
+
+* **Telemetry Durability**: Implemented fallback to \`fetch(..., { keepalive: true })\` after \`sendBeacon\` attempts, combined with exponential backoff on fetch failures. Added more robust handling for buffering data into \`localStorage\` on repeated fail, and draining it on network reconnection.
+* **Edge Reliability**: Tightened CORS headers to ensure only valid allowed origins/methods pass through. Included explicit handling and defensive parsing with structured 400 JSON responses in \`personality-edge-worker/src/index.ts\`.
+* **State Hydration/Version Migration**: Updated Zustand persist middleware \`migrate\` function to handle edge cases where stored items (\`answers\`, \`currentClusterIndex\`) may not perfectly match schemas or might be corrupted, avoiding wiping user states where partial recovery is possible.
+* **Mobile UX/Accessibility**: Adjusted \`ModernLikertInput\` and \`ReactionDilemmaInput\` to ensure proper touch target sizes (48x48px min). Modified \`TradeoffSliderInput\` to handle \`touch-action: pan-y\` properly so dragging doesn't interfere with mobile scrolling. Implemented fully compliant keyboard support (Arrow keys, Home, End) and accessibility tags (\`role="slider"\`, \`aria-valuemin/max/now\`).
+* **Bundle Optimization**: Verified that the PDF export module (\`@react-pdf/renderer\`) and \`PersonalityReportDocument\` are dynamically lazy-loaded using \`import()\` inside the \`downloadReport\` invocation, removing it from the core critical path payload in \`ResultsToolbar.jsx\`.
+
+All tests passing successfully.

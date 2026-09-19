@@ -48,9 +48,9 @@ function ModernLikertInput({ item, value, onChange }) {
                  handleChange(anchor.value);
                }
             }}
-            className={`flex flex-col items-center justify-center p-3 rounded-full cursor-pointer border-2 focus-visible:ring-2 transition-all min-h-[44px] min-w-[80px]
+            className={`flex flex-col items-center justify-center p-3 rounded-full cursor-pointer border-2 focus-visible:ring-2 focus-visible:ring-axim-primary/50 transition-all min-h-[48px] min-w-[80px]
               ${value === anchor.value
-                ? 'bg-blue-600 border-blue-600 text-white shadow-md'
+                ? 'bg-blue-600 border-blue-600 text-white shadow-md ring-2 ring-axim-primary/50 ring-offset-2'
                 : 'bg-white border-gray-200 text-gray-700 hover:border-blue-400 hover:bg-blue-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:hover:border-blue-500 dark:hover:bg-gray-700'}
             `}
             onClick={() => handleChange(anchor.value)}

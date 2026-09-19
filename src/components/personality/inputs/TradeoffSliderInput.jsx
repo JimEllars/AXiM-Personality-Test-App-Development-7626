@@ -16,6 +16,27 @@ function TradeoffSliderInput({ item, value, onChange }) {
       return;
     }
 
+    if (e.key === 'ArrowLeft') {
+      handleChange(Math.max(1, currentValue - 1));
+      e.preventDefault();
+      return;
+    }
+    if (e.key === 'ArrowRight') {
+      handleChange(Math.min(5, currentValue === 0 ? 2 : currentValue + 1));
+      e.preventDefault();
+      return;
+    }
+    if (e.key === 'Home') {
+      handleChange(1);
+      e.preventDefault();
+      return;
+    }
+    if (e.key === 'End') {
+      handleChange(5);
+      e.preventDefault();
+      return;
+    }
+
     const nextValue = resolveLikertKey(currentValue, e.key);
     if (nextValue !== null) {
       handleChange(nextValue);
@@ -41,7 +62,7 @@ function TradeoffSliderInput({ item, value, onChange }) {
           <span className="w-5/12 text-right">{options.right}</span>
         </div>
 
-        <div className="relative flex justify-between items-center w-full max-w-xl h-2 bg-gray-200 dark:bg-gray-700 rounded-full">
+        <div className="relative flex justify-between items-center w-full max-w-xl h-2 bg-gray-200 dark:bg-gray-700 rounded-full" style={{ touchAction: 'pan-y' }} role="slider" aria-valuemin="1" aria-valuemax="5" aria-valuenow={value || 3} tabIndex={0} onKeyDown={handleKeyDown}>
           {segments.map((segment) => (
             <label
               key={segment}

@@ -447,7 +447,6 @@ export const usePersonalityStore = create(
           let migratedAnswers = persistedState.answers || persistedState.responses || {};
           let migratedClusterIndex = Math.max(0, Number(persistedState.currentClusterIndex) || Number(persistedState.currentQuestionIndex) || 0);
 
-
           if (version !== STORAGE_VERSION && version !== 0 && version !== undefined) {
              // Schema mismatch - preserve existing data and try to sanitize it later instead of wiping
           }
@@ -457,9 +456,19 @@ export const usePersonalityStore = create(
              currentClusterIndex: migratedClusterIndex
           });
 
+          let thetaScores = persistedState.thetaScores;
+          if (thetaScores && typeof thetaScores !== 'object') {
+             thetaScores = {};
+          }
+
+          let semScores = persistedState.semScores;
+          if (semScores && typeof semScores !== 'object') {
+             semScores = {};
+          }
+
           if (!isValid || typeof migratedClusterIndex !== 'number' || typeof migratedAnswers !== 'object') {
-             migratedAnswers = {};
-             migratedClusterIndex = 0;
+             migratedAnswers = sanitizedAnswers || {};
+             migratedClusterIndex = sanitizedIndex || 0;
           }
 
 

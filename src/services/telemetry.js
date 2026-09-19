@@ -60,9 +60,13 @@ export function flushQueue() {
           headers: { 'Content-Type': 'application/json' },
           body: data,
           keepalive: true
+        }).then(response => {
+          if (!response.ok) {
+            throw new Error('HTTP error ' + response.status);
+          }
         }).catch((e) => {
           if (retries > 0) {
-            const delay = Math.min(2500, Math.pow(2, 3 - retries) * 500); // Exponential backoff capped at 2.5s
+            const delay = Math.min(5000, Math.pow(2, 4 - retries) * 500); // Exponential backoff
             setTimeout(() => attemptFetch(retries - 1), delay);
           } else {
             // Add back to offline buffer on fail after retries
@@ -74,7 +78,7 @@ export function flushQueue() {
           }
         });
       };
-      attemptFetch(2);
+      attemptFetch(3);
     }
   } catch (error) {
     // Silently catch
