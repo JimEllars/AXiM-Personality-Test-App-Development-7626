@@ -2,6 +2,13 @@ const WORKER_URL = import.meta.env.VITE_EDGE_WORKER_URL || (import.meta.env.PROD
 const TELEMETRY_ENDPOINT = `${WORKER_URL}/api/telemetry`;
 
 let eventQueue = [];
+  try {
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.removeItem('axim_telemetry_live_queue');
+    }
+  } catch (e) {
+    // silent
+  }
 let flushTimeout = null;
 
 const QUEUE_SIZE_LIMIT = 10;
@@ -109,6 +116,15 @@ export function trackEvent(eventName, payload = {}) {
 
 
     eventQueue.push(eventData);
+    try {
+      if (typeof sessionStorage !== 'undefined') {
+        const stored = JSON.parse(sessionStorage.getItem('axim_telemetry_live_queue') || '[]');
+        stored.push(eventData);
+        sessionStorage.setItem('axim_telemetry_live_queue', JSON.stringify(stored.slice(-MAX_PAYLOAD_SIZE)));
+      }
+    } catch (e) {
+      // silent
+    }
 
     if (eventQueue.length >= QUEUE_SIZE_LIMIT) {
       flushQueue();
@@ -148,7 +164,20 @@ export function flushOfflineQueue() {
 // Ensure delivery during navigation/unload
 if (typeof window !== 'undefined') {
   // Attempt flush on load with slight delay
-  setTimeout(flushOfflineQueue, 1000);
+  setTimeout(() => {
+    try {
+      if (typeof sessionStorage !== 'undefined') {
+        const liveQueue = JSON.parse(sessionStorage.getItem('axim_telemetry_live_queue') || '[]');
+        if (liveQueue.length > 0) {
+          eventQueue.push(...liveQueue);
+          sessionStorage.removeItem('axim_telemetry_live_queue');
+        }
+      }
+    } catch (e) {
+      // silent
+    }
+    flushOfflineQueue();
+  }, 1000);
   window.addEventListener('pagehide', flushQueue);
   window.addEventListener('beforeunload', flushQueue);
   window.addEventListener('visibilitychange', () => {

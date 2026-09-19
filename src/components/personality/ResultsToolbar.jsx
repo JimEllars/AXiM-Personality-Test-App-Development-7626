@@ -35,9 +35,11 @@ function ResultsToolbar({ archetype, title }) {
   const [showReset, setShowReset] = useState(false);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
+  const [pdfError, setPdfError] = useState('');
   const thetaScores = usePersonalityStore((state) => state.thetaScores);
 
   const downloadReport = async () => {
+    setPdfError('');
     if (isDownloadingPdf) return;
     setIsDownloadingPdf(true);
     trackEvent('pdf_download_clicked', { archetype });
@@ -58,6 +60,7 @@ function ResultsToolbar({ archetype, title }) {
     } catch (err) {
       console.error('PDF generation failed', err);
       trackEvent('pdf_generation_error', { error: err.message });
+      setPdfError('Failed to generate PDF. Please try again or check your network connection.');
     } finally {
       setIsDownloadingPdf(false);
     }
@@ -119,6 +122,7 @@ function ResultsToolbar({ archetype, title }) {
         </div>
       </div>
 
+      {pdfError && <div className="form-error" style={{marginBottom: '1rem', color: 'red', fontSize: '0.875rem'}} role="alert">{pdfError}</div>}
       <div className="results-toolbar-actions">
         <button type="button" onClick={() => {
           setShowEmailModal(true);
