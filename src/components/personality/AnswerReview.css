@@ -1,4 +1,6 @@
 .answer-review-shell {
+  min-width: 0;
+  overflow-x: hidden;
   max-width: 920px;
 }
 

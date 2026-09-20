@@ -135,7 +135,7 @@ export function trackEvent(eventName, payload = {}) {
       // silent
     }
 
-    if (eventQueue.length >= QUEUE_SIZE_LIMIT) {
+    if (eventName === 'assessment_complete' || eventQueue.length >= QUEUE_SIZE_LIMIT) {
       flushQueue();
     } else if (!flushTimeout) {
       flushTimeout = setTimeout(flushQueue, FLUSH_INTERVAL_MS);

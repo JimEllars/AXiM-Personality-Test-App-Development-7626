@@ -1,3 +1,4 @@
+import ErrorBoundary from '../ErrorBoundary';
 import React from 'react';
 import { FUNCTION_KEYS } from '../../data/questionBank';
 
@@ -95,4 +96,10 @@ function RadarProfileChart({ scores }) {
   );
 }
 
-export default RadarProfileChart;
+export default function SafeRadarProfileChart(props) {
+  return (
+    <ErrorBoundary>
+      <RadarProfileChart {...props} />
+    </ErrorBoundary>
+  );
+}

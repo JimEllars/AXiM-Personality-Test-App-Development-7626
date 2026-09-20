@@ -1,3 +1,4 @@
+import ErrorBoundary from '../ErrorBoundary';
 import React, { useMemo, useState } from 'react';
 import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../../common/SafeIcon';
@@ -175,4 +176,10 @@ const [isGeneratingCard, setIsGeneratingCard] = useState(false);
   );
 }
 
-export default ArchetypeShareCard;
+export default function SafeArchetypeShareCard(props) {
+  return (
+    <ErrorBoundary>
+      <ArchetypeShareCard {...props} />
+    </ErrorBoundary>
+  );
+}

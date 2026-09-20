@@ -4,7 +4,7 @@
  */
 
 :root {
-  --focus-ring: 0 0 0 2px var(--mint, #62e5c5);
+  --focus-ring: 0 0 0 3px var(--mint, #62e5c5), 0 0 0 5px #07111f;
   --shadow-soft: 0 18px 55px rgba(0, 0, 0, 0.16);
   --shadow-elevated: 0 28px 90px rgba(0, 0, 0, 0.26);
 }

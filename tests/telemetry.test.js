@@ -106,3 +106,30 @@ describe('telemetry', () => {
     expect(stored[stored.length - 1].event).toBe('session_storage_event');
   });
 });
+
+
+
+describe('telemetry flushes', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    global.fetch = vi.fn().mockResolvedValue({ ok: true });
+    Object.defineProperty(global, 'navigator', {
+      value: {
+        sendBeacon: vi.fn().mockReturnValue(false),
+        userAgent: 'test-agent',
+        onLine: true
+      },
+      writable: true,
+      configurable: true
+    });
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('flushes queue immediately on assessment_complete event', () => {
+    trackEvent('assessment_complete', {});
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+  });
+});

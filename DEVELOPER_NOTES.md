@@ -199,3 +199,24 @@ All tests passing successfully.
     *   Guarded `computeResults()` against corrupted empty responses, interpolating fallback `3` (neutral) mid-points instead of crashing to NaN in `scoreAssessmentDiagnostics()`.
     *   Enforced standard schema boundary validations filtering out out-of-bounds historical responses on store rehydration inside `usePersonalityStore.js`. Browsers trigger `popstate` back button handling strictly decrementing cluster steps avoiding premature evaluation loops.
 *   **Dynamic UI Adjustments**: Rendered custom `<span className="spinner">` animations while `@react-pdf/renderer` dynamically imports during final result exports blocking duplicate async event generation states.
+
+## Telemetry & Cloudflare Worker Integration
+*   Updated `telemetry.js` buffered queue to also trigger automatic batch flushes directly on `assessment_complete` milestone events in addition to visibility changes.
+*   Added unit tests in `telemetry.test.js` covering the exact assessment completion flush requirement.
+*   Verified that the Cloudflare Worker `/api/telemetry` endpoint was already structured to accept batched events and gracefully handle missing KV namespaces using `X-Edge-Warning` and HTTP 202 fallbacks.
+
+## Error Isolation & Fallbacks
+*   Implemented a global `ErrorBoundary.jsx` component that provides a clean, inline fallback UI (e.g. "Visualization temporarily unavailable - raw scores preserved") without crashing the broader assessment tree.
+*   Wrapped heavy visualization components (`RadarProfileChart`, `ThetaTrendCharts`, `ArchetypeShareCard`, and the `PersonalityReportDocument` PDF generator) with the `ErrorBoundary` to guarantee user flows remain unbroken if graphics generation fails.
+
+## Hydration & State Resilience
+*   Updated the Zuztand storage version mapping to `SCHEMA_VERSION = 2`.
+*   Strengthened the hydration migration logic within `usePersonalityStore.js` to safeguard against completely corrupt payloads by injecting fail-safes that fall back to initial valid objects (`{}`) instead of crashing on undefined property exceptions.
+*   Added unit test validation in `store_hydration.test.js` confirming corrupted state structures revert safely without exceptions.
+
+## UI Ergonomics
+*   Polished mobile touch targets in `TradeoffSliderInput.jsx` expanding thumbs to the required minimum `44px` interactive area and adding `touch-action: none` to explicitly prevent browser-native swipe conflicts during interaction.
+*   Addressed responsive leakages in `ArchetypeCompatibilityMatrix.css` and `AnswerReview.css` forcing horizontal constraints on widths below 375px.
+*   Improved accessibility contrast ratios for the primary `:focus-visible` ring in `production-polish.css` adjusting the outline spread and color to ensure clarity against dark surfaces.
+
+All test suites and pre_commit validations passed.

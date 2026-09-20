@@ -1,3 +1,4 @@
+import ErrorBoundary from '../ErrorBoundary';
 import React, { useMemo, useState } from 'react';
 import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../../common/SafeIcon';
@@ -187,4 +188,10 @@ function ThetaTrendCharts() {
   );
 }
 
-export default ThetaTrendCharts;
+export default function SafeThetaTrendCharts(props) {
+  return (
+    <ErrorBoundary>
+      <ThetaTrendCharts {...props} />
+    </ErrorBoundary>
+  );
+}
