@@ -36,8 +36,21 @@ function AssessmentFlow() {
   const resumeAssessment = usePersonalityStore((state) => state.resumeAssessment);
 
   useEffect(() => {
-    resumeAssessment();
-  }, [resumeAssessment]);
+    // Only resume once on mount to prevent overriding navigation state
+    if (Object.keys(usePersonalityStore.getState().answers).length === 0) {
+      resumeAssessment();
+    }
+
+    const handlePopState = (event) => {
+       // On browser back, ensure we don't jump ahead automatically
+       const prevIndex = usePersonalityStore.getState().currentClusterIndex;
+       if (prevIndex > 0) {
+         setClusterIndex(prevIndex - 1);
+       }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [resumeAssessment, setClusterIndex]);
   const [message, setMessage] = useState('');
   const [reviewMode, setReviewMode] = useState(false);
 
@@ -224,7 +237,7 @@ function AssessmentFlow() {
         <span>Focus a statement, then press 1–5 to answer quickly.</span>
       </div>
 
-      <QuestionCluster
+      <div style={{ minHeight: '600px' }}><QuestionCluster
         items={items}
         answers={answers}
 
@@ -235,7 +248,7 @@ function AssessmentFlow() {
         }}
 
         clusterIndex={currentClusterIndex}
-      />
+      /></div>
 
       <div className="assessment-actions">
         <button

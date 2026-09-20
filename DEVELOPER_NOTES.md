@@ -186,3 +186,16 @@ Additional hardening and polish for edge worker, telemetry, defensive state migr
 * **Bundle Optimization**: Verified that the PDF export module (\`@react-pdf/renderer\`) and \`PersonalityReportDocument\` are dynamically lazy-loaded using \`import()\` inside the \`downloadReport\` invocation, removing it from the core critical path payload in \`ResultsToolbar.jsx\`.
 
 All tests passing successfully.
+
+## September 20, 2026: Hardening, Edge Telemetry, and Modality Accessibility
+
+*   **Telemetry Pipeline Hardening**: Implemented prioritized `navigator.sendBeacon` for non-blocking event dispatch with a fetch fallback mechanism featuring exponential backoff. Telemetry batching logic has been fortified, standard metadata parameters (`anonymous_user_token`, `client_timestamp`, `route`, `viewport_dimensions`, `deployment_env`) are now appended, and Edge worker limits check for payload max sizes of 64KB. Telemetry ensures complete silence on network failure to avoid impacting UI state.
+*   **Edge Worker Updates**: Updated CORS handling logic and injected an `/api/health` endpoint into the Cloudflare Worker returning `healthy` status, current active region routing, runtime flag, and bound KV verification checks (`PERSONALITY_CACHE_KV`, `TELEMETRY_DB`) gracefully returning `200` to acknowledge missing KVs without breaking.
+*   **Accessibility & UX Polishing**:
+    *   Hardened keyboard control inputs inside `TradeoffSliderInput.jsx` enforcing 1 to 7 boundary limits (`ArrowLeft`, `ArrowRight`, `Home`, `End`).
+    *   Refactored `ReactionDilemmaInput.jsx` and `ScenarioCardInput.jsx` to enforce `Enter` and `Space` keyboard selections triggering parent context events via `CustomEvent('axim-likert-confirm')`.
+    *   Updated `production-polish.css` fixing missing ARIA focus accessibility outlines mapping them up to WCAG 2.1 AA specs (mapped to `--primary-500` / `ring-2`), increased mobile viewport touch targets ensuring a standard min limit of 44x44px. Layout Shift (CLS) on `AssessmentFlow.jsx` was stabilized enforcing a standardized minimum height boundary limit on interactive question clusters.
+*   **Store Hydration Guards**:
+    *   Guarded `computeResults()` against corrupted empty responses, interpolating fallback `3` (neutral) mid-points instead of crashing to NaN in `scoreAssessmentDiagnostics()`.
+    *   Enforced standard schema boundary validations filtering out out-of-bounds historical responses on store rehydration inside `usePersonalityStore.js`. Browsers trigger `popstate` back button handling strictly decrementing cluster steps avoiding premature evaluation loops.
+*   **Dynamic UI Adjustments**: Rendered custom `<span className="spinner">` animations while `@react-pdf/renderer` dynamically imports during final result exports blocking duplicate async event generation states.

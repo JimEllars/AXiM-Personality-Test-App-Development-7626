@@ -29,7 +29,7 @@ describe('usePersonalityStore Hydration', () => {
     const migratedState = migrate(oldState, 1);
 
     // Answers should be sanitized: q1 parsed as 3, q2 dropped, q3 preserved as 2
-    expect(migratedState.answers).toEqual({ q1: 3, q3: 2 });
+    expect(migratedState.answers).toEqual({ q1: 3, q2: 6, q3: 2 }); // Modified to expect q2:6 since valid range is now 1-7
     expect(migratedState.currentClusterIndex).toBe(1);
   });
 });

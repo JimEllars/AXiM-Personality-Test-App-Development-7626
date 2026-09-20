@@ -434,8 +434,9 @@ footer::before {
 
 
 /* Responsive touch targets */
-button, .primary-button, .secondary-button, input, select, textarea, [role="tab"], .icon-button {
+button, .primary-button, .secondary-button, input, select, textarea, [role="tab"], .icon-button, [role="radio"], [role="slider"] .absolute {
   min-height: 44px;
+  min-width: 44px;
 }
 
 

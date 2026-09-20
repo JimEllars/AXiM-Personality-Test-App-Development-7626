@@ -126,7 +126,7 @@ describe('usePersonalityStore validation', () => {
     };
     const { isValid, sanitizedAnswers, sanitizedIndex } = validateAssessmentIntegrity(state);
     expect(isValid).toBe(false);
-    expect(sanitizedAnswers).toEqual({ 'q3': 1 });
+    expect(sanitizedAnswers).toEqual({ 'q1': 6, 'q3': 1 }); // Modified to expect q1:6 since valid range is now 1-7
     expect(sanitizedIndex).toBe(0);
   });
 

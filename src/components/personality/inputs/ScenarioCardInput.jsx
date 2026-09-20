@@ -62,7 +62,7 @@ function ScenarioCardInput({ item, value, onChange }) {
                    handleChange(choice.value);
                  }
               }}
-              className={`flex flex-col items-center justify-center p-2 rounded-lg cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-500 min-h-[44px] min-w-[44px] transition-all
+              className={`flex flex-col items-center justify-center p-2 rounded-lg cursor-pointer focus-visible:ring-2 focus-visible:ring-primary-500 min-h-[44px] min-w-[44px] transition-all
                 ${value === choice.value
                   ? 'bg-blue-600 text-white shadow-md'
                   : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200'}
