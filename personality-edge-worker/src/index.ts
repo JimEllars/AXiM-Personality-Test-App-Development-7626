@@ -72,6 +72,9 @@ export default {
           status: "healthy",
           region: request.cf?.colo || "local",
           timestamp: Date.now(),
+          utc_timestamp: new Date().toISOString(),
+          kv_status: !!env.PERSONALITY_CACHE_KV ? "connected" : "offline",
+          telemetry_db_status: !!env.TELEMETRY_DB ? "connected" : "offline",
           runtime: "cloudflare-worker",
           bindings: {
              TELEMETRY_DB: !!env.TELEMETRY_DB,
@@ -87,7 +90,7 @@ export default {
         try {
           const payloadSize = parseInt(request.headers.get('content-length') || '0', 10);
           if (payloadSize > 64 * 1024) {
-            return new Response(JSON.stringify({ success: false, error: 'Payload too large' }), {
+            return new Response(JSON.stringify({ success: false, processed: 0, error: 'Payload too large (max 64KB)' }), {
               status: 413,
               headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
             });

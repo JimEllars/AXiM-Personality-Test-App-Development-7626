@@ -8,7 +8,7 @@ function TradeoffSliderInput({ item, value, onChange }) {
     const currentValue = value || 0;
 
     if (e.key === 'Enter' || e.key === ' ') {
-      if (currentValue >= 1 && currentValue <= 5) {
+      if (currentValue >= 1 && currentValue <= 7) {
         const event = new CustomEvent('axim-likert-confirm', { bubbles: true });
         e.currentTarget.dispatchEvent(event);
       }
@@ -22,7 +22,7 @@ function TradeoffSliderInput({ item, value, onChange }) {
       return;
     }
     if (e.key === 'ArrowRight') {
-      handleChange(Math.min(5, currentValue === 0 ? 2 : currentValue + 1));
+      handleChange(Math.min(7, currentValue === 0 ? 2 : currentValue + 1));
       e.preventDefault();
       return;
     }
@@ -32,7 +32,7 @@ function TradeoffSliderInput({ item, value, onChange }) {
       return;
     }
     if (e.key === 'End') {
-      handleChange(5);
+      handleChange(7);
       e.preventDefault();
       return;
     }
@@ -51,18 +51,18 @@ function TradeoffSliderInput({ item, value, onChange }) {
     onChange(val);
   };
 
-  const segments = [1, 2, 3, 4, 5];
+  const segments = [1, 2, 3, 4, 5, 6, 7];
 
   return (
     <fieldset className="tradeoff-input" role="radiogroup" aria-label="Select tradeoff level" onKeyDown={handleKeyDown}>
-      <legend className="sr-only">Select tradeoff level from 1 to 5</legend>
+      <legend className="sr-only">Select tradeoff level from 1 to 7</legend>
       <div className="flex flex-col items-center gap-6 w-full mt-6">
         <div className="flex justify-between w-full text-base font-semibold text-gray-800 dark:text-gray-100">
           <span className="w-5/12 text-left">{options.left}</span>
           <span className="w-5/12 text-right">{options.right}</span>
         </div>
 
-        <div className="relative flex justify-between items-center w-full max-w-xl h-2 bg-gray-200 dark:bg-gray-700 rounded-full" style={{ touchAction: 'pan-y' }} role="slider" aria-valuemin="1" aria-valuemax="5" aria-valuenow={value || 3} tabIndex={0} onKeyDown={handleKeyDown}>
+        <div className="relative flex justify-between items-center w-full max-w-xl h-2 bg-gray-200 dark:bg-gray-700 rounded-full" style={{ touchAction: 'pan-y' }} role="slider" aria-valuemin="1" aria-valuemax="7" aria-valuenow={value || 4} tabIndex={0} onKeyDown={handleKeyDown}>
           {segments.map((segment) => (
             <label
               key={segment}
@@ -76,12 +76,12 @@ function TradeoffSliderInput({ item, value, onChange }) {
                    handleChange(segment);
                  }
               }}
-              className={`absolute flex items-center justify-center cursor-pointer focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 w-8 h-8 -ml-4 rounded-full transition-transform
+              className={`absolute flex items-center justify-center cursor-pointer focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary-500 w-8 h-8 -ml-4 rounded-full transition-transform
                 ${value === segment
                   ? 'bg-blue-600 shadow-lg scale-125 z-10'
                   : 'bg-white border-2 border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-600 dark:hover:bg-gray-700 z-0'}
               `}
-              style={{ left: `${(segment - 1) * 25}%` }}
+              style={{ left: `${(segment - 1) * 16.666}%` }}
               onClick={() => handleChange(segment)}
               title={`Level ${segment}`}
             >

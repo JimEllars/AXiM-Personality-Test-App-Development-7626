@@ -132,7 +132,8 @@ export function validateAssessmentIntegrity(state) {
   if (state.answers) {
     Object.entries(state.answers).forEach(([key, value]) => {
       const numValue = Number(value);
-      if (Number.isInteger(numValue) && numValue >= 1 && numValue <= 5) {
+      if (Number.isInteger(numValue) && numValue >= 1 && numValue <= 7) { // Support 1-7 for some inputs
+        // We already parsed it as numValue. Let's make sure it's stored as an actual number.
         sanitizedAnswers[key] = numValue;
       } else {
         isValid = false;
@@ -212,7 +213,15 @@ export const usePersonalityStore = create(
             console.warn("Invoked IRT calculation prematurely. Returning default neutral theta values.");
             metrics = { thetaScores: {}, semScores: {}, answeredCount: 0, totalItems: 0, coverage: 0, averageSem: 0, isDefaultFlag: true };
           } else {
-            metrics = scoreAssessmentDiagnostics(QUESTION_BANK, state.answers, FUNCTION_KEYS);
+            // Guard against partial or corrupted cluster inputs
+            const safeAnswers = { ...state.answers };
+            QUESTION_BANK.forEach(item => {
+              if (safeAnswers[item.id] === undefined || isNaN(safeAnswers[item.id])) {
+                 // graceful interpolation / skip by assuming a neutral midpoint (3 or 4) to avoid NaN
+                 safeAnswers[item.id] = 3;
+              }
+            });
+            metrics = scoreAssessmentDiagnostics(QUESTION_BANK, safeAnswers, FUNCTION_KEYS);
           }
 
           const result = projectArchetype(metrics.thetaScores);
@@ -414,7 +423,27 @@ export const usePersonalityStore = create(
       name: 'axim_personality_session',
       version: STORAGE_VERSION,
       storage: createJSONStorage(() => safeStorage),
-      onRehydrateStorage: () => (state, error) => { if (error || !state) { console.error("Hydration failed", error); state?.resetAssessment?.(); } else { const { isValid } = state.auditStoreIntegrity?.() || {}; if (isValid === false) { state.resetAssessment?.(); } } },
+      onRehydrateStorage: () => (state, error) => {
+        if (error || !state) {
+          console.error("Hydration failed", error);
+          if (state && state.resetAssessment) {
+             try { state.resetAssessment(); } catch(e) { console.error(e); }
+          }
+        } else {
+          try {
+            const { isValid, sanitizedAnswers, sanitizedIndex } = validateAssessmentIntegrity(state);
+            if (!isValid) {
+               // Soft reset to sanitized state instead of full wipe if possible, to avoid crashing root ErrorBoundary
+               state.answers = sanitizedAnswers || {};
+               state.currentClusterIndex = sanitizedIndex || 0;
+            }
+          } catch (e) {
+             if (state.resetAssessment) {
+                try { state.resetAssessment(); } catch (err) { console.error(err); }
+             }
+          }
+        }
+      },
 
       partialize: (state) => ({
         screen: state.screen,
@@ -444,7 +473,12 @@ export const usePersonalityStore = create(
         try {
           if (!isValidSession(persistedState)) return initialState;
 
-          let migratedAnswers = persistedState.answers || persistedState.responses || {};
+          let migratedAnswers = {};
+          if (persistedState.answers || persistedState.responses) {
+            Object.entries(persistedState.answers || persistedState.responses).forEach(([k, v]) => {
+              migratedAnswers[k] = Number(v);
+            });
+          }
           let migratedClusterIndex = Math.max(0, Number(persistedState.currentClusterIndex) || Number(persistedState.currentQuestionIndex) || 0);
 
           if (version !== STORAGE_VERSION && version !== 0 && version !== undefined) {
