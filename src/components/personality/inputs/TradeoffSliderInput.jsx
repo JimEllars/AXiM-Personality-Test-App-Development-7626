@@ -62,7 +62,7 @@ function TradeoffSliderInput({ item, value, onChange }) {
           <span className="w-5/12 text-right">{options.right}</span>
         </div>
 
-        <div className="relative flex justify-between items-center w-full max-w-xl h-2 bg-gray-200 dark:bg-gray-700 rounded-full" style={{ touchAction: 'pan-y' }} role="slider" aria-valuemin="1" aria-valuemax="7" aria-valuenow={value || 4} tabIndex={0} onKeyDown={handleKeyDown}>
+        <div className="relative flex justify-between items-center w-full max-w-xl h-2 bg-gray-200 dark:bg-gray-700 rounded-full" style={{ touchAction: 'none' }} role="slider" aria-valuemin="1" aria-valuemax="7" aria-valuenow={value || 4} tabIndex={0} onKeyDown={handleKeyDown}>
           {segments.map((segment) => (
             <label
               key={segment}
@@ -76,7 +76,7 @@ function TradeoffSliderInput({ item, value, onChange }) {
                    handleChange(segment);
                  }
               }}
-              className={`absolute flex items-center justify-center cursor-pointer focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary-500 w-8 h-8 -ml-4 rounded-full transition-transform
+              className={`absolute flex items-center justify-center cursor-pointer focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary-500 w-11 h-11 -ml-4 rounded-full transition-transform
                 ${value === segment
                   ? 'bg-blue-600 shadow-lg scale-125 z-10'
                   : 'bg-white border-2 border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-600 dark:hover:bg-gray-700 z-0'}

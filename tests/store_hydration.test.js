@@ -33,3 +33,16 @@ describe('usePersonalityStore Hydration', () => {
     expect(migratedState.currentClusterIndex).toBe(1);
   });
 });
+
+  it('handles completely corrupted state gracefully by falling back to initial state', () => {
+    const migrate = usePersonalityStore.persist.getOptions().migrate;
+    const badState = {
+      answers: null,
+      responses: undefined,
+      currentClusterIndex: null
+    };
+
+    const migratedState = migrate(badState, 1);
+    expect(migratedState.answers).toEqual({});
+    expect(migratedState.currentClusterIndex).toBe(0);
+  });

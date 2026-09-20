@@ -7,7 +7,7 @@ import { trackEvent } from '../services/telemetry';
 import { submitAssessment, scoreAssessment } from '../services/personalityApi';
 import { ASSESSMENT_CLUSTERS } from '../data/questionBank';
 
-const STORAGE_VERSION = 2;
+const SCHEMA_VERSION = 2;
 
 const initialState = {
   screen: 'intro',
@@ -421,7 +421,7 @@ export const usePersonalityStore = create(
     }),
     {
       name: 'axim_personality_session',
-      version: STORAGE_VERSION,
+      version: SCHEMA_VERSION,
       storage: createJSONStorage(() => safeStorage),
       onRehydrateStorage: () => (state, error) => {
         if (error || !state) {
@@ -474,6 +474,9 @@ export const usePersonalityStore = create(
           if (!isValidSession(persistedState)) return initialState;
 
           let migratedAnswers = {};
+          if (typeof persistedState.answers !== 'object' && typeof persistedState.responses !== 'object') {
+              persistedState.answers = {};
+          }
           if (persistedState.answers || persistedState.responses) {
             Object.entries(persistedState.answers || persistedState.responses).forEach(([k, v]) => {
               migratedAnswers[k] = Number(v);
@@ -481,7 +484,7 @@ export const usePersonalityStore = create(
           }
           let migratedClusterIndex = Math.max(0, Number(persistedState.currentClusterIndex) || Number(persistedState.currentQuestionIndex) || 0);
 
-          if (version !== STORAGE_VERSION && version !== 0 && version !== undefined) {
+          if (version !== SCHEMA_VERSION && version !== 0 && version !== undefined) {
              // Schema mismatch - preserve existing data and try to sanitize it later instead of wiping
           }
 
