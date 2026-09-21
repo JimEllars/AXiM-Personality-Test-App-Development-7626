@@ -1,4 +1,5 @@
 import React from 'react';
+import { trackError } from '../services/telemetry';
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -12,6 +13,7 @@ class ErrorBoundary extends React.Component {
 
   componentDidCatch(error, errorInfo) {
     console.error("Component error:", error, errorInfo);
+    trackError(error, errorInfo);
   }
 
   render() {

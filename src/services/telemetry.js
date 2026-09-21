@@ -41,7 +41,8 @@ export function flushQueue() {
         try {
             const stored = JSON.parse(localStorage.getItem('axim_telemetry_queue') || '[]');
             stored.push(...payload);
-            localStorage.setItem('axim_telemetry_queue', JSON.stringify(stored.slice(-MAX_PAYLOAD_SIZE)));
+            // Limit local offline buffer storage to max 50 events.
+            localStorage.setItem('axim_telemetry_queue', JSON.stringify(stored.slice(-50)));
         } catch (e) {
             console.warn("Failed to write to offline telemetry buffer");
         }
@@ -60,28 +61,37 @@ export function flushQueue() {
     // Fallback to fetch with keepalive
     if (typeof fetch !== 'undefined') {
       const attemptFetch = (retries) => {
-        fetch(TELEMETRY_ENDPOINT, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: data,
-          keepalive: true
-        }).then(response => {
-          if (!response.ok) {
-            throw new Error('HTTP error ' + response.status);
-          }
-        }).catch((e) => {
-          if (retries > 0) {
-            const delay = Math.min(5000, Math.pow(2, 4 - retries) * 500); // Exponential backoff
-            setTimeout(() => attemptFetch(retries - 1), delay);
-          } else {
-            // Add back to offline buffer on fail after retries
-            try {
-              const stored = JSON.parse(localStorage.getItem('axim_telemetry_queue') || '[]');
-              stored.push(...payload);
-              localStorage.setItem('axim_telemetry_queue', JSON.stringify(stored.slice(-MAX_PAYLOAD_SIZE)));
-            } catch (err) { /* silent catch */ }
-          }
-        });
+        try {
+          fetch(TELEMETRY_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: data,
+            keepalive: true
+          }).then(response => {
+            if (!response.ok) {
+              throw new Error('HTTP error ' + response.status);
+            }
+          }).catch((e) => {
+            if (retries > 0) {
+              const delay = Math.min(5000, Math.pow(2, 4 - retries) * 500); // Exponential backoff
+              setTimeout(() => attemptFetch(retries - 1), delay);
+            } else {
+              // Add back to offline buffer on fail after retries
+              try {
+                const stored = JSON.parse(localStorage.getItem('axim_telemetry_queue') || '[]');
+                stored.push(...payload);
+                localStorage.setItem('axim_telemetry_queue', JSON.stringify(stored.slice(-50)));
+              } catch (err) { /* silent catch */ }
+            }
+          });
+        } catch (syncErr) {
+          // Add back to offline buffer on synchronous fetch fail
+          try {
+            const stored = JSON.parse(localStorage.getItem('axim_telemetry_queue') || '[]');
+            stored.push(...payload);
+            localStorage.setItem('axim_telemetry_queue', JSON.stringify(stored.slice(-50)));
+          } catch (err) { /* silent catch */ }
+        }
       };
       attemptFetch(3);
     }
