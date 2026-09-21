@@ -63,7 +63,8 @@ export default {
     const corsHeaders = getCorsHeaders(request);
 
     if (request.method === 'OPTIONS') {
-      return new Response(null, { headers: corsHeaders });
+      // Explicitly return caching headers for preflight requests
+      return new Response(null, { headers: { ...corsHeaders, 'Access-Control-Max-Age': '86400' } });
     }
 
     try {
@@ -89,8 +90,8 @@ export default {
       if (request.method === 'POST' && (normalizedPathname === '/api/telemetry' || normalizedPathname === '/api/telemetry/events' || normalizedPathname === '/api/v1/telemetry' || normalizedPathname === '/api/assessment/session' || normalizedPathname === '/api/state')) {
         try {
           const payloadSize = parseInt(request.headers.get('content-length') || '0', 10);
-          if (payloadSize > 64 * 1024) {
-            return new Response(JSON.stringify({ success: false, processed: 0, error: 'Payload too large (max 64KB)' }), {
+          if (payloadSize > 32 * 1024) {
+            return new Response(JSON.stringify({ success: false, processed: 0, error: 'Payload too large (max 32KB)' }), {
               status: 413,
               headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
             });
@@ -112,37 +113,44 @@ export default {
           // Validate schema
           const allowedEvents = ['assessment_start', 'item_response', 'cluster_complete', 'assessment_complete', 'error'];
           for (const e of events) {
-            if (!e.event || typeof e.event !== 'string') {
+            if (!e.event || typeof e.event !== 'string' || e.event.length > 50) {
               return new Response(JSON.stringify({ success: false, processed: 0, error: 'Invalid schema: Missing or invalid event name' }), {
                 status: 400,
                 headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
               });
             }
-            if (e.event !== 'test' && !allowedEvents.includes(e.event) && !e.event.startsWith('pdf_') && e.event !== 'assessment_retake') {
-              // We'll just skip validating exact names to not break unknown future events,
-              // or maybe we should only allow these? The prompt says "Validate and align incoming payloads with telemetry.js"
-              // The tests track "test_event", "offline_event_1", etc. so I won't strict block on event name, but I will make sure the response is { success: true, processed: events.length }
-            }
-            if (!e.sessionId || typeof e.sessionId !== 'string') {
+            if (typeof e.sessionId !== 'string' || e.sessionId.length > 100 || /[^a-zA-Z0-9_-]/.test(e.sessionId)) {
               return new Response(JSON.stringify({ success: false, processed: 0, error: 'Invalid schema: Missing or invalid session ID' }), {
                 status: 400,
                 headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
               });
             }
-            if (!e.timestamp || typeof e.timestamp !== 'string') {
+            if (typeof e.timestamp !== 'string' || e.timestamp.length > 50) {
               return new Response(JSON.stringify({ success: false, processed: 0, error: 'Invalid schema: Missing or invalid timestamp' }), {
                 status: 400,
                 headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
               });
             }
-            if (e.metadata && typeof e.metadata !== 'object') {
-              return new Response(JSON.stringify({ success: false, processed: 0, error: 'Invalid schema: metadata must be an object' }), {
-                status: 400,
-                headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
-              });
+            if (e.metadata) {
+              if (typeof e.metadata !== 'object') {
+                return new Response(JSON.stringify({ success: false, processed: 0, error: 'Invalid schema: metadata must be an object' }), {
+                  status: 400,
+                  headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
+                });
+              }
+              // Validate trait floats if present
+              if (e.metadata.scores) {
+                for (const val of Object.values(e.metadata.scores)) {
+                  if (typeof val !== 'number' || isNaN(val) || val < -10 || val > 10) {
+                    return new Response(JSON.stringify({ success: false, processed: 0, error: 'Invalid schema: Invalid trait floats' }), {
+                      status: 400,
+                      headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
+                    });
+                  }
+                }
+              }
             }
           }
-
 
           const logData = events.map((e: any) => ({
             event: e.event,
@@ -199,6 +207,19 @@ export default {
             return new Response(JSON.stringify({ error: 'Missing result data' }), { status: 400, headers: corsHeaders });
           }
 
+          // Sanitize and validate share payload structure
+          if (!payload.result.archetype || typeof payload.result.archetype !== 'string' ||
+              !payload.result.thetaScores || typeof payload.result.thetaScores !== 'object') {
+            return new Response(JSON.stringify({ error: 'Invalid share payload schema' }), { status: 400, headers: corsHeaders });
+          }
+
+          // Simple float validation for thetaScores
+          for (const val of Object.values(payload.result.thetaScores)) {
+            if (typeof val !== 'number' || isNaN(val)) {
+               return new Response(JSON.stringify({ error: 'Invalid score values' }), { status: 400, headers: corsHeaders });
+            }
+          }
+
           const shareId = Math.random().toString(36).substring(2, 15);
           if (env.PERSONALITY_CACHE_KV) {
             ctx.waitUntil(env.PERSONALITY_CACHE_KV.put(`share_${shareId}`, JSON.stringify(payload.result), { expirationTtl: 604800 })); // 7 days
@@ -236,7 +257,7 @@ export default {
 
           return new Response(resultData, {
             status: 200,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=3600' },
+            headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400' },
           });
         } catch (e) {
           return new Response(JSON.stringify({ error: 'Failed to retrieve share link' }), { status: 500, headers: corsHeaders });
@@ -322,7 +343,7 @@ export default {
 
         return new Response(JSON.stringify(benchmarks), {
           status: 202,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=3600' },
+          headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400' },
         });
       }
 

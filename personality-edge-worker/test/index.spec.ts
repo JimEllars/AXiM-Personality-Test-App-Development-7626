@@ -102,7 +102,7 @@ describe('Edge Worker', () => {
     // Note: the test mock env needs to have a PERSONALITY_CACHE_KV
     const request = new Request('http://localhost/api/results/share', {
       method: 'POST',
-      body: JSON.stringify({ result: { archetype: 'Explorer' } }),
+      body: JSON.stringify({ result: { archetype: 'Explorer', thetaScores: { O: 0.5, C: -0.1 } } }),
       headers: { 'Content-Type': 'application/json' }
     });
 
@@ -128,3 +128,27 @@ describe('Edge Worker', () => {
     expect(getData.archetype).toBe('Explorer');
   });
 });
+
+  it('benchmarks returns cache control headers', async () => {
+    const request = new Request('http://localhost/api/v1/personality/benchmarks', { method: 'GET' });
+    const response = await worker.fetch(request, {} as any, {} as any);
+    expect(response.headers.get('Cache-Control')).toBe('public, max-age=300, s-maxage=3600, stale-while-revalidate=86400');
+  });
+
+  it('telemetry rejects invalid trait floats', async () => {
+    const request = new Request('http://localhost/api/telemetry', {
+      method: 'POST',
+      body: JSON.stringify([{ event: 'test', sessionId: '123', timestamp: new Date().toISOString(), metadata: { scores: { O: 1000 } } }])
+    });
+    const response = await worker.fetch(request, {} as any, {} as any);
+    expect(response.status).toBe(400);
+  });
+
+  it('telemetry rejects invalid session ID strings', async () => {
+    const request = new Request('http://localhost/api/telemetry', {
+      method: 'POST',
+      body: JSON.stringify([{ event: 'test', sessionId: 'invalid session id spaces', timestamp: new Date().toISOString() }])
+    });
+    const response = await worker.fetch(request, {} as any, {} as any);
+    expect(response.status).toBe(400);
+  });

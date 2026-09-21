@@ -26,7 +26,9 @@ function ReactionDilemmaInput({ item, value, onChange }) {
       return;
     }
 
-    const nextValue = resolveLikertKey(currentValue, e.key);
+    let nextValue = resolveLikertKey(currentValue, e.key);
+    if (e.code === 'KeyA' || e.key === 'A' || e.key === 'a') nextValue = 1;
+    if (e.code === 'KeyB' || e.key === 'B' || e.key === 'b') nextValue = 5;
     if (nextValue !== null) {
       handleChange(nextValue);
       e.preventDefault();
@@ -57,7 +59,8 @@ function ReactionDilemmaInput({ item, value, onChange }) {
                  handleChange(choice.value);
                }
             }}
-            className={`flex flex-col justify-center p-4 rounded-xl cursor-pointer border-2 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 transition-all min-h-[60px]
+            className={`flex flex-col justify-center p-4 rounded-xl cursor-pointer border-2 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 transition-all hover:scale-[1.02] active:scale-[0.98] min-h-[60px]
+            style={{ transition: 'transform 150ms cubic-bezier(0.16, 1, 0.3, 1)' }}
               ${value === choice.value
                 ? 'bg-blue-50 border-blue-500 dark:bg-blue-900/30 dark:border-blue-400 shadow-md ring-2 ring-primary-500 ring-offset-2'
                 : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:hover:border-gray-600'}
@@ -65,9 +68,13 @@ function ReactionDilemmaInput({ item, value, onChange }) {
             onClick={() => handleChange(choice.value)}
           >
             <input type="radio" name={id} value={choice.value} checked={value === choice.value} readOnly tabIndex={-1} aria-hidden="true" className="hidden" />
-            <span className={`text-base font-bold ${value === choice.value ? 'text-blue-700 dark:text-blue-300' : 'text-gray-800 dark:text-gray-200'}`}>
-              {choice.label}
-            </span>
+            <div className="flex justify-between items-center w-full">
+              <span className={`text-base font-bold ${value === choice.value ? 'text-blue-700 dark:text-blue-300' : 'text-gray-800 dark:text-gray-200'}`}>
+                {choice.label}
+              </span>
+              {choice.value === 1 && <span className="hidden md:inline-block ml-2 px-2 py-0.5 text-xs font-mono bg-gray-100 dark:bg-gray-700 rounded border border-gray-200 dark:border-gray-600 text-gray-500">[A]</span>}
+              {choice.value === 5 && <span className="hidden md:inline-block ml-2 px-2 py-0.5 text-xs font-mono bg-gray-100 dark:bg-gray-700 rounded border border-gray-200 dark:border-gray-600 text-gray-500">[B]</span>}
+            </div>
             {choice.desc && (
               <span className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                 {choice.desc}

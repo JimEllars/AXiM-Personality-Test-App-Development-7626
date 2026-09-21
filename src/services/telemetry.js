@@ -58,6 +58,7 @@ export function flushQueue() {
       } catch (err) { /* silent catch */ }
     }
 
+
     // Fallback to fetch with keepalive
     if (typeof fetch !== 'undefined') {
       const attemptFetch = (retries) => {
@@ -69,7 +70,11 @@ export function flushQueue() {
             keepalive: true
           }).then(response => {
             if (!response.ok) {
-              throw new Error('HTTP error ' + response.status);
+              if (response.status >= 500 || response.status === 429) {
+                 throw new Error('HTTP error ' + response.status);
+              } else {
+                 return;
+              }
             }
           }).catch((e) => {
             if (retries > 0) {
@@ -85,7 +90,6 @@ export function flushQueue() {
             }
           });
         } catch (syncErr) {
-          // Add back to offline buffer on synchronous fetch fail
           try {
             const stored = JSON.parse(localStorage.getItem('axim_telemetry_queue') || '[]');
             stored.push(...payload);
@@ -95,6 +99,7 @@ export function flushQueue() {
       };
       attemptFetch(3);
     }
+
   } catch (error) {
     // Silently catch
   }
@@ -113,17 +118,36 @@ function getSessionId() {
 export function trackEvent(eventName, payload = {}) {
   try {
     const { sessionId, ...restPayload } = payload;
-    const eventData = {
+    let eventData = {
       event: eventName,
       timestamp: new Date().toISOString(),
       sessionId: sessionId || getSessionId(),
       metadata: {
         url: typeof window !== 'undefined' ? window.location.href : '',
-        // Minimal UA properties, avoid full PII
         userAgent: typeof navigator !== 'undefined' ? navigator.userAgent.substring(0, 150) : '',
         ...restPayload
       }
     };
+
+    if (eventName === 'assessment_completed' || eventName === 'assessment_complete') {
+      eventData = {
+        event: 'assessment_completed', // Keep event for edge worker validation
+        sessionId: sessionId || getSessionId(),
+        timestamp: new Date().toISOString(),
+        metadata: {
+           url: typeof window !== 'undefined' ? window.location.href : '',
+           userAgent: typeof navigator !== 'undefined' ? navigator.userAgent.substring(0, 150) : '',
+        },
+        app_id: 'axim-personality-engine',
+        version: '1.1.0',
+        event_type: 'ASSESSMENT_COMPLETED',
+        session_id: sessionId || getSessionId(),
+        demographics: restPayload.demographics || {},
+        scores: restPayload.scores || restPayload.thetaScores || {},
+        archetype_id: restPayload.archetype_id || restPayload.assignedArchetype || 'unknown',
+        se: restPayload.se || restPayload.semScores || {}
+      };
+    }
 
     // Keep top-level keys for Worker parsing compatibility (e.g., latency, error) if they exist in payload
     if (restPayload.latency !== undefined) eventData.latency = restPayload.latency;
@@ -145,7 +169,7 @@ export function trackEvent(eventName, payload = {}) {
       // silent
     }
 
-    if (eventName === 'assessment_complete' || eventQueue.length >= QUEUE_SIZE_LIMIT) {
+    if (eventName === 'assessment_complete' || eventName === 'assessment_completed' || eventQueue.length >= QUEUE_SIZE_LIMIT) {
       flushQueue();
     } else if (!flushTimeout) {
       flushTimeout = setTimeout(flushQueue, FLUSH_INTERVAL_MS);
