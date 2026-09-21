@@ -166,7 +166,7 @@ export default {
              ctx.waitUntil((async () => {
                  try {
                     const batchId = Date.now().toString() + '-' + Math.random().toString(36).substring(2, 9);
-                    await env.TELEMETRY_DB.put('telemetry_batch_' + batchId, JSON.stringify(logData));
+                    await env.TELEMETRY_DB.put('telemetry_batch_' + batchId, JSON.stringify(logData), { expirationTtl: 2592000 });
                  } catch (err) {
                     console.error("Failed to write to TELEMETRY_DB KV", err);
                  }
@@ -268,7 +268,7 @@ export default {
                   const countsStr = await env.PERSONALITY_CACHE_KV.get('archetype_counts');
                   const counts = countsStr ? JSON.parse(countsStr) : {};
                   counts[payload.assignedArchetype] = (counts[payload.assignedArchetype] || 0) + 1;
-                  await env.PERSONALITY_CACHE_KV.put('archetype_counts', JSON.stringify(counts));
+                  await env.PERSONALITY_CACHE_KV.put('archetype_counts', JSON.stringify(counts), { expirationTtl: 2592000 });
                 } catch (err) {
                   console.error("Failed to update archetype_counts in KV", err);
                 }
