@@ -22,11 +22,11 @@ describe('Question Input Components', () => {
   it('TradeoffSliderInput supports keyboard navigation', () => {
     const item = { id: 'q3', type: 'tradeoff', options: { left: 'A', right: 'B' } };
     const onChange = vi.fn();
-    const { getByRole } = render(<TradeoffSliderInput item={item} value={3} onChange={onChange} />);
+    const { getByRole } = render(<TradeoffSliderInput item={item} value={50} onChange={onChange} />);
 
-    const radioGroup = getByRole('radiogroup');
-    fireEvent.keyDown(radioGroup, { key: 'ArrowRight' });
-    expect(onChange).toHaveBeenCalledWith(4);
+    const slider = getByRole('slider');
+    fireEvent.keyDown(slider, { key: 'ArrowRight' });
+    expect(onChange).toHaveBeenCalledWith(55);
   });
 
   it('ReactionDilemmaInput supports keyboard navigation', () => {
@@ -56,11 +56,11 @@ describe('Question Input Components', () => {
   it('TradeoffSliderInput renders and responds to keyboard', () => {
     const item = { id: 'test2', type: 'tradeoff', options: { left: 'A', right: 'B' } };
     const onChange = vi.fn();
-    render(<TradeoffSliderInput item={item} value={3} onChange={onChange} />);
+    render(<TradeoffSliderInput item={item} value={50} onChange={onChange} />);
 
-    const slider = screen.getByRole('radiogroup');
+    const slider = screen.getByRole('slider');
     fireEvent.keyDown(slider, { key: 'ArrowRight' });
-    expect(onChange).toHaveBeenCalledWith(4);
+    expect(onChange).toHaveBeenCalledWith(55);
   });
 
   it('ReactionDilemmaInput renders labels properly', () => {

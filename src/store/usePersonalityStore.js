@@ -426,20 +426,29 @@ export const usePersonalityStore = create(
       onRehydrateStorage: () => (state, error) => {
         if (error || !state) {
           console.error("Hydration failed", error);
-          if (state && state.resetAssessment) {
+          if (state && typeof state.resetAssessment === 'function') {
              try { state.resetAssessment(); } catch(e) { console.error(e); }
           }
         } else {
           try {
             const { isValid, sanitizedAnswers, sanitizedIndex } = validateAssessmentIntegrity(state);
             if (!isValid) {
-               // Soft reset to sanitized state instead of full wipe if possible, to avoid crashing root ErrorBoundary
                state.answers = sanitizedAnswers || {};
                state.currentClusterIndex = sanitizedIndex || 0;
             }
+
+            // Safety check for UI views to prevent crashes
+            if (state.screen === 'results' && !state.assignedArchetype) {
+                state.screen = 'welcome';
+                state.answers = {};
+                state.currentClusterIndex = 0;
+            }
           } catch (e) {
-             if (state.resetAssessment) {
+             console.error("Integrity check failed", e);
+             if (state && typeof state.resetAssessment === 'function') {
                 try { state.resetAssessment(); } catch (err) { console.error(err); }
+             } else if (state) {
+                Object.assign(state, initialState);
              }
           }
         }
