@@ -55,4 +55,4 @@ The local Zustand session schema is version 4. Existing sessions migrate safely 
 
 The current `confidence` value comes from cosine similarity against Jungian reference vectors. It is presented as a pattern-match indicator, not statistical certainty or classification accuracy.
 
-Score differences should be interpreted as reflective signals rather than evidence of clinical change or a fixed identity.
+Score differences should be interpreted as reflective signals rather than evidence of clinical change or a fixed identity.Added documentation for offline telemetry queue, Zustand schema versioning rules, and accessibility attributes added.

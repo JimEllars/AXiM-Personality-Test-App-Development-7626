@@ -8,3 +8,4 @@
 - \`src/services/telemetry.js\`: Standardized event reporting schemas to match central AXiM core specifications via \`ASSESSMENT_COMPLETED\` with mapped archetype and standard error tracking telemetry payload structures. Refactored robust flush cycles including navigator.sendBeacon bindings to unload/hidden events.
 - \`src/components/personality/inputs/\`: Improved a11y across Likert, Dilemma, and Tradeoff UI input components providing keybindings mappings for options and 0-100 logic integration on sliders alongside micro-motion CSS animations.
 - \`src/store/usePersonalityStore.js\`: Fortified hydration logic on client loads ensuring heavily corrupted offline cached sessions are safely dumped and replaced by the correct UI state rendering preventing runtime react crashes.
+- Added documentation for offline telemetry queue, Zustand schema versioning rules, and accessibility attributes added.

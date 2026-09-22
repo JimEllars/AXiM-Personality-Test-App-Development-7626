@@ -80,7 +80,7 @@ export async function createArchetypeCard({
 
     if (document.fonts && document.fonts.ready) {
       try {
-        await document.fonts.ready;
+        await Promise.race([document.fonts.ready, new Promise(r => setTimeout(r, 400))]);
       } catch (fontErr) {
         console.warn('Font loading failed, proceeding with system fonts:', fontErr);
       }
@@ -88,7 +88,8 @@ export async function createArchetypeCard({
 
     const width = 1200;
     const height = 760;
-    const scale = window.devicePixelRatio || 2;
+    let scale = window.devicePixelRatio || 2;
+    scale = Math.min(Math.max(scale, 2.0), 3.0);
 
     canvas.width = width * scale;
     canvas.height = height * scale;

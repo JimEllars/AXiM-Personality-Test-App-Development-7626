@@ -59,7 +59,7 @@ function ReactionDilemmaInput({ item, value, onChange }) {
                  handleChange(choice.value);
                }
             }}
-            className={`flex flex-col justify-center p-4 rounded-xl cursor-pointer border-2 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 transition-all hover:scale-[1.02] active:scale-[0.98] min-h-[60px]
+            className={`flex flex-col justify-center p-4 rounded-xl cursor-pointer border-2 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-2 transition-all hover:scale-[1.02] active:scale-[0.98] min-h-[60px]
             style={{ transition: 'transform 150ms cubic-bezier(0.16, 1, 0.3, 1)' }}
               ${value === choice.value
                 ? 'bg-blue-50 border-blue-500 dark:bg-blue-900/30 dark:border-blue-400 shadow-md ring-2 ring-primary-500 ring-offset-2'
