@@ -132,7 +132,7 @@ export function validateAssessmentIntegrity(state) {
   if (state.answers) {
     Object.entries(state.answers).forEach(([key, value]) => {
       const numValue = Number(value);
-      if (Number.isInteger(numValue) && numValue >= 1 && numValue <= 7) { // Support 1-7 for some inputs
+      if (Number.isFinite(numValue) && numValue >= 0 && numValue <= 100) {
         // We already parsed it as numValue. Let's make sure it's stored as an actual number.
         sanitizedAnswers[key] = numValue;
       } else {

@@ -133,3 +133,35 @@ describe('telemetry flushes', () => {
     expect(global.fetch).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('offline buffer cap', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    global.fetch = vi.fn().mockResolvedValue({ ok: true });
+    Object.defineProperty(global, 'navigator', {
+      value: {
+        sendBeacon: vi.fn().mockReturnValue(false),
+        userAgent: 'test-agent',
+        onLine: false
+      },
+      writable: true,
+      configurable: true
+    });
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+    localStorage.clear();
+  });
+
+  it('caps offline buffer at 100 events', () => {
+    // Generate 120 events
+    for (let i = 0; i < 120; i++) {
+       trackEvent(`offline_event_${i}`, {});
+       flushQueue();
+    }
+
+    const stored = JSON.parse(localStorage.getItem('axim_telemetry_queue') || '[]');
+    expect(stored.length).toBeLessThanOrEqual(100);
+  });
+});
