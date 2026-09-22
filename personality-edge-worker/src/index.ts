@@ -114,7 +114,7 @@ export default {
           const allowedEvents = ['assessment_start', 'item_response', 'cluster_complete', 'assessment_complete', 'error'];
           for (const e of events) {
             if (!e.event || typeof e.event !== 'string' || e.event.length > 50) {
-              return new Response(JSON.stringify({ success: false, processed: 0, error: 'Invalid schema: Missing or invalid event name' }), {
+              return new Response(JSON.stringify({ success: false, error: { code: 'VALIDATION_ERROR', details: 'Invalid schema: Missing or invalid event name' } }), {
                 status: 400,
                 headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
               });
@@ -142,7 +142,7 @@ export default {
               if (e.metadata.scores) {
                 for (const val of Object.values(e.metadata.scores)) {
                   if (typeof val !== 'number' || isNaN(val) || val < -10 || val > 10) {
-                    return new Response(JSON.stringify({ success: false, processed: 0, error: 'Invalid schema: Invalid trait floats' }), {
+                    return new Response(JSON.stringify({ success: false, error: { code: 'VALIDATION_ERROR', details: 'Invalid schema: Invalid trait floats' } }), {
                       status: 400,
                       headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
                     });
@@ -210,13 +210,13 @@ export default {
           // Sanitize and validate share payload structure
           if (!payload.result.archetype || typeof payload.result.archetype !== 'string' ||
               !payload.result.thetaScores || typeof payload.result.thetaScores !== 'object') {
-            return new Response(JSON.stringify({ error: 'Invalid share payload schema' }), { status: 400, headers: corsHeaders });
+            return new Response(JSON.stringify({ success: false, error: { code: 'VALIDATION_ERROR', details: 'Invalid share payload schema' } }), { status: 400, headers: corsHeaders });
           }
 
           // Simple float validation for thetaScores
           for (const val of Object.values(payload.result.thetaScores)) {
             if (typeof val !== 'number' || isNaN(val)) {
-               return new Response(JSON.stringify({ error: 'Invalid score values' }), { status: 400, headers: corsHeaders });
+               return new Response(JSON.stringify({ success: false, error: { code: 'VALIDATION_ERROR', details: 'Invalid score values' } }), { status: 400, headers: corsHeaders });
             }
           }
 
@@ -268,7 +268,7 @@ export default {
         try {
           const payload = await request.json() as any;
           if (!payload || typeof payload !== 'object' || !payload.assignedArchetype || typeof payload.assignedArchetype !== 'string') {
-             return new Response(JSON.stringify({ success: false, error: 'Invalid payload schema' }), {
+             return new Response(JSON.stringify({ success: false, error: { code: 'VALIDATION_ERROR', details: 'Invalid payload schema' } }), {
                 status: 400,
                 headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
              });

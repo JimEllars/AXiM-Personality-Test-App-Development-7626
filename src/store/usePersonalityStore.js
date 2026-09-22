@@ -7,7 +7,7 @@ import { trackEvent } from '../services/telemetry';
 import { submitAssessment, scoreAssessment } from '../services/personalityApi';
 import { ASSESSMENT_CLUSTERS } from '../data/questionBank';
 
-const SCHEMA_VERSION = 2;
+const CURRENT_SCHEMA_VERSION = 2;
 
 const initialState = {
   screen: 'intro',
@@ -421,7 +421,7 @@ export const usePersonalityStore = create(
     }),
     {
       name: 'axim_personality_session',
-      version: SCHEMA_VERSION,
+      version: CURRENT_SCHEMA_VERSION,
       storage: createJSONStorage(() => safeStorage),
       onRehydrateStorage: () => (state, error) => {
         if (error || !state) {
@@ -451,7 +451,7 @@ export const usePersonalityStore = create(
              if (state && typeof state.resetAssessment === 'function') {
                 try { state.resetAssessment(); } catch (err) { console.error(err); }
              } else if (state) {
-                Object.assign(state, initialState);
+                Object.assign(state, { ...initialState, demographics: state.demographics || initialState.demographics });
              }
           }
         }
@@ -499,7 +499,7 @@ export const usePersonalityStore = create(
           }
           let migratedClusterIndex = Math.max(0, Number(persistedState.currentClusterIndex) || Number(persistedState.currentQuestionIndex) || 0);
 
-          if (version !== SCHEMA_VERSION && version !== 0 && version !== undefined) {
+          if (version !== CURRENT_SCHEMA_VERSION && version !== 0 && version !== undefined) {
              // Schema mismatch - preserve existing data and try to sanitize it later instead of wiping
           }
 

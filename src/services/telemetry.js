@@ -65,7 +65,7 @@ export function flushQueue() {
         try {
           fetch(TELEMETRY_ENDPOINT, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'x-axim-session-id': getSessionId(), 'x-axim-timestamp': new Date().toISOString(), 'x-axim-app-version': '1.1.0' },
             body: data,
             keepalive: true
           }).then(response => {
