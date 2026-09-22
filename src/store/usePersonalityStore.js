@@ -426,6 +426,7 @@ export const usePersonalityStore = create(
       onRehydrateStorage: () => (state, error) => {
         if (error || !state) {
           console.error("Hydration failed", error);
+          trackEvent('hydration_error', { error: error?.message || 'State null' });
           if (state && typeof state.resetAssessment === 'function') {
              try { state.resetAssessment(); } catch(e) { console.error(e); }
           }
@@ -433,6 +434,7 @@ export const usePersonalityStore = create(
           try {
             const { isValid, sanitizedAnswers, sanitizedIndex } = validateAssessmentIntegrity(state);
             if (!isValid) {
+               trackEvent('hydration_integrity_warning', { reason: 'Invalid data sanitized' });
                state.answers = sanitizedAnswers || {};
                state.currentClusterIndex = sanitizedIndex || 0;
             }
@@ -445,6 +447,7 @@ export const usePersonalityStore = create(
             }
           } catch (e) {
              console.error("Integrity check failed", e);
+             trackEvent('hydration_integrity_error', { error: e.message });
              if (state && typeof state.resetAssessment === 'function') {
                 try { state.resetAssessment(); } catch (err) { console.error(err); }
              } else if (state) {
@@ -480,7 +483,10 @@ export const usePersonalityStore = create(
 
       migrate: (persistedState, version) => {
         try {
-          if (!isValidSession(persistedState)) return initialState;
+          if (!isValidSession(persistedState)) {
+             trackEvent('migration_error', { reason: 'Invalid session' });
+             return initialState;
+          }
 
           let migratedAnswers = {};
           if (typeof persistedState.answers !== 'object' && typeof persistedState.responses !== 'object') {
