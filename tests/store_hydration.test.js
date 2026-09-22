@@ -32,7 +32,6 @@ describe('usePersonalityStore Hydration', () => {
     expect(migratedState.answers).toEqual({ q1: 3, q2: 6, q3: 2 }); // Modified to expect q2:6 since valid range is now 1-7
     expect(migratedState.currentClusterIndex).toBe(1);
   });
-});
 
   it('handles completely corrupted state gracefully by falling back to initial state', () => {
     const migrate = usePersonalityStore.persist.getOptions().migrate;
@@ -46,3 +45,4 @@ describe('usePersonalityStore Hydration', () => {
     expect(migratedState.answers).toEqual({});
     expect(migratedState.currentClusterIndex).toBe(0);
   });
+});
