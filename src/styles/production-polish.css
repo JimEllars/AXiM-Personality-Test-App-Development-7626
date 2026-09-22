@@ -451,3 +451,14 @@ button, .primary-button, .secondary-button, input, select, textarea, [role="tab"
     background-color: var(--surface-dark, rgba(12, 29, 42, 0.74));
   }
 }
+
+@media (max-width: 374px) {
+  body {
+    overflow-x: hidden;
+  }
+  .radar-wrap,
+  .score-comparison-panel {
+    min-width: 0;
+    overflow-x: hidden;
+  }
+}

@@ -45,7 +45,8 @@ describe('usePersonalityStore', () => {
     localStorage.setItem('axim_passport_token', 'test-token');
 
     usePersonalityStore.setState({ answers: { 'q1': 5, 'q2': 1 }, screen: 'assessment' });
-    await usePersonalityStore.getState().finalizeAssessment();
+    usePersonalityStore.getState().finalizeAssessment();
+    await new Promise(resolve => setTimeout(resolve, 50));
 
     const state = usePersonalityStore.getState();
     expect(state.screen).toBe('results');
@@ -63,7 +64,8 @@ describe('usePersonalityStore', () => {
   it('handles result generation with partial/irregular answer payloads', async () => {
     usePersonalityStore.setState({ answers: { 'q1': null, 'q2': undefined, 'q3': 3 }, screen: 'assessment' });
 
-    await usePersonalityStore.getState().finalizeAssessment();
+    usePersonalityStore.getState().finalizeAssessment();
+    await new Promise(resolve => setTimeout(resolve, 50));
 
     const state = usePersonalityStore.getState();
     expect(state.screen).toBe('results');
@@ -77,7 +79,8 @@ describe('usePersonalityStore', () => {
       screen: 'assessment'
     });
 
-    await usePersonalityStore.getState().finalizeAssessment();
+    usePersonalityStore.getState().finalizeAssessment();
+    await new Promise(resolve => setTimeout(resolve, 50));
 
     const state = usePersonalityStore.getState();
     expect(state.screen).toBe('results');

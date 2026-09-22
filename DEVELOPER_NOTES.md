@@ -9,3 +9,6 @@
 - \`src/components/personality/inputs/\`: Improved a11y across Likert, Dilemma, and Tradeoff UI input components providing keybindings mappings for options and 0-100 logic integration on sliders alongside micro-motion CSS animations.
 - \`src/store/usePersonalityStore.js\`: Fortified hydration logic on client loads ensuring heavily corrupted offline cached sessions are safely dumped and replaced by the correct UI state rendering preventing runtime react crashes.
 - Added documentation for offline telemetry queue, Zustand schema versioning rules, and accessibility attributes added.
+- Telemetry: increased offline buffer limit to 100 events. Fixed preflight OPTIONS in `personality-edge-worker/src/index.ts` to include `X-Content-Type-Options: nosniff`. Edge worker now gracefully handles missing KV resources with `X-Telemetry-Status: Degraded`.
+- Store Hydration: updated `validateAssessmentIntegrity` in `usePersonalityStore.js` to correctly support numbers from 0 to 100 to avoid purging `TradeoffSliderInput` values mid-assessment.
+- Accessibility and UI Polish: ensured WAI-ARIA slider attributes and keyboard navigation in `TradeoffSliderInput.jsx` and added CSS rules (`production-polish.css`) to prevent horizontal overflow on screens under 375px.

@@ -42,7 +42,7 @@ export function flushQueue() {
             const stored = JSON.parse(localStorage.getItem('axim_telemetry_queue') || '[]');
             stored.push(...payload);
             // Limit local offline buffer storage to max 50 events.
-            localStorage.setItem('axim_telemetry_queue', JSON.stringify(stored.slice(-50)));
+            localStorage.setItem('axim_telemetry_queue', JSON.stringify(stored.slice(-100)));
         } catch (e) {
             console.warn("Failed to write to offline telemetry buffer");
         }
@@ -85,7 +85,7 @@ export function flushQueue() {
               try {
                 const stored = JSON.parse(localStorage.getItem('axim_telemetry_queue') || '[]');
                 stored.push(...payload);
-                localStorage.setItem('axim_telemetry_queue', JSON.stringify(stored.slice(-50)));
+                localStorage.setItem('axim_telemetry_queue', JSON.stringify(stored.slice(-100)));
               } catch (err) { /* silent catch */ }
             }
           });
@@ -93,7 +93,7 @@ export function flushQueue() {
           try {
             const stored = JSON.parse(localStorage.getItem('axim_telemetry_queue') || '[]');
             stored.push(...payload);
-            localStorage.setItem('axim_telemetry_queue', JSON.stringify(stored.slice(-50)));
+            localStorage.setItem('axim_telemetry_queue', JSON.stringify(stored.slice(-100)));
           } catch (err) { /* silent catch */ }
         }
       };
