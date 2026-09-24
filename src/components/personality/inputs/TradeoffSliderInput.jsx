@@ -66,6 +66,7 @@ function TradeoffSliderInput({ item, value, onChange }) {
           aria-valuemin="0"
           aria-valuemax="100"
           aria-valuenow={currentValue}
+          aria-label={`${options.left} vs ${options.right}`}
           tabIndex={0}
           onKeyDown={handleKeyDown}
           onClick={handleTrackClick}

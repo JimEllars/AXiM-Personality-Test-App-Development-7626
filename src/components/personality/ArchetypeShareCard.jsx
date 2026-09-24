@@ -109,7 +109,8 @@ const [isGeneratingCard, setIsGeneratingCard] = useState(false);
         .replace(/-+/g, '-');
       downloadDataUrl(result.dataUrl, `AXiM-${safeArchetype}-Share-Card.png`);
       showMessage('Share card downloaded.');
-      trackEvent('share_card_download_success');
+      trackEvent("share_card_download_success");
+      trackEvent("share_card_generated", { share_type: "download", archetype: assignedArchetype });
     } catch (err) {
       showMessage('Share card generation is unavailable.');
       trackEvent('share_card_download_error', { error: err.message });

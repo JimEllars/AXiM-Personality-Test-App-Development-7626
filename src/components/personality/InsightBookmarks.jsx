@@ -2,7 +2,8 @@ import React,{useMemo,useState} from 'react';
 import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../../common/SafeIcon';
 import {getAssessmentInsights} from '../../data/assessmentInsights';
-import {usePersonalityStore} from '../../store/usePersonalityStore';
+import {usePersonalityStore} from "../../store/usePersonalityStore";
+import { trackEvent } from "../../services/telemetry";
 import './InsightBookmarks.css';
 
 const {FiBookmark,FiCheck,FiCopy,FiInfo,FiTrash2}=FiIcons;
@@ -86,7 +87,14 @@ function InsightBookmarks(){
               <button
                 className="insight-bookmark-button"
                 type="button"
-                onClick={()=> toggleInsightBookmark(insight.id)}
+                onClick={() => {
+                  if (bookmarked) {
+                    trackEvent("insight_unbookmarked", { insight_id: insight.id, insight_title: insight.title });
+                  } else {
+                    trackEvent("insight_bookmarked", { insight_id: insight.id, insight_title: insight.title });
+                  }
+                  toggleInsightBookmark(insight.id);
+                }}
                 aria-label={`${bookmarked ? 'Remove' : 'Save'} ${insight.title}`}
                 aria-pressed={bookmarked}
               >

@@ -4,7 +4,8 @@ import SafeIcon from '../../common/SafeIcon';
 import { getPersonalizedExercises } from '../../data/growthExercises';
 import { usePersonalityStore } from '../../store/usePersonalityStore';
 import ExerciseCard from './ExerciseCard';
-import './GrowthExercises.css';
+import { trackEvent } from "../../services/telemetry";
+import "./GrowthExercises.css";
 
 const { FiCheck, FiClock, FiRefreshCw, FiTarget } = FiIcons;
 const TRACKS = ['Natural strength', 'Growth edge'];
@@ -85,7 +86,7 @@ function GrowthExercises() {
             exercise={exercise}
             completed={Boolean(store.completedExercises[exercise.id])}
             note={store.exerciseNotes[exercise.id]}
-            onComplete={() => store.toggleExercise(exercise.id)}
+            onComplete={() => { trackEvent("growth_exercise_toggled", { exercise_id: exercise.id, exercise_title: exercise.title }); store.toggleExercise(exercise.id); }}
             onNoteChange={(note) => store.setExerciseNote(exercise.id, note)}
             onStart={() => store.markExerciseStarted(exercise.id)}
           />

@@ -3,7 +3,8 @@ import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../../common/SafeIcon';
 import { ARCHETYPE_DETAILS } from '../../data/archetypes';
 import { ARCHETYPE_REFERENCE_VECTORS } from '../../services/psychometrics/archetypeProjector';
-import './ArchetypeComparisonView.css';
+import { trackEvent } from "../../services/telemetry";
+import "./ArchetypeComparisonView.css";
 
 const {
   FiCheck,
@@ -155,7 +156,7 @@ function ArchetypeComparisonView({ assignedArchetype, ranking = [] }) {
                   }`}
                   key={item.archetype}
                   type="button"
-                  onClick={() => setSelectedType(item.archetype)}
+                  onClick={() => { trackEvent("archetype_compared", { archetype_selected: item.archetype, assigned_archetype: assignedArchetype }); setSelectedType(item.archetype); }}
                   aria-pressed={isSelected}
                 >
                   <span className="comparison-rank">

@@ -42,7 +42,7 @@ function ResultsToolbar({ archetype, title }) {
     setPdfError('');
     if (isDownloadingPdf) return;
     setIsDownloadingPdf(true);
-    trackEvent('pdf_download_clicked', { archetype });
+    trackEvent("pdf_download_triggered", { archetype });
     try {
       const [{ pdf }, { default: PersonalityReportDocument }] = await Promise.all([
         import('@react-pdf/renderer'),
@@ -103,7 +103,8 @@ function ResultsToolbar({ archetype, title }) {
     setEmailStatus('sending');
     const result = await emailReport({ email, archetype });
     if (result.success) {
-      setEmailStatus('sent');
+      trackEvent("share_card_generated", { share_type: "email", archetype });
+      setEmailStatus("sent");
       setTimeout(() => setShowEmailModal(false), 2000);
     } else {
       setEmailStatus('error');

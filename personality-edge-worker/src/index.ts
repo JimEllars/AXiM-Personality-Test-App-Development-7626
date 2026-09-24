@@ -14,7 +14,7 @@ const getCorsHeaders = (request: Request) => {
 
   // Allow localhost for dev, staging preview domains, and our production domains.
   let allowOrigin = '*';
-  if (origin === 'http://localhost:5173' || origin === 'https://axim.us.com' || origin === 'http://axim.us.com' || origin.endsWith('.axim.us.com')) {
+  if (origin === 'http://localhost:5173' || origin === 'https://axim.us.com' || origin === 'http://axim.us.com' || origin.endsWith(".axim.us.com") || origin.endsWith(".pages.dev") || origin.endsWith(".workers.dev")) {
     allowOrigin = origin;
   }
 
@@ -76,6 +76,7 @@ export default {
           utc_timestamp: new Date().toISOString(),
           kv_status: !!env.PERSONALITY_CACHE_KV ? "connected" : "offline",
           telemetry_db_status: !!env.TELEMETRY_DB ? "connected" : "offline",
+          service: "personality-edge",
           runtime: "cloudflare-worker",
           bindings: {
              TELEMETRY_DB: !!env.TELEMETRY_DB,
