@@ -1,1 +1,11 @@
-Telemetry fallback stabilized mapping offline event storage safely using strict size truncations to mitigate LocalStorage constraints. Integrated standard tracing headers across egress queues via navigator.sendBeacon/fetch hooks. Solidified `CURRENT_SCHEMA_VERSION=2` hydration mappings in Zustand to prevent runtime crashes rendering default configurations alongside preserving vital user demographics when resolving state drift. Handled schema limits enforcing precise payload validation on Cloudflare worker edges, securely resolving API faults into strict `VALIDATION_ERROR` formatting codes for upstream diagnostics. Upgraded focus rings on inputs with higher contrast (`indigo-500`) improving layout clarity via dynamic component styles and integrated strict keyboard ARIA attributes across tradeoff mechanisms. Bound DPI scaling logic and `Promise.race()` to safe timeouts stopping missing canvas font loads. All checks complete.
+- Cloudflare Worker Telemetry & Result Endpoints (`personality-edge-worker/src/index.ts`):
+  - Implemented `POST /api/results/sync` handler that accepts payload and writes to Cloudflare KV with TTL.
+  - Added idempotency check logic on sync endpoints.
+  - Enhanced CORS headers for `http://localhost:*` local development previews.
+  - Added unit tests for missing-kv handling on sync endpoint.
+- Frontend Telemetry & API Bridge Activation (`src/services/telemetry.js` and `src/services/personalityApi.js`):
+  - Added robust try/catch logic globally across `sendBeacon` queues to silently bypass delivery errors completely keeping UX unaffected.
+  - Implemented automatic sync capabilities bridging `usePersonalityStore` `flushPendingSync` through `personalityApi.js:syncResult()`.
+- UI/UX Polish & Layout Safeguards (`src/styles/production-polish.css`):
+  - Enforced 44px minimum touch targets across interactive nodes (`.dilemma-card`, `.likert-node`, `.slider-thumb`, `.scenario-card`).
+  - Strengthened horizontal overflow safeguards locking `.radar-wrap` and `.theta-trend-charts` to `min-width: 0` constraints specifically targeting under 375px screens preventing viewport shifting.

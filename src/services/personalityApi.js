@@ -115,3 +115,20 @@ export async function getSharedResult(shareId) {
     return { error: error.message };
   }
 }
+
+export async function syncResult(resultData, metadata = {}) {
+  try {
+    const idempotencyKey = metadata.idempotencyKey || Date.now().toString() + '-' + Math.random().toString(36).substring(2, 9);
+    const response = await fetchWithTimeout(`${WORKER_URL}/api/results/sync`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-idempotency-key': idempotencyKey },
+      body: JSON.stringify({ result: resultData, metadata, idempotencyKey }),
+      timeout: 5000
+    });
+    return await response.json();
+  } catch (error) {
+    console.warn('Failed to sync result to edge worker:', error);
+    trackEvent('sync_fallback', { endpoint: '/api/results/sync', error: error.message });
+    return { success: false, error: error.message };
+  }
+}

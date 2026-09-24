@@ -16,3 +16,15 @@
 - Input Accessibility and Touch Targets: Set a mobile-first `min-height` minimum of `48px` to `ScenarioCardInput.jsx` and added exact ARIA attributes and keyboard tracking to `TradeoffSliderInput.jsx`.
 - PDF Engine Isolation: Verified lazy loading dynamic import isolation of `@react-pdf/renderer` inside `ResultsToolbar.jsx`.
 - Edge Worker Updates: Broadened standard allowed CORS domains list to match `.axim.us.com`, `.pages.dev`, and `.workers.dev`. Also integrated explicit service definition tag (`service: "personality-edge"`) within `/api/health`.
+
+- Cloudflare Worker Telemetry & Result Endpoints (`personality-edge-worker/src/index.ts`):
+  - Implemented `POST /api/results/sync` handler that accepts payload and writes to Cloudflare KV with TTL.
+  - Added idempotency check logic on sync endpoints.
+  - Enhanced CORS headers for `http://localhost:*` local development previews.
+  - Added unit tests for missing-kv handling on sync endpoint.
+- Frontend Telemetry & API Bridge Activation (`src/services/telemetry.js` and `src/services/personalityApi.js`):
+  - Added robust try/catch logic globally across `sendBeacon` queues to silently bypass delivery errors completely keeping UX unaffected.
+  - Implemented automatic sync capabilities bridging `usePersonalityStore` `flushPendingSync` through `personalityApi.js:syncResult()`.
+- UI/UX Polish & Layout Safeguards (`src/styles/production-polish.css`):
+  - Enforced 44px minimum touch targets across interactive nodes (`.dilemma-card`, `.likert-node`, `.slider-thumb`, `.scenario-card`).
+  - Strengthened horizontal overflow safeguards locking `.radar-wrap` and `.theta-trend-charts` to `min-width: 0` constraints specifically targeting under 375px screens preventing viewport shifting.
