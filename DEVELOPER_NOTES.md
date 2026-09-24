@@ -12,3 +12,7 @@
 - Telemetry: increased offline buffer limit to 100 events. Fixed preflight OPTIONS in `personality-edge-worker/src/index.ts` to include `X-Content-Type-Options: nosniff`. Edge worker now gracefully handles missing KV resources with `X-Telemetry-Status: Degraded`.
 - Store Hydration: updated `validateAssessmentIntegrity` in `usePersonalityStore.js` to correctly support numbers from 0 to 100 to avoid purging `TradeoffSliderInput` values mid-assessment.
 - Accessibility and UI Polish: ensured WAI-ARIA slider attributes and keyboard navigation in `TradeoffSliderInput.jsx` and added CSS rules (`production-polish.css`) to prevent horizontal overflow on screens under 375px.
+- Telemetry Wire-up: Instrumented `InsightBookmarks.jsx`, `ArchetypeComparisonView.jsx`, `GrowthExercises.jsx`, and `ResultsToolbar.jsx` (for email/download share actions) with `trackEvent` to correctly broadcast dynamic usage metrics silently.
+- Input Accessibility and Touch Targets: Set a mobile-first `min-height` minimum of `48px` to `ScenarioCardInput.jsx` and added exact ARIA attributes and keyboard tracking to `TradeoffSliderInput.jsx`.
+- PDF Engine Isolation: Verified lazy loading dynamic import isolation of `@react-pdf/renderer` inside `ResultsToolbar.jsx`.
+- Edge Worker Updates: Broadened standard allowed CORS domains list to match `.axim.us.com`, `.pages.dev`, and `.workers.dev`. Also integrated explicit service definition tag (`service: "personality-edge"`) within `/api/health`.
