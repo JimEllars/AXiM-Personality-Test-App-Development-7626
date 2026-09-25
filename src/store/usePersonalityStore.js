@@ -4,7 +4,7 @@ import { scoreAssessmentDiagnostics } from '../services/psychometrics/irtEngine'
 import { projectArchetype } from '../services/psychometrics/archetypeProjector';
 import { QUESTION_BANK, FUNCTION_KEYS } from '../data/questionBank';
 import { trackEvent } from '../services/telemetry';
-import { submitAssessment, scoreAssessment } from '../services/personalityApi';
+import { submitAssessment, scoreAssessment, syncResult } from '../services/personalityApi';
 import { ASSESSMENT_CLUSTERS } from '../data/questionBank';
 
 const CURRENT_SCHEMA_VERSION = 2;
@@ -305,6 +305,7 @@ export const usePersonalityStore = create(
         for (const payload of state.pendingSync) {
           try {
             const res = await submitAssessment(payload);
+            await syncResult(payload, { source: "auto_sync" });
             if (!res.success) {
               stillPending.push(payload);
             }

@@ -457,7 +457,18 @@ button, .primary-button, .secondary-button, input, select, textarea, [role="tab"
     overflow-x: hidden;
   }
   .radar-wrap,
+  .theta-trend-charts,
   .score-comparison-panel {
+    min-width: 0;
+    overflow-x: hidden;
+  }
+}
+
+
+/* Safeguards for Layouts & Touch targets */
+.dilemma-card, .likert-node, .slider-thumb, .scenario-card { min-height: 44px; }
+@media (max-width: 374px) {
+  .theta-trend-charts-wrap {
     min-width: 0;
     overflow-x: hidden;
   }

@@ -14,7 +14,7 @@ const getCorsHeaders = (request: Request) => {
 
   // Allow localhost for dev, staging preview domains, and our production domains.
   let allowOrigin = '*';
-  if (origin === 'http://localhost:5173' || origin === 'https://axim.us.com' || origin === 'http://axim.us.com' || origin.endsWith(".axim.us.com") || origin.endsWith(".pages.dev") || origin.endsWith(".workers.dev")) {
+  if (origin.startsWith('http://localhost:') || origin === 'https://axim.us.com' || origin === 'http://axim.us.com' || origin.endsWith('.axim.us.com') || origin.endsWith('.pages.dev') || origin.endsWith('.workers.dev')) {
     allowOrigin = origin;
   }
 
@@ -201,6 +201,52 @@ export default {
         }
       }
 
+
+
+      if (request.method === 'POST' && normalizedPathname === '/api/results/sync') {
+        try {
+          const payload = await request.json() as any;
+          if (!payload || !payload.result) {
+            return new Response(JSON.stringify({ success: false, error: { code: 'VALIDATION_ERROR', details: 'Missing result data' } }), {
+              status: 400,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
+            });
+          }
+
+          const idempotencyKey = request.headers.get('x-idempotency-key') || payload.idempotencyKey || Date.now().toString() + '-' + Math.random().toString(36).substring(2, 9);
+
+          if (env.PERSONALITY_CACHE_KV) {
+            ctx.waitUntil((async () => {
+              try {
+                await env.PERSONALITY_CACHE_KV.put(`sync_result_${idempotencyKey}`, JSON.stringify({
+                  result: payload.result,
+                  syncedAt: new Date().toISOString(),
+                  metadata: payload.metadata || {}
+                }), { expirationTtl: 2592000 }); // 30 days
+              } catch (err) {
+                console.error("Failed to write to PERSONALITY_CACHE_KV", err);
+              }
+            })());
+          }
+
+          const headers: Record<string, string> = { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' };
+          if (!env.PERSONALITY_CACHE_KV) {
+            headers['X-Edge-Warning'] = 'Storage-Unprovisioned';
+            headers['X-Telemetry-Status'] = 'Degraded';
+          }
+
+          return new Response(JSON.stringify({ success: true, idempotencyKey }), {
+            status: 202,
+            headers
+          });
+        } catch (e: any) {
+          console.error("Result sync failed", e);
+          return new Response(JSON.stringify({ success: false, error: e.message || 'Bad request' }), {
+            status: 202, // Graceful degrade per instructions
+            headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
+          });
+        }
+      }
 
       if (request.method === 'POST' && normalizedPathname === '/api/results/share') {
         try {
