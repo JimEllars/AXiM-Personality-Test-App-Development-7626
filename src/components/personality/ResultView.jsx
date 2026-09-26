@@ -15,7 +15,8 @@ import { trackEvent } from '../../services/telemetry';
 const RadarProfileChart = lazy(() => import('./RadarProfileChart'));
 const ThetaTrendCharts = lazy(() => import('./ThetaTrendCharts'));
 import ArchetypeComparisonView from './ArchetypeComparisonView';
-import ArchetypeCompatibilityMatrix from './ArchetypeCompatibilityMatrix';
+const PersonalityReportDocument = lazy(() => import('../../lib/pdf/PersonalityReportDocument'));
+const ArchetypeCompatibilityMatrix = lazy(() => import('./ArchetypeCompatibilityMatrix'));
 import ArchetypeConversationGuide from './ArchetypeConversationGuide';
 import ArchetypeShareCard from './ArchetypeShareCard';
 import GrowthExercises from './GrowthExercises';
@@ -216,14 +217,14 @@ function ResultView() {
       />
       </ErrorBoundary>
 
-      <ErrorBoundary fallback={<div className="panel-error-fallback">Section temporarily unavailable.</div>}><Suspense fallback={<div className="chart-placeholder">Loading chart...</div>}><ThetaTrendCharts /></Suspense></ErrorBoundary>
+      <ErrorBoundary fallback={<div className="panel-error-fallback">Section temporarily unavailable.</div>}><Suspense fallback={<div className="chart-placeholder">Loading chart...</div>}><Suspense fallback={<div className="animate-pulse h-64 bg-gray-200 dark:bg-gray-700 rounded-xl w-full"></div>}><ThetaTrendCharts /></Suspense></Suspense></ErrorBoundary>
       <ErrorBoundary fallback={<div className="panel-error-fallback">Section temporarily unavailable.</div>}><ScoreComparisonPanel /></ErrorBoundary>
       <MethodologyPanel />
       <ErrorBoundary fallback={<div className="panel-error-fallback">Section temporarily unavailable.</div>}><ArchetypeComparisonView
         assignedArchetype={activeData.assignedArchetype}
         ranking={activeData.proximityRanking}
       /></ErrorBoundary>
-      <ErrorBoundary fallback={<div className="panel-error-fallback">Section temporarily unavailable.</div>}><ArchetypeCompatibilityMatrix /></ErrorBoundary>
+      <ErrorBoundary fallback={<div className="panel-error-fallback">Section temporarily unavailable.</div>}><Suspense fallback={<div className="animate-pulse h-64 bg-gray-200 dark:bg-gray-700 rounded-xl w-full"></div>}><ArchetypeCompatibilityMatrix /></Suspense></ErrorBoundary>
       <ErrorBoundary fallback={<div className="panel-error-fallback">Section temporarily unavailable.</div>}><ArchetypeConversationGuide /></ErrorBoundary>
       <ErrorBoundary fallback={<div className="panel-error-fallback">Section temporarily unavailable.</div>}><ArchetypeShareCard /></ErrorBoundary>
       <ErrorBoundary fallback={<div className="panel-error-fallback">Section temporarily unavailable.</div>}><InsightBookmarks /></ErrorBoundary>

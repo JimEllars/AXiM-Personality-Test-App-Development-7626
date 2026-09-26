@@ -400,9 +400,9 @@ export default {
     } catch (err: any) {
       console.error("Worker error:", err.message);
       // Graceful error handling for edge worker failures
-      return new Response(JSON.stringify({ success: false, processed: 0, error: "Internal service error handled gracefully" }), {
-        status: 202, // Returning 200 to acknowledge without breaking frontend execution, per requirement
-        headers: { ...getCorsHeaders(request), 'Content-Type': 'application/json' }
+      return new Response(JSON.stringify({ success: false, status: 'degraded', processed: 0, error: "Internal service error handled gracefully" }), {
+        status: 200,
+        headers: { ...getCorsHeaders(request), 'Content-Type': 'application/json', 'X-Edge-Status': 'degraded', 'X-Storage-Status': 'ephemeral' }
       });
     }
   },

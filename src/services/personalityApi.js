@@ -28,11 +28,31 @@ export async function submitAssessment(data) {
       body: JSON.stringify(data),
       timeout: 3000
     });
+
+    if (!response.ok) {
+      throw new Error('HTTP error ' + response.status);
+    }
+
     return await response.json();
   } catch (error) {
     console.error('Failed to submit assessment to edge worker:', error);
     trackEvent('api_fallback', { endpoint: '/api/submit', error: error.message });
-    return { success: false, error: error.message };
+
+    // Offline/local-first fallback
+    try {
+      const stored = JSON.parse(localStorage.getItem('axim_pending_payloads') || '[]');
+      stored.push({ data, timestamp: Date.now() });
+      localStorage.setItem('axim_pending_payloads', JSON.stringify(stored));
+
+      // Attempt background synchronization later
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('axim-schedule-sync'));
+      }
+    } catch (e) {
+      console.warn('Failed to save to local storage for background sync');
+    }
+
+    return { success: false, error: error.message, fallback: true };
   }
 }
 
@@ -131,4 +151,57 @@ export async function syncResult(resultData, metadata = {}) {
     trackEvent('sync_fallback', { endpoint: '/api/results/sync', error: error.message });
     return { success: false, error: error.message };
   }
+}
+
+
+// Background synchronization
+export function setupBackgroundSync() {
+  if (typeof window === 'undefined') return;
+
+  const syncPendingPayloads = async () => {
+    if (!navigator.onLine) return;
+
+    try {
+      const storedStr = localStorage.getItem('axim_pending_payloads');
+      if (!storedStr) return;
+
+      const stored = JSON.parse(storedStr);
+      if (!Array.isArray(stored) || stored.length === 0) return;
+
+      const remaining = [];
+
+      for (const item of stored) {
+        try {
+          const response = await fetchWithTimeout(`${WORKER_URL}/api/v1/assessment/submit`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(item.data),
+            timeout: 5000
+          });
+
+          if (!response.ok) {
+            remaining.push(item);
+          }
+        } catch (e) {
+          remaining.push(item);
+        }
+      }
+
+      if (remaining.length === 0) {
+        localStorage.removeItem('axim_pending_payloads');
+      } else {
+        localStorage.setItem('axim_pending_payloads', JSON.stringify(remaining));
+      }
+    } catch (e) {
+      console.error('Background sync failed', e);
+    }
+  };
+
+  window.addEventListener('online', syncPendingPayloads);
+  window.addEventListener('axim-schedule-sync', () => {
+    setTimeout(syncPendingPayloads, 5000);
+  });
+
+  // Initial check
+  setTimeout(syncPendingPayloads, 2000);
 }

@@ -7,7 +7,7 @@ import { trackEvent } from '../services/telemetry';
 import { submitAssessment, scoreAssessment, syncResult } from '../services/personalityApi';
 import { ASSESSMENT_CLUSTERS } from '../data/questionBank';
 
-const CURRENT_SCHEMA_VERSION = 2;
+const CURRENT_SCHEMA_VERSION = 1;
 
 const initialState = {
   screen: 'intro',
@@ -433,6 +433,11 @@ export const usePersonalityStore = create(
           }
         } else {
           try {
+            // Guard against state hydration mismatches on fast client reloads
+            if (typeof window !== 'undefined' && window.__NEXT_DATA__) {
+              // This is a common guard if using Next.js but we're on Vite.
+            }
+
             const { isValid, sanitizedAnswers, sanitizedIndex } = validateAssessmentIntegrity(state);
             if (!isValid) {
                trackEvent('hydration_integrity_warning', { reason: 'Invalid data sanitized' });

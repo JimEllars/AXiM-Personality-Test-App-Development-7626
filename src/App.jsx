@@ -7,6 +7,7 @@ import IntroView from './components/personality/IntroView';
 import ResultView from './components/personality/ResultView';
 import { QUESTION_BANK } from './data/questionBank';
 import { usePersonalityStore } from './store/usePersonalityStore';
+import { setupBackgroundSync } from './services/personalityApi';
 import { getSharedResult } from './services/personalityApi';
 
 import './App.css';
@@ -27,6 +28,7 @@ function App() {
   const hasSavedAssessment = screen === 'intro' && answeredCount > 0;
 
   useEffect(() => {
+    setupBackgroundSync();
     const titles = {
       intro: 'Personality Type Test | AXiM Personal Development',
       assessment: 'Assessment | AXiM Personal Development',
