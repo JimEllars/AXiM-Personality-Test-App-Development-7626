@@ -60,7 +60,7 @@ function TradeoffSliderInput({ item, value, onChange }) {
         </div>
 
         <div
-          className="relative flex items-center w-full max-w-xl h-4 bg-gray-200 dark:bg-gray-700 rounded-full cursor-pointer focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
+          className="relative flex items-center w-full max-w-xl h-4 bg-gray-200 dark:bg-gray-700 rounded-full cursor-pointer focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary-500 dark:focus-visible:ring-offset-gray-900 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500"
           style={{ touchAction: 'none', transition: 'transform 150ms cubic-bezier(0.16, 1, 0.3, 1)' }}
           role="slider"
           aria-valuemin="0"

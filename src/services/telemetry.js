@@ -169,7 +169,7 @@ export function trackEvent(eventName, payload = {}) {
       // silent
     }
 
-    if (eventName === 'assessment_complete' || eventName === 'assessment_completed' || eventQueue.length >= QUEUE_SIZE_LIMIT) {
+    if (eventName === 'assessment_complete' || eventName === 'assessment_completed' || eventName === 'page_exit' || eventName === 'test_abandoned' || eventName === 'result_completed' || eventQueue.length >= QUEUE_SIZE_LIMIT) {
       flushQueue();
     } else if (!flushTimeout) {
       flushTimeout = setTimeout(flushQueue, FLUSH_INTERVAL_MS);

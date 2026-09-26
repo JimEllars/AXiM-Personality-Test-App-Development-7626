@@ -46,3 +46,16 @@ describe('usePersonalityStore Hydration', () => {
     expect(migratedState.currentClusterIndex).toBe(0);
   });
 });
+
+  it('resumes session from mid-assessment', () => {
+    const migrate = usePersonalityStore.persist.getOptions().migrate;
+    const oldState = {
+      answers: { q1: 5, q2: 3 },
+      currentClusterIndex: 2,
+      screen: 'assessment'
+    };
+
+    const migratedState = migrate(oldState, 1);
+    expect(migratedState.answers).toEqual({ q1: 5, q2: 3 });
+    expect(migratedState.currentClusterIndex).toBe(2);
+  });

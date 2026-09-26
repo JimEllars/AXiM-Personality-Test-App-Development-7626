@@ -165,3 +165,38 @@ describe('offline buffer cap', () => {
     expect(stored.length).toBeLessThanOrEqual(100);
   });
 });
+
+describe('beaconing fallback and specific events', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    global.fetch = vi.fn().mockResolvedValue({ ok: true });
+    Object.defineProperty(global, 'navigator', {
+      value: {
+        sendBeacon: vi.fn().mockReturnValue(true),
+        userAgent: 'test-agent',
+        onLine: true
+      },
+      writable: true,
+      configurable: true
+    });
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('flushes queue immediately on page_exit event', () => {
+    trackEvent('page_exit', {});
+    expect(global.navigator.sendBeacon).toHaveBeenCalledTimes(1);
+  });
+
+  it('flushes queue immediately on test_abandoned event', () => {
+    trackEvent('test_abandoned', {});
+    expect(global.navigator.sendBeacon).toHaveBeenCalledTimes(1);
+  });
+
+  it('flushes queue immediately on result_completed event', () => {
+    trackEvent('result_completed', {});
+    expect(global.navigator.sendBeacon).toHaveBeenCalledTimes(1);
+  });
+});

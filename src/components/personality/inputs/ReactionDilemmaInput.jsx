@@ -59,7 +59,7 @@ function ReactionDilemmaInput({ item, value, onChange }) {
                  handleChange(choice.value);
                }
             }}
-            className={`flex flex-col justify-center p-4 rounded-xl cursor-pointer border-2 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 transition-all hover:scale-[1.02] active:scale-[0.98] min-h-[60px] ${value === choice.value ? 'bg-blue-50 border-blue-500 dark:bg-blue-900/30 dark:border-blue-400 shadow-md ring-2 ring-primary-500 ring-offset-2' : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:hover:border-gray-600'}`} style={{ transition: 'transform 150ms cubic-bezier(0.16, 1, 0.3, 1)' }}
+            className={`flex flex-col justify-center p-4 rounded-xl cursor-pointer border-2 focus-visible:ring-2 focus-visible:ring-primary-500 dark:focus-visible:ring-offset-gray-900 focus-visible:outline-none focus-visible:ring-offset-2 transition-all hover:scale-[1.02] active:scale-[0.98] min-h-[60px] ${value === choice.value ? 'bg-blue-50 border-blue-500 dark:bg-blue-900/30 dark:border-blue-400 shadow-md ring-2 ring-primary-500 ring-offset-2' : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:hover:border-gray-600'}`} style={{ transition: 'transform 150ms cubic-bezier(0.16, 1, 0.3, 1)' }}
             onClick={() => handleChange(choice.value)}
           >
             <input type="radio" name={id} value={choice.value} checked={value === choice.value} readOnly tabIndex={-1} aria-hidden="true" className="hidden" />
