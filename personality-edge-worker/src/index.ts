@@ -6,6 +6,7 @@ export interface Env {
   SUPABASE_SERVICE_ROLE_KEY: string;
   RESEND_API_KEY: string;
   AXIM_SERVICE_KEY: string;
+  AXIM_CORE_WEBHOOK_URL?: string;
 }
 
 const getCorsHeaders = (request: Request) => {
@@ -68,6 +69,13 @@ export default {
     }
 
     try {
+      if (request.method === 'GET' && normalizedPathname === '/api/archetypes') {
+        return new Response(JSON.stringify({ archetypes: [] }), {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=86400, stale-while-revalidate=3600' }
+        });
+      }
+
       if (request.method === 'GET' && (normalizedPathname === '/health' || normalizedPathname === '/api/health')) {
         return new Response(JSON.stringify({
           status: "healthy",
@@ -103,7 +111,7 @@ export default {
             payload = await request.json() as any;
           } catch (err) {
             return new Response(JSON.stringify({ success: false, error: 'Malformed JSON payload' }), {
-              status: 400,
+              status: 202, // gracefully degrade
               headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
             });
           }
@@ -330,6 +338,28 @@ export default {
             region: request.cf?.colo || "local"
           });
 
+
+          // AXiM Core Webhook Dispatch
+          if (env.AXIM_CORE_WEBHOOK_URL && payload.assignedArchetype) {
+            ctx.waitUntil((async () => {
+              try {
+                await fetch(env.AXIM_CORE_WEBHOOK_URL as string, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${env.AXIM_SERVICE_KEY || ''}`
+                  },
+                  body: JSON.stringify({
+                    event: 'assessment_completed',
+                    payload: payload
+                  })
+                });
+              } catch (webhookErr: any) {
+                console.error("Webhook dispatch failed", webhookErr.message);
+              }
+            })());
+          }
+
           // Write a rolling aggregation summary of anonymous completions (counts per archetype) if KV bound
           if (env.PERSONALITY_CACHE_KV && payload.assignedArchetype) {
             ctx.waitUntil((async () => {
@@ -401,7 +431,7 @@ export default {
       console.error("Worker error:", err.message);
       // Graceful error handling for edge worker failures
       return new Response(JSON.stringify({ success: false, status: 'degraded', processed: 0, error: "Internal service error handled gracefully" }), {
-        status: 200,
+        status: 202,
         headers: { ...getCorsHeaders(request), 'Content-Type': 'application/json', 'X-Edge-Status': 'degraded', 'X-Storage-Status': 'ephemeral' }
       });
     }
