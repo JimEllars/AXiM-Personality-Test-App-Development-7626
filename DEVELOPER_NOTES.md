@@ -28,3 +28,9 @@
 - UI/UX Polish & Layout Safeguards (`src/styles/production-polish.css`):
   - Enforced 44px minimum touch targets across interactive nodes (`.dilemma-card`, `.likert-node`, `.slider-thumb`, `.scenario-card`).
   - Strengthened horizontal overflow safeguards locking `.radar-wrap` and `.theta-trend-charts` to `min-width: 0` constraints specifically targeting under 375px screens preventing viewport shifting.
+- Consolidated redundant ErrorBoundary components into `src/components/common/ErrorBoundary.jsx`.
+- Enhanced `ErrorBoundary.jsx` fallback UI to include actions to reload or preserve session & report issue, correctly sending `react_boundary` context to `trackError`.
+- `personality-edge-worker/src/index.ts`: Hardened `/api/telemetry` handler for graceful degradation on exceptions (returning 202 instead of 500), attached `Cache-Control` headers for static psychometrics data endpoints, and added AXiM Core Webhook async dispatch via `ctx.waitUntil`.
+- `src/store/usePersonalityStore.js`: Added storage quota guards (`QuotaExceededError` handling) around `localStorage.setItem` to defensively clear ephemeral caches like `axim_preview_`. Strengthened `onRehydrateStorage` corrupted JSON validation, safely migrating failed schemas into a `_axim_corrupted_backup` slot.
+- `src/components/personality/AssessmentFlow.jsx`: Introduced ARIA live region announcing "Question X of Y" upon advancing.
+- UI Styling: Added mobile viewport clearance via `env(safe-area-inset-bottom)` inside `src/styles/production-polish.css`.

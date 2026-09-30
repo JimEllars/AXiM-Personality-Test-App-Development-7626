@@ -425,6 +425,24 @@ export const usePersonalityStore = create(
       version: CURRENT_SCHEMA_VERSION,
       storage: createJSONStorage(() => safeStorage),
       onRehydrateStorage: () => (state, error) => {
+        if (typeof window !== 'undefined') {
+          try {
+            const raw = localStorage.getItem('axim_personality_session');
+            if (raw) {
+              const parsed = JSON.parse(raw);
+              if (parsed && typeof parsed.version === 'undefined' && parsed.state && typeof parsed.state.version === 'undefined') {
+                 // Corrupted or severely outdated structure
+                 console.warn("Malformed storage state detected, backing up");
+                 localStorage.setItem('_axim_corrupted_backup', raw);
+                 if (state && typeof state.resetAssessment === 'function') state.resetAssessment();
+                 return;
+              }
+            }
+          } catch(e) {
+             const raw = localStorage.getItem('axim_personality_session');
+             if (raw) localStorage.setItem('_axim_corrupted_backup', raw);
+          }
+        }
         if (error || !state) {
           console.error("Hydration failed", error);
           trackEvent('hydration_error', { error: error?.message || 'State null' });

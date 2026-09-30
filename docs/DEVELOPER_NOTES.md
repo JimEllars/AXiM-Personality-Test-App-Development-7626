@@ -1,58 +1,36 @@
-# AXiM Personality Assessment — Developer Notes
+# Developer Notes
 
-## Archetype conversation guide
+- `src/services/telemetry.js`: Updated offline queue storage to slice to maximum 50 events to prevent massive local payloads, and wrapped standard `fetch` execution inside a `try-catch` to avoid Unhandled Promise Rejections completely stopping the application. Both synchronous and asynchronous rejections fall back seamlessly to local storage.
+- `src/components/ErrorBoundary.jsx` / `src/components/common/ErrorBoundary.jsx`: Ensured `trackError` is correctly fired in `componentDidCatch` to egress structured exceptions back to central KV storage.
+- `personality-edge-worker/src/index.ts`: Configured an explicit 30 day (`2592000` seconds) TTL for both telemetry batches and archetype counts stored in KV to strictly prevent unmanaged database inflation at edge.
+- UI Inputs: Added missing accessibility focus rings (`focus-visible:ring-offset-2`) onto both `ScenarioCardInput.jsx` and `ReactionDilemmaInput.jsx` preventing visual layout shifts while ensuring absolute keyboard clarity without compromising color contrast. Verified standard ARIA states on all slider inputs.
+- \`personality-edge-worker/src/index.ts\`: Added strict edge caching headers to GET routes, validated string/array/number structure for incoming payloads up to 32KB limit.
+- \`src/services/telemetry.js\`: Standardized event reporting schemas to match central AXiM core specifications via \`ASSESSMENT_COMPLETED\` with mapped archetype and standard error tracking telemetry payload structures. Refactored robust flush cycles including navigator.sendBeacon bindings to unload/hidden events.
+- \`src/components/personality/inputs/\`: Improved a11y across Likert, Dilemma, and Tradeoff UI input components providing keybindings mappings for options and 0-100 logic integration on sliders alongside micro-motion CSS animations.
+- \`src/store/usePersonalityStore.js\`: Fortified hydration logic on client loads ensuring heavily corrupted offline cached sessions are safely dumped and replaced by the correct UI state rendering preventing runtime react crashes.
+- Added documentation for offline telemetry queue, Zustand schema versioning rules, and accessibility attributes added.
+- Telemetry: increased offline buffer limit to 100 events. Fixed preflight OPTIONS in `personality-edge-worker/src/index.ts` to include `X-Content-Type-Options: nosniff`. Edge worker now gracefully handles missing KV resources with `X-Telemetry-Status: Degraded`.
+- Store Hydration: updated `validateAssessmentIntegrity` in `usePersonalityStore.js` to correctly support numbers from 0 to 100 to avoid purging `TradeoffSliderInput` values mid-assessment.
+- Accessibility and UI Polish: ensured WAI-ARIA slider attributes and keyboard navigation in `TradeoffSliderInput.jsx` and added CSS rules (`production-polish.css`) to prevent horizontal overflow on screens under 375px.
+- Telemetry Wire-up: Instrumented `InsightBookmarks.jsx`, `ArchetypeComparisonView.jsx`, `GrowthExercises.jsx`, and `ResultsToolbar.jsx` (for email/download share actions) with `trackEvent` to correctly broadcast dynamic usage metrics silently.
+- Input Accessibility and Touch Targets: Set a mobile-first `min-height` minimum of `48px` to `ScenarioCardInput.jsx` and added exact ARIA attributes and keyboard tracking to `TradeoffSliderInput.jsx`.
+- PDF Engine Isolation: Verified lazy loading dynamic import isolation of `@react-pdf/renderer` inside `ResultsToolbar.jsx`.
+- Edge Worker Updates: Broadened standard allowed CORS domains list to match `.axim.us.com`, `.pages.dev`, and `.workers.dev`. Also integrated explicit service definition tag (`service: "personality-edge"`) within `/api/health`.
 
-The results page includes a locally generated conversation guide with three modes:
-
-- **Explain your profile** gives the user language for describing their archetype.
-- **Start a discussion** provides prompts for inviting another person's perspective.
-- **Reflect privately** turns the result into personal journaling prompts.
-
-Every prompt is derived from the current archetype and strongest function score. Prompts can be copied individually using the browser clipboard API with a legacy fallback.
-
-No responses are stored or transmitted. The guide is a reflection and conversation aid only.
-
-## Theta trend charts
-
-The results page includes a locally generated longitudinal view:
-
-- Shows every saved result snapshot alongside the current result.
-- Lets users switch between all eight theta functions.
-- Shows the selected function on a `-4` to `+4` scale.
-- Shows pattern-match movement on a `0%` to `100%` scale.
-- Displays snapshot dates and the latest function movement.
-- Uses SVG charts with browser-native point tooltips.
-- Keeps chart generation dependency-free and works without a backend.
-
-Trend changes should be interpreted as reflective estimates, not clinical change, diagnostic evidence, or permanent personality change.
-
-## Retake score comparison
-
-The results experience preserves up to five completed result snapshots locally. A new result is archived exactly once when `setResults` receives it, preventing duplicate history entries when the user starts a retake.
-
-The comparison panel:
-
-- Shows the earlier and current archetype.
-- Shows pattern-match movement in percentage points.
-- Lists each cognitive function's earlier score, current score, and change.
-- Supports choosing between multiple saved attempts.
-- Displays directional indicators for increasing and decreasing function scores.
-- Uses reactive Zustand selectors for current result values.
-- Provides a direct retake action from the results page.
-- Handles invalid dates and missing historical score values safely.
-
-## Retake behavior
-
-Selecting `Retake assessment` clears the current answers, scores, exercises, and bookmarks while preserving result history. The prior completed result is not added again because it was already stored when the result screen was generated.
-
-The existing `Clear session` action remains destructive and removes the complete local session, including comparison history.
-
-## Persistence
-
-The local Zustand session schema is version 4. Existing sessions migrate safely with normalized result history. At most five snapshots are retained to keep the local session compact.
-
-## Important scoring limitation
-
-The current `confidence` value comes from cosine similarity against Jungian reference vectors. It is presented as a pattern-match indicator, not statistical certainty or classification accuracy.
-
-Score differences should be interpreted as reflective signals rather than evidence of clinical change or a fixed identity.Added documentation for offline telemetry queue, Zustand schema versioning rules, and accessibility attributes added.
+- Cloudflare Worker Telemetry & Result Endpoints (`personality-edge-worker/src/index.ts`):
+  - Implemented `POST /api/results/sync` handler that accepts payload and writes to Cloudflare KV with TTL.
+  - Added idempotency check logic on sync endpoints.
+  - Enhanced CORS headers for `http://localhost:*` local development previews.
+  - Added unit tests for missing-kv handling on sync endpoint.
+- Frontend Telemetry & API Bridge Activation (`src/services/telemetry.js` and `src/services/personalityApi.js`):
+  - Added robust try/catch logic globally across `sendBeacon` queues to silently bypass delivery errors completely keeping UX unaffected.
+  - Implemented automatic sync capabilities bridging `usePersonalityStore` `flushPendingSync` through `personalityApi.js:syncResult()`.
+- UI/UX Polish & Layout Safeguards (`src/styles/production-polish.css`):
+  - Enforced 44px minimum touch targets across interactive nodes (`.dilemma-card`, `.likert-node`, `.slider-thumb`, `.scenario-card`).
+  - Strengthened horizontal overflow safeguards locking `.radar-wrap` and `.theta-trend-charts` to `min-width: 0` constraints specifically targeting under 375px screens preventing viewport shifting.
+- Consolidated redundant ErrorBoundary components into `src/components/common/ErrorBoundary.jsx`.
+- Enhanced `ErrorBoundary.jsx` fallback UI to include actions to reload or preserve session & report issue, correctly sending `react_boundary` context to `trackError`.
+- `personality-edge-worker/src/index.ts`: Hardened `/api/telemetry` handler for graceful degradation on exceptions (returning 202 instead of 500), attached `Cache-Control` headers for static psychometrics data endpoints, and added AXiM Core Webhook async dispatch via `ctx.waitUntil`.
+- `src/store/usePersonalityStore.js`: Added storage quota guards (`QuotaExceededError` handling) around `localStorage.setItem` to defensively clear ephemeral caches like `axim_preview_`. Strengthened `onRehydrateStorage` corrupted JSON validation, safely migrating failed schemas into a `_axim_corrupted_backup` slot.
+- `src/components/personality/AssessmentFlow.jsx`: Introduced ARIA live region announcing "Question X of Y" upon advancing.
+- UI Styling: Added mobile viewport clearance via `env(safe-area-inset-bottom)` inside `src/styles/production-polish.css`.

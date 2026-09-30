@@ -1,4 +1,4 @@
-import ErrorBoundary from '../ErrorBoundary';
+import ErrorBoundary from '../common/ErrorBoundary';
 import React from 'react';
 import { FUNCTION_KEYS } from '../../data/questionBank';
 

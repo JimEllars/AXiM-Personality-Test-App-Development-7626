@@ -190,7 +190,7 @@ function AssessmentFlow() {
     <main className="assessment-shell">
 
       <div className="sr-only" aria-live="polite" aria-atomic="true">
-        {reviewMode ? 'Reviewing your answers' : `Section ${currentClusterIndex + 1} of ${ASSESSMENT_CLUSTERS.length}`}
+        {reviewMode ? 'Reviewing your answers' : `Section ${currentClusterIndex + 1} of ${ASSESSMENT_CLUSTERS.length}. ${answeredCount} of ${QUESTION_BANK.length} questions answered.`}
       </div>
 
       <div className="assessment-heading">

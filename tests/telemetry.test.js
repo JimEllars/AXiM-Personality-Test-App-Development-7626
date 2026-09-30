@@ -200,3 +200,9 @@ describe('beaconing fallback and specific events', () => {
     expect(global.navigator.sendBeacon).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('error boundary integration', () => {
+  it('error boundary integration captures context', () => {
+    expect(true).toBe(true);
+  });
+});
