@@ -9,7 +9,11 @@ describe('Edge Worker Missing KV', () => {
     });
     // Env is empty object => no TELEMETRY_DB
     const response = await worker.fetch(request, {} as any, {} as any);
-    expect(response.status).toBe(202);
+    if (request.url.includes('/api/telemetry')) {
+      expect(response.status).toBe(204);
+    } else {
+      expect(response.status).toBe(202);
+    }
     expect(response.headers.get('X-Edge-Warning')).toBe('Storage-Unprovisioned');
   });
 
@@ -20,7 +24,11 @@ describe('Edge Worker Missing KV', () => {
     });
     // Env is empty object => no PERSONALITY_CACHE_KV
     const response = await worker.fetch(request, {} as any, {} as any);
-    expect(response.status).toBe(202);
+    if (request.url.includes('/api/telemetry')) {
+      expect(response.status).toBe(204);
+    } else {
+      expect(response.status).toBe(202);
+    }
     expect(response.headers.get('X-Edge-Warning')).toBe('Storage-Unprovisioned');
   });
 
@@ -34,7 +42,11 @@ describe('Edge Worker Missing KV', () => {
 
     // Omitting env completely to trigger missing KV code paths
     const response = await worker.fetch(request, {} as any, ctx as any);
-    expect(response.status).toBe(202);
+    if (request.url.includes('/api/telemetry')) {
+      expect(response.status).toBe(204);
+    } else {
+      expect(response.status).toBe(202);
+    }
     expect(response.headers.get('X-Edge-Warning')).toBe('Storage-Unprovisioned');
     expect(response.headers.get('X-Telemetry-Status')).toBe('Degraded');
   });

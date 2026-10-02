@@ -39,10 +39,10 @@ export function flushQueue() {
     if (typeof navigator !== 'undefined' && !navigator.onLine) {
         // Offline buffer
         try {
-            const stored = JSON.parse(localStorage.getItem('axim_telemetry_queue') || '[]');
+            const stored = JSON.parse(localStorage.getItem('axim_telemetry_offline_queue') || '[]');
             stored.push(...payload);
             // Limit local offline buffer storage to max 50 events.
-            localStorage.setItem('axim_telemetry_queue', JSON.stringify(stored.slice(-100)));
+            localStorage.setItem('axim_telemetry_offline_queue', JSON.stringify(stored.slice(-100)));
         } catch (e) {
             console.warn("Failed to write to offline telemetry buffer");
         }
@@ -83,17 +83,17 @@ export function flushQueue() {
             } else {
               // Add back to offline buffer on fail after retries
               try {
-                const stored = JSON.parse(localStorage.getItem('axim_telemetry_queue') || '[]');
+                const stored = JSON.parse(localStorage.getItem('axim_telemetry_offline_queue') || '[]');
                 stored.push(...payload);
-                localStorage.setItem('axim_telemetry_queue', JSON.stringify(stored.slice(-100)));
+                localStorage.setItem('axim_telemetry_offline_queue', JSON.stringify(stored.slice(-100)));
               } catch (err) { /* silent catch */ }
             }
           });
         } catch (syncErr) {
           try {
-            const stored = JSON.parse(localStorage.getItem('axim_telemetry_queue') || '[]');
+            const stored = JSON.parse(localStorage.getItem('axim_telemetry_offline_queue') || '[]');
             stored.push(...payload);
-            localStorage.setItem('axim_telemetry_queue', JSON.stringify(stored.slice(-100)));
+            localStorage.setItem('axim_telemetry_offline_queue', JSON.stringify(stored.slice(-100)));
           } catch (err) { /* silent catch */ }
         }
       };
@@ -169,7 +169,7 @@ export function trackEvent(eventName, payload = {}) {
       // silent
     }
 
-    if (eventName === 'assessment_complete' || eventName === 'assessment_completed' || eventName === 'page_exit' || eventName === 'test_abandoned' || eventName === 'result_completed' || eventQueue.length >= QUEUE_SIZE_LIMIT) {
+    if (['assessment_started', 'cluster_completed', 'demographics_submitted', 'assessment_completed', 'assessment_complete', 'result_exported_pdf', 'growth_exercise_started', 'page_exit', 'test_abandoned', 'result_completed'].includes(eventName) || eventQueue.length >= QUEUE_SIZE_LIMIT) {
       flushQueue();
     } else if (!flushTimeout) {
       flushTimeout = setTimeout(flushQueue, FLUSH_INTERVAL_MS);
@@ -192,10 +192,10 @@ export function trackError(error, errorInfo = {}) {
 export function flushOfflineQueue() {
     if (typeof navigator !== 'undefined' && !navigator.onLine) return;
     try {
-        const stored = JSON.parse(localStorage.getItem('axim_telemetry_queue') || '[]');
+        const stored = JSON.parse(localStorage.getItem('axim_telemetry_offline_queue') || '[]');
         if (stored.length > 0) {
             eventQueue.push(...stored);
-            localStorage.removeItem('axim_telemetry_queue');
+            localStorage.removeItem('axim_telemetry_offline_queue');
         }
         if (typeof sessionStorage !== 'undefined') {
             const liveQueue = JSON.parse(sessionStorage.getItem('axim_telemetry_live_queue') || '[]');
