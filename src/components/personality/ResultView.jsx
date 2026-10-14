@@ -178,7 +178,7 @@ function ResultView() {
               <small>pattern match</small>
             </div>
           </div>
-          <ErrorBoundary><Suspense fallback={<div className="chart-placeholder">Loading chart...</div>}><RadarProfileChart scores={activeData.thetaScores} /></Suspense></ErrorBoundary>
+          <ErrorBoundary><Suspense fallback={<div className="chart-placeholder animate-pulse bg-gray-200 dark:bg-gray-700 rounded-xl" style={{ minHeight: "400px", width: "100%", maxWidth: "400px", margin: "0 auto" }}></div>}><RadarProfileChart scores={activeData.thetaScores} /></Suspense></ErrorBoundary>
         </div>
 
         <div className="result-panel">
@@ -217,14 +217,14 @@ function ResultView() {
       />
       </ErrorBoundary>
 
-      <ErrorBoundary fallback={<div className="panel-error-fallback">Section temporarily unavailable.</div>}><Suspense fallback={<div className="chart-placeholder">Loading chart...</div>}><Suspense fallback={<div className="animate-pulse h-64 bg-gray-200 dark:bg-gray-700 rounded-xl w-full"></div>}><ThetaTrendCharts /></Suspense></Suspense></ErrorBoundary>
+      <ErrorBoundary fallback={<div className="panel-error-fallback">Section temporarily unavailable.</div>}><Suspense fallback={<div className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded-xl w-full" style={{ minHeight: "320px", width: "100%" }}></div>}><ThetaTrendCharts /></Suspense></ErrorBoundary>
       <ErrorBoundary fallback={<div className="panel-error-fallback">Section temporarily unavailable.</div>}><ScoreComparisonPanel /></ErrorBoundary>
       <MethodologyPanel />
       <ErrorBoundary fallback={<div className="panel-error-fallback">Section temporarily unavailable.</div>}><ArchetypeComparisonView
         assignedArchetype={activeData.assignedArchetype}
         ranking={activeData.proximityRanking}
       /></ErrorBoundary>
-      <ErrorBoundary fallback={<div className="panel-error-fallback">Section temporarily unavailable.</div>}><Suspense fallback={<div className="animate-pulse h-64 bg-gray-200 dark:bg-gray-700 rounded-xl w-full"></div>}><ArchetypeCompatibilityMatrix /></Suspense></ErrorBoundary>
+      <ErrorBoundary fallback={<div className="panel-error-fallback">Section temporarily unavailable.</div>}><Suspense fallback={<div className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded-xl w-full" style={{ minHeight: "280px", width: "100%" }}></div>}><ArchetypeCompatibilityMatrix /></Suspense></ErrorBoundary>
       <ErrorBoundary fallback={<div className="panel-error-fallback">Section temporarily unavailable.</div>}><ArchetypeConversationGuide /></ErrorBoundary>
       <ErrorBoundary fallback={<div className="panel-error-fallback">Section temporarily unavailable.</div>}><ArchetypeShareCard /></ErrorBoundary>
       <ErrorBoundary fallback={<div className="panel-error-fallback">Section temporarily unavailable.</div>}><InsightBookmarks /></ErrorBoundary>

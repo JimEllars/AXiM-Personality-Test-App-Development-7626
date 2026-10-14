@@ -510,3 +510,11 @@ button, .primary-button, .secondary-button, input, select, textarea, [role="tab"
         border-radius: 8px;
     }
 }
+
+/* Fix CLS for ResultView panels */
+.radar-panel {
+  min-height: 480px;
+}
+.profile-grid {
+  min-height: 480px;
+}

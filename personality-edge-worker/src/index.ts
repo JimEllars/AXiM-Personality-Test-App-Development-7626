@@ -354,8 +354,14 @@ export default {
                     'Authorization': `Bearer ${env.AXIM_SERVICE_KEY || ''}`
                   },
                   body: JSON.stringify({
-                    event: 'assessment_completed',
-                    payload: payload
+                    event: 'ASSESSMENT_SUBMITTED',
+                    appId: 'axim-personality-engine',
+                    version: '1.1.0',
+                    timestamp: new Date().toISOString(),
+                    sessionId: payload.sessionId || 'unknown',
+                    assignedArchetype: payload.assignedArchetype,
+                    thetaScores: payload.thetaScores || {},
+                    demographics: payload.demographics || {}
                   })
                 });
               } catch (webhookErr: any) {
