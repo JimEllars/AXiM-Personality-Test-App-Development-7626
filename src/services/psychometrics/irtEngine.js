@@ -93,14 +93,33 @@ export function scoreAssessmentDiagnostics(items, answers, functionKeys) {
   const semScores = {};
   let answeredCount = 0;
 
+  // If an item is a tradeoff slider (0-100), discretize to 1-5 for IRT calculation:
+  const normalizeResponseValue = (item, rawVal) => {
+    if (rawVal === undefined || rawVal === null || isNaN(rawVal)) return null;
+    const num = Number(rawVal);
+    if (item.type === 'tradeoff' && num > 5) {
+      // Map 0-100 to 1-5 scale:
+      // 0-15 -> 1, 16-35 -> 2, 36-65 -> 3 (neutral), 66-85 -> 4, 86-100 -> 5
+      if (num <= 15) return 1;
+      if (num <= 35) return 2;
+      if (num <= 65) return 3;
+      if (num <= 85) return 4;
+      return 5;
+    }
+    return Number.isInteger(num) && num >= 1 && num <= 5 ? num : null;
+  };
+
   functionKeys.forEach((functionKey) => {
     const responses = items
       .filter((item) => item.functionKey === functionKey)
-      .map((item) => ({
-        item,
-        value: answers[item.id]
-      }))
-      .filter(({ value }) => Number.isInteger(value));
+      .map((item) => {
+        const val = normalizeResponseValue(item, answers[item.id]);
+        return {
+          item,
+          value: val
+        };
+      })
+      .filter(({ value }) => value !== null);
 
     answeredCount += responses.length;
 

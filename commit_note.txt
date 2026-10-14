@@ -1,0 +1,6 @@
+Sprint 7626.3
+
+- Normalized psychometric tradeoff slider continuous values (0-100) to expected 1-5 categories for robust IRT scoring.
+- Added aspect-ratio skeleton fallbacks for RadarProfileChart, ThetaTrendCharts, and ArchetypeCompatibilityMatrix to eliminate Result View Cumulative Layout Shift (CLS).
+- Maintained stability in `.radar-panel` and `.profile-grid` sizes via CSS `min-height` adjustments.
+- Updated Edge Worker `/api/v1/assessment/submit` webhook format to correctly transmit the standardized `ASSESSMENT_SUBMITTED` JSON structure to AXiM Core.

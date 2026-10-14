@@ -34,3 +34,28 @@
 - `src/store/usePersonalityStore.js`: Added storage quota guards (`QuotaExceededError` handling) around `localStorage.setItem` to defensively clear ephemeral caches like `axim_preview_`. Strengthened `onRehydrateStorage` corrupted JSON validation, safely migrating failed schemas into a `_axim_corrupted_backup` slot.
 - `src/components/personality/AssessmentFlow.jsx`: Introduced ARIA live region announcing "Question X of Y" upon advancing.
 - UI Styling: Added mobile viewport clearance via `env(safe-area-inset-bottom)` inside `src/styles/production-polish.css`.
+
+- Telemetry Hardening: Implemented comprehensive offline queue fallback in \`src/services/telemetry.js\`, adding \`requestIdleCallback\` checks and automatic retry via fetch when \`navigator.sendBeacon\` hits quota limits. Edge worker supports robust JSON array telemetry batches directly writing to \`TELEMETRY_DB\` with explicit timestamp validation.
+- State Hydration Resilience: Patched \`src/components/personality/ThetaTrendCharts.jsx\` and \`src/components/personality/RadarProfileChart.jsx\` to defensively sanitize dynamic metrics against partial or corrupted store payloads. Wraps visual nodes natively in isolated \`ErrorBoundary\`.
+- Micro-interaction Accessibility: Extended \`onKeyDown\` listeners in \`TradeoffSliderInput.jsx\`, \`ScenarioCardInput.jsx\`, and \`ReactionDilemmaInput.jsx\` ensuring semantic SPACE/ENTER tracking and 0-100 navigation boundaries on tradeoff inputs.
+- Layout Hardening: Expanded UI standard definitions inside \`src/styles/production-polish.css\` adding strict \`--color-primary\` rules and enforcing mobile clearance across \`.assessment-actions\` dynamically via \`env(safe-area-inset-bottom)\`.
+- Routing & Caching: Corrected strict preflight CORS compliance (\`Access-Control-Allow-Methods\`, \`Access-Control-Allow-Headers\`) inside the edge worker endpoint configuration. Implemented correct \`must-revalidate\` protocols over dynamic state routes while allowing standard \`max-age=3600\` on \`/api/v1/personality/benchmarks\`.
+
+## Production Hardening Documentation
+
+### Telemetry Activation and Retry Queue Behavior
+- **Queueing Strategy**: Events are batched and queued via an offline queue (`axim_telemetry_offline_queue`). Automatic flush triggers when the queue reaches 10 items or on critical application events like `assessment_started`, `cluster_completed`, `assessment_completed`, `result_exported_pdf`, and more.
+- **Delivery Mechanisms**: Prioritizes `navigator.sendBeacon()` on visibility change/unload/pagehide to ensure zero data loss during page unloads. If sendBeacon fails, falls back to `fetch` with `keepalive: true` and exponential backoff retry. Offline buffering caps at 100 items to avoid LocalStorage overload and continuously flushes upon `online` events.
+- **Edge Worker Telemetry (`/api/telemetry`)**: Always responds with `204 No Content` on successful processing to optimize edge response size. Safely handles missing `KVNamespace` configurations, degrading to a 204 with degraded telemetry status HTTP headers instead of crashing.
+
+### Zustand Schema Migration Guidelines
+- **Version Enforcement**: The `usePersonalityStore` specifies `version: CURRENT_SCHEMA_VERSION`. `CURRENT_SCHEMA_VERSION` should be incremented if structural/breaking store schema changes occur.
+- **Migration Execution**: The `migrate(persistedState, version)` function intercepts local state and guarantees backward compatibility mapping, dropping old properties that no longer belong, and validating integer requirements.
+- **Hydration Guards**: The `onRehydrateStorage` explicitly catches corrupted JSON parse errors or corrupted shape, creating a back-up key (`_axim_corrupted_backup`) and executing a safe default `resetAssessment()` fallback. All screens verify data integrity during navigation.
+
+### Accessibility (A11y) Checklist and Keyboard Input Contract
+- **Input Components**: All custom controls (`ModernLikertInput`, `ReactionDilemmaInput`, `ScenarioCardInput`, `TradeoffSliderInput`) implement native ARIA roles (`role="radiogroup"`, `role="slider"`, `role="radio"`).
+- **Keyboard Navigation**:
+  - `ArrowRight`/`ArrowUp` increment values and `ArrowLeft`/`ArrowDown` decrement.
+  - `Enter` and `Space` are fully mapped to select elements and fire `axim-likert-confirm` to auto-advance cards natively.
+- **Focus Indicators**: Exclusively mapped `focus-visible:ring-2 focus-visible:ring-indigo-500` outline offsets exist for strict WCAG visual indicator criteria without causing layout shifts or mouse-focus visual clutter.

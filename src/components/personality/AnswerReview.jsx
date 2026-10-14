@@ -7,35 +7,46 @@ import './AnswerReview.css';
 const { FiArrowLeft, FiCheck, FiEdit3, FiLock } = FiIcons;
 
 function getAnswerLabel(item, value) {
-  if (value === undefined || value === null || !Number.isInteger(value)) {
+  if (value === undefined || value === null || !Number.isInteger(Number(value))) {
     return 'Not answered';
   }
 
+  const num = Number(value);
+
   if (item.type === 'scenario') {
-    if (value === 1) return `Strongly ${item.options.left}`;
-    if (value === 2) return `Lean ${item.options.left}`;
-    if (value === 3) return 'Equal / Both';
-    if (value === 4) return `Lean ${item.options.right}`;
-    if (value === 5) return `Strongly ${item.options.right}`;
+    if (num === 1) return `Strongly ${item.options.left}`;
+    if (num === 2) return `Lean ${item.options.left}`;
+    if (num === 3) return 'Equal / Both';
+    if (num === 4) return `Lean ${item.options.right}`;
+    if (num === 5) return `Strongly ${item.options.right}`;
   }
 
   if (item.type === 'tradeoff') {
-    if (value === 1) return item.options.left;
-    if (value === 5) return item.options.right;
-    if (value === 3) return 'Neutral';
-    return `Level ${value}`;
+    let discreteValue = num;
+    if (num > 5) {
+      if (num <= 15) discreteValue = 1;
+      else if (num <= 35) discreteValue = 2;
+      else if (num <= 65) discreteValue = 3;
+      else if (num <= 85) discreteValue = 4;
+      else discreteValue = 5;
+    }
+
+    if (discreteValue === 1) return item.options.left;
+    if (discreteValue === 5) return item.options.right;
+    if (discreteValue === 3) return 'Neutral';
+    return `Level ${discreteValue}`;
   }
 
   if (item.type === 'reaction') {
-    if (value === 1) return item.options.choices[0].label;
-    if (value === 2) return `Lean ${item.options.choices[0].label}`;
-    if (value === 3) return 'Unsure / Middle';
-    if (value === 4) return `Lean ${item.options.choices[1].label}`;
-    if (value === 5) return item.options.choices[1].label;
+    if (num === 1) return item.options.choices[0].label;
+    if (num === 2) return `Lean ${item.options.choices[0].label}`;
+    if (num === 3) return 'Unsure / Middle';
+    if (num === 4) return `Lean ${item.options.choices[1].label}`;
+    if (num === 5) return item.options.choices[1].label;
   }
 
   // fallback / likert
-  return LIKERT_ANCHORS.find((anchor) => anchor.value === value)?.label || `Selected ${value}`;
+  return LIKERT_ANCHORS.find((anchor) => anchor.value === num)?.label || `Selected ${num}`;
 }
 
 function AnswerReview({ items, answers, onEdit, onReveal, onBack }) {
