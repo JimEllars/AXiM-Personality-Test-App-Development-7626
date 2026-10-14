@@ -12,7 +12,6 @@ export interface Env {
 const getCorsHeaders = (request: Request) => {
   const origin = request.headers.get('Origin') || '';
 
-
   // Allow localhost for dev, staging preview domains, and our production domains.
   let allowOrigin = '*';
   if (origin.startsWith('http://localhost:') || origin === 'https://axim.us.com' || origin === 'http://axim.us.com' || origin.endsWith('.axim.us.com') || origin.endsWith('.pages.dev') || origin.endsWith('.workers.dev')) {
@@ -24,7 +23,12 @@ const getCorsHeaders = (request: Request) => {
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-AXiM-Client-Version',
     'Access-Control-Max-Age': '86400',
+    'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'SAMEORIGIN',
+    'Referrer-Policy': 'strict-origin-when-cross-origin',
+    'Permissions-Policy': 'accelerometer=(), camera=(), microphone=(), geolocation=()'
   };
+
 };
 
 const personalityTestPrefix = '/personalitytest';
@@ -63,9 +67,9 @@ export default {
 
     const corsHeaders = getCorsHeaders(request);
 
-    if (request.method === 'OPTIONS') {
+        if (request.method === 'OPTIONS') {
       // Explicitly return caching headers for preflight requests
-      return new Response(null, { headers: { ...corsHeaders, 'Access-Control-Max-Age': '86400', 'X-Content-Type-Options': 'nosniff' } });
+      return new Response(null, { status: 204, headers: { ...corsHeaders, 'Access-Control-Max-Age': '86400' } });
     }
 
     try {
@@ -196,8 +200,8 @@ export default {
             headers['X-Edge-Warning'] = 'Storage-Unprovisioned';
             headers['X-Telemetry-Status'] = 'Degraded';
           }
-          return new Response(JSON.stringify({ success: true, processed: events.length }), {
-            status: 202,
+          return new Response(null, {
+            status: 204,
             headers,
           });
         } catch (e: any) {

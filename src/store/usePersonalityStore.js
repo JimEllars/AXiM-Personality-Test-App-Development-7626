@@ -424,7 +424,46 @@ export const usePersonalityStore = create(
       name: 'axim_personality_session',
       version: CURRENT_SCHEMA_VERSION,
       storage: createJSONStorage(() => safeStorage),
-      onRehydrateStorage: () => (state, error) => {
+            onRehydrateStorage: () => (state, error) => {
+        const loadPersistedAssessment = (rehydratedState, hydrateError) => {
+          if (hydrateError || !rehydratedState) {
+            console.error("Hydration failed", hydrateError);
+            trackEvent('hydration_error', { error: hydrateError?.message || 'State null' });
+            if (rehydratedState && typeof rehydratedState.resetAssessment === 'function') {
+               try { rehydratedState.resetAssessment(); } catch(e) { console.error(e); }
+            }
+            return;
+          }
+          try {
+            // Guard against state hydration mismatches on fast client reloads
+            if (typeof window !== 'undefined' && window.__NEXT_DATA__) {
+              // This is a common guard if using Next.js but we're on Vite.
+            }
+
+            const { isValid, sanitizedAnswers, sanitizedIndex } = validateAssessmentIntegrity(rehydratedState);
+            if (!isValid) {
+               trackEvent('hydration_integrity_warning', { reason: 'Invalid data sanitized' });
+               rehydratedState.answers = sanitizedAnswers || {};
+               rehydratedState.currentClusterIndex = sanitizedIndex || 0;
+            }
+
+            // Safety check for UI views to prevent crashes
+            if (rehydratedState.screen === 'results' && !rehydratedState.assignedArchetype) {
+                rehydratedState.screen = 'welcome';
+                rehydratedState.answers = {};
+                rehydratedState.currentClusterIndex = 0;
+            }
+          } catch (e) {
+             console.error("Integrity check failed", e);
+             trackEvent('hydration_integrity_error', { error: e.message });
+             if (rehydratedState && typeof rehydratedState.resetAssessment === 'function') {
+                try { rehydratedState.resetAssessment(); } catch (err) { console.error(err); }
+             } else if (rehydratedState) {
+                Object.assign(rehydratedState, { ...initialState, demographics: rehydratedState.demographics || initialState.demographics });
+             }
+          }
+        };
+
         if (typeof window !== 'undefined') {
           try {
             const raw = localStorage.getItem('axim_personality_session');
@@ -441,44 +480,13 @@ export const usePersonalityStore = create(
           } catch(e) {
              const raw = localStorage.getItem('axim_personality_session');
              if (raw) localStorage.setItem('_axim_corrupted_backup', raw);
-          }
-        }
-        if (error || !state) {
-          console.error("Hydration failed", error);
-          trackEvent('hydration_error', { error: error?.message || 'State null' });
-          if (state && typeof state.resetAssessment === 'function') {
-             try { state.resetAssessment(); } catch(e) { console.error(e); }
-          }
-        } else {
-          try {
-            // Guard against state hydration mismatches on fast client reloads
-            if (typeof window !== 'undefined' && window.__NEXT_DATA__) {
-              // This is a common guard if using Next.js but we're on Vite.
-            }
-
-            const { isValid, sanitizedAnswers, sanitizedIndex } = validateAssessmentIntegrity(state);
-            if (!isValid) {
-               trackEvent('hydration_integrity_warning', { reason: 'Invalid data sanitized' });
-               state.answers = sanitizedAnswers || {};
-               state.currentClusterIndex = sanitizedIndex || 0;
-            }
-
-            // Safety check for UI views to prevent crashes
-            if (state.screen === 'results' && !state.assignedArchetype) {
-                state.screen = 'welcome';
-                state.answers = {};
-                state.currentClusterIndex = 0;
-            }
-          } catch (e) {
-             console.error("Integrity check failed", e);
-             trackEvent('hydration_integrity_error', { error: e.message });
              if (state && typeof state.resetAssessment === 'function') {
-                try { state.resetAssessment(); } catch (err) { console.error(err); }
-             } else if (state) {
-                Object.assign(state, { ...initialState, demographics: state.demographics || initialState.demographics });
+               try { state.resetAssessment(); } catch(err) { /* silent catch */ }
              }
           }
         }
+
+        loadPersistedAssessment(state, error);
       },
 
       partialize: (state) => ({
@@ -505,8 +513,12 @@ export const usePersonalityStore = create(
         isSyncing: state.isSyncing || false
       }),
 
-      migrate: (persistedState, version) => {
+            migrate: (persistedState, version) => {
         try {
+          if (!persistedState || typeof persistedState !== 'object') {
+             return initialState;
+          }
+
           if (!isValidSession(persistedState)) {
              trackEvent('migration_error', { reason: 'Invalid session' });
              return initialState;
@@ -547,7 +559,6 @@ export const usePersonalityStore = create(
              migratedClusterIndex = sanitizedIndex || 0;
           }
 
-
           return {
             ...initialState,
             ...persistedState,
@@ -565,6 +576,7 @@ export const usePersonalityStore = create(
           };
         } catch (e) {
           console.error("Failed to migrate store", e);
+          trackEvent('migration_error', { error: e.message });
           return initialState;
         }
       }

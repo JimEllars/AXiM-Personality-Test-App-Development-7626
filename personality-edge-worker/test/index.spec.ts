@@ -28,10 +28,8 @@ describe('Edge Worker', () => {
       body: JSON.stringify([{ event: 'test', sessionId: '123', timestamp: new Date().toISOString(), metadata: { some: 'data' } }])
     });
     const response = await worker.fetch(request, {} as any, {} as any);
-    expect(response.status).toBe(202);
-    const data: any = await response.json();
-    expect(data.success).toBe(true);
-    expect(data.processed).toBe(1);
+    expect(response.status).toBe(204);
+
   });
 
   it('telemetry accepts valid payload even with subpath', async () => {
@@ -40,10 +38,8 @@ describe('Edge Worker', () => {
       body: JSON.stringify([{ event: 'test', sessionId: '123', timestamp: new Date().toISOString() }])
     });
     const response = await worker.fetch(request, {} as any, {} as any);
-    expect(response.status).toBe(202);
-    const data: any = await response.json();
-    expect(data.success).toBe(true);
-    expect(data.processed).toBe(1);
+    expect(response.status).toBe(204);
+
   });
 
   it('telemetry rejects invalid schema payload (missing event)', async () => {
@@ -80,10 +76,8 @@ describe('Edge Worker', () => {
       body: JSON.stringify([{ event: 'test', sessionId: '123', timestamp: new Date().toISOString() }])
     });
     const response = await worker.fetch(request, {} as any, {} as any);
-    expect(response.status).toBe(202);
-    const data: any = await response.json();
-    expect(data.success).toBe(true);
-    expect(data.processed).toBe(1);
+    expect(response.status).toBe(204);
+
   });
 
   it('telemetry accepts valid payload on /api/v1/telemetry', async () => {
@@ -92,10 +86,8 @@ describe('Edge Worker', () => {
       body: JSON.stringify([{ event: 'test', sessionId: '123', timestamp: new Date().toISOString() }])
     });
     const response = await worker.fetch(request, {} as any, {} as any);
-    expect(response.status).toBe(202);
-    const data: any = await response.json();
-    expect(data.success).toBe(true);
-    expect(data.processed).toBe(1);
+    expect(response.status).toBe(204);
+
   });
 
   it('creates and retrieves a share link', async () => {
