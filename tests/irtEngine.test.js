@@ -68,7 +68,7 @@ describe('irtEngine', () => {
     });
   });
 
-});
+
 
   it('normalizes continuous tradeoff values to 1-5 scale correctly', () => {
     const mockQuestionBank = [
@@ -90,4 +90,12 @@ describe('irtEngine', () => {
     // We expect theta to be non-zero since it actually used the mapped values,
     // (with 1,3,5 responses to a properly discriminated item, it should yield a predictable theta)
     // Actually, [1, 3, 5] responses will balance out if parameters are symmetric, but it proves it worked.
+
+    // Check that a single response of 50 yields category 3 (neutral)
+    // For a neutral response to a single item, the theta should be close to 0.
+    const neutralAnswers = { '1': 50 };
+    const neutralResults = scoreAssessmentDiagnostics([mockQuestionBank[0]], neutralAnswers, ['Ti']);
+    expect(neutralResults.thetaScores.Ti).toBeLessThan(0.5);
+    expect(neutralResults.thetaScores.Ti).toBeGreaterThan(-0.5);
   });
+});
