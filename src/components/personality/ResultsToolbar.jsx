@@ -11,20 +11,30 @@ const { FiCheck, FiCopy, FiPrinter, FiShield, FiTrash2, FiMail, FiDownload } = F
 
 async function copyText(text) {
   if (navigator.clipboard) {
-    await navigator.clipboard.writeText(text);
-    return true;
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (err) {
+      console.warn('Clipboard API failed, falling back to textarea', err);
+    }
   }
 
-  const textarea = document.createElement('textarea');
-  textarea.value = text;
-  textarea.setAttribute('readonly', '');
-  textarea.style.position = 'fixed';
-  textarea.style.opacity = '0';
-  document.body.appendChild(textarea);
-  textarea.select();
-  const copied = document.execCommand('copy');
-  textarea.remove();
-  return copied;
+  try {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.setAttribute('readonly', '');
+    textarea.style.position = 'fixed';
+    textarea.style.left = '-9999px';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    const copied = document.execCommand('copy');
+    textarea.remove();
+    return copied;
+  } catch (err) {
+    console.error('Fallback copy failed', err);
+    return false;
+  }
 }
 
 function ResultsToolbar({ archetype, title }) {
@@ -124,6 +134,14 @@ function ResultsToolbar({ archetype, title }) {
       </div>
 
       {pdfError && <div className="form-error" style={{marginBottom: '1rem', color: 'red', fontSize: '0.875rem'}} role="alert">{pdfError}</div>}
+
+      {copied && (
+        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded shadow-lg flex items-center gap-2 z-50 animate-fade-in-out">
+          <SafeIcon icon={FiCheck} />
+          <span>Link copied to clipboard!</span>
+        </div>
+      )}
+
       <div className="results-toolbar-actions">
         <button type="button" onClick={() => {
           setShowEmailModal(true);

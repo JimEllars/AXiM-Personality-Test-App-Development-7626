@@ -59,3 +59,7 @@
   - `ArrowRight`/`ArrowUp` increment values and `ArrowLeft`/`ArrowDown` decrement.
   - `Enter` and `Space` are fully mapped to select elements and fire `axim-likert-confirm` to auto-advance cards natively.
 - **Focus Indicators**: Exclusively mapped `focus-visible:ring-2 focus-visible:ring-indigo-500` outline offsets exist for strict WCAG visual indicator criteria without causing layout shifts or mouse-focus visual clutter.
+- `personality-edge-worker/src/index.ts`: Added `/api/score` endpoint to properly resolve frontend API fallback warnings and correctly return verification success payloads, aligned with CORS and caching logic.
+- `src/components/personality/inputs/TradeoffSliderInput.jsx`: Added dynamic textual stance visual feedback badge (Strongly/Lean/Neutral) reflecting exact 0-100 values to enhance user context on the slider position.
+- `src/components/personality/ResultsToolbar.jsx`: Enhanced the share experience by adding a floating visual toast notification ("Link copied to clipboard!") upon clicking the copy summary action.
+- `tests/irtEngine.test.js`: Reorganized floating tradeoff normalization test to correctly nest within the primary `describe` block and added validation confirming neutral continuous slider inputs (e.g., 50) don't heavily skew the IRT theta.

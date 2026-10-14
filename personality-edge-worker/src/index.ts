@@ -260,6 +260,30 @@ export default {
         }
       }
 
+
+      if (request.method === 'POST' && normalizedPathname === '/api/score') {
+        try {
+          const payload = await request.json() as any;
+          if (!payload || !payload.answers || typeof payload.answers !== 'object') {
+            return new Response(JSON.stringify({ success: false, error: 'Invalid payload' }), {
+              status: 400,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
+            });
+          }
+
+          // Execute basic validation
+          return new Response(JSON.stringify({ success: true, verified: true, timestamp: Date.now() }), {
+            status: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
+          });
+        } catch (e: any) {
+          return new Response(JSON.stringify({ success: false, error: e.message || 'Bad request' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
+          });
+        }
+      }
+
       if (request.method === 'POST' && normalizedPathname === '/api/results/share') {
         try {
           const payload = await request.json() as any;

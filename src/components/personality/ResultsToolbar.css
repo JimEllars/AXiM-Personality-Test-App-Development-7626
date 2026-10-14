@@ -133,3 +133,14 @@
     display: none;
   }
 }
+
+@keyframes fade-in-out {
+  0% { opacity: 0; transform: translate(-50%, 1rem); }
+  15% { opacity: 1; transform: translate(-50%, 0); }
+  85% { opacity: 1; transform: translate(-50%, 0); }
+  100% { opacity: 0; transform: translate(-50%, 1rem); }
+}
+
+.animate-fade-in-out {
+  animation: fade-in-out 2.5s ease-in-out forwards;
+}

@@ -50,6 +50,15 @@ function TradeoffSliderInput({ item, value, onChange }) {
     handleChange(val);
   };
 
+
+  const getBadgeStance = (val) => {
+    if (val <= 15) return `Strongly ${options.left}`;
+    if (val <= 35) return `Lean ${options.left}`;
+    if (val <= 64) return "Neutral / Balanced";
+    if (val <= 84) return `Lean ${options.right}`;
+    return `Strongly ${options.right}`;
+  };
+
   return (
     <fieldset className="tradeoff-input w-full" role="group" aria-label="Select tradeoff level">
       <legend className="sr-only">Select tradeoff level from 0 to 100</legend>
@@ -57,6 +66,12 @@ function TradeoffSliderInput({ item, value, onChange }) {
         <div className="flex justify-between w-full text-base font-semibold text-gray-800 dark:text-gray-100">
           <span className="w-5/12 text-left">{options.left}</span>
           <span className="w-5/12 text-right">{options.right}</span>
+        </div>
+
+        <div className="text-center mt-2 mb-2">
+          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 transition-all duration-150">
+            {getBadgeStance(currentValue)}
+          </span>
         </div>
 
         <div
