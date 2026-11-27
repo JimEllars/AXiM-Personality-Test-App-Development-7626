@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { usePersonalityStore, validateAssessmentIntegrity } from '../src/store/usePersonalityStore';
 import { submitAssessment } from '../src/services/personalityApi';
 import { scoreAssessmentDiagnostics } from '../src/services/psychometrics/irtEngine';
-import { projectArchetype } from '../src/services/psychometrics/archetypeProjector';
+import { projectArchetype, ARCHETYPE_REFERENCE_VECTORS } from '../src/services/psychometrics/archetypeProjector';
 import { QUESTION_BANK, FUNCTION_KEYS } from '../src/data/questionBank';
 
 vi.mock('../src/services/personalityApi', () => ({
@@ -105,6 +105,30 @@ describe('usePersonalityStore', () => {
     expect(state.demographics.age).toBe('25');
     expect(state.resultHistory.length).toBe(1);
     expect(state.resultHistory[0].archetype).toBe('Explorer');
+  });
+
+  it('finalizeAssessment successfully processes continuous tradeoff slider values (0-100) and produces valid archetype', async () => {
+    // Generate full answers across QUESTION_BANK with tradeoff items having 0, 50, 100
+    const fullAnswers = {};
+    QUESTION_BANK.forEach((q) => {
+      if (q.type === 'tradeoff') {
+        fullAnswers[q.id] = 0; // extreme boundary
+      } else if (q.type === 'reaction') {
+        fullAnswers[q.id] = 5;
+      } else {
+        fullAnswers[q.id] = 4;
+      }
+    });
+
+    usePersonalityStore.setState({ answers: fullAnswers, screen: 'assessment' });
+    await usePersonalityStore.getState().finalizeAssessment();
+
+    const state = usePersonalityStore.getState();
+    expect(state.screen).toBe('results');
+    expect(state.assignedArchetype).toBeTruthy();
+    expect(ARCHETYPE_REFERENCE_VECTORS[state.assignedArchetype]).toBeDefined();
+    expect(state.proximityRanking.length).toBeGreaterThan(0);
+    expect(Number.isFinite(state.confidence)).toBe(true);
   });
 
 });

@@ -110,14 +110,15 @@ function AssessmentFlow() {
     return () => window.removeEventListener('keydown', handleKeyboardAnswer);
   }, [setAnswer]);
 
-  const revealResults = () => {
+  const revealResults = async () => {
     trackEvent('assessment_completed');
     try {
-      finalizeAssessment();
+      await finalizeAssessment();
     } catch (err) {
       console.error('Error during finalization:', err);
-      // set safe defaults and log the error
-      usePersonalityStore.getState().setResults({}, { archetype: 'Explorer', confidence: 0, proximityRanking: [] }, { thetaScores: {}, semScores: {} });
+      // set safe defaults and transition to results view safely
+      const defaultRanking = Object.keys(ARCHETYPE_REFERENCE_VECTORS).slice(0, 5).map((type) => ({ archetype: type, similarity: 0.5 }));
+      usePersonalityStore.getState().setResults({}, { archetype: 'INFP', confidence: 0.5, proximityRanking: defaultRanking }, { thetaScores: {}, semScores: {} });
     }
   };
 

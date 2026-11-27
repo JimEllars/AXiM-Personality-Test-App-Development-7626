@@ -98,7 +98,7 @@ function RadarProfileChart({ scores }) {
 
 export default function SafeRadarProfileChart(props) {
   return (
-    <ErrorBoundary>
+    <ErrorBoundary fallback={<div className="panel-error-fallback" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '300px' }}>Radar profile chart unavailable</div>}>
       <RadarProfileChart {...props} />
     </ErrorBoundary>
   );

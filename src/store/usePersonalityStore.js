@@ -243,7 +243,8 @@ export const usePersonalityStore = create(
           get().setResults(metrics.thetaScores, result, metrics);
         } catch (err) {
           console.error('Error calculating results:', err);
-          get().setResults({}, { archetype: 'Explorer', confidence: 0, proximityRanking: [] }, { thetaScores: {}, semScores: {} });
+          const defaultRanking = Object.keys(ARCHETYPE_REFERENCE_VECTORS).slice(0, 5).map((type) => ({ archetype: type, similarity: 0.5 }));
+          get().setResults({}, { archetype: 'INFP', confidence: 0.5, proximityRanking: defaultRanking }, { thetaScores: {}, semScores: {} });
         }
       },
 
@@ -449,7 +450,7 @@ export const usePersonalityStore = create(
 
             // Safety check for UI views to prevent crashes
             if (rehydratedState.screen === 'results' && !rehydratedState.assignedArchetype) {
-                rehydratedState.screen = 'welcome';
+                rehydratedState.screen = 'intro';
                 rehydratedState.answers = {};
                 rehydratedState.currentClusterIndex = 0;
             }

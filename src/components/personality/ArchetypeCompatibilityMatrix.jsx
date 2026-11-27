@@ -29,10 +29,9 @@ function cosineSimilarity(first = {}, second = {}) {
 }
 
 function getCompatibilityScore(first, second) {
-  const similarity = cosineSimilarity(
-    ARCHETYPE_REFERENCE_VECTORS[first],
-    ARCHETYPE_REFERENCE_VECTORS[second]
-  );
+  const firstVec = ARCHETYPE_REFERENCE_VECTORS[first] || ARCHETYPE_REFERENCE_VECTORS['INFP'] || {};
+  const secondVec = ARCHETYPE_REFERENCE_VECTORS[second] || ARCHETYPE_REFERENCE_VECTORS['INFP'] || {};
+  const similarity = cosineSimilarity(firstVec, secondVec);
 
   return Math.round(Math.max(0, Math.min(1, (similarity + 1) / 2)) * 100);
 }

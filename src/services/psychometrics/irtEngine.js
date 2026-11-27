@@ -97,7 +97,9 @@ export function scoreAssessmentDiagnostics(items, answers, functionKeys) {
   const normalizeResponseValue = (item, rawVal) => {
     if (rawVal === undefined || rawVal === null || isNaN(rawVal)) return null;
     const num = Number(rawVal);
-    if (item.type === 'tradeoff' && num > 5) {
+    if (item.type === 'tradeoff') {
+      // If already a discrete 1-5 integer, preserve it
+      if (Number.isInteger(num) && num >= 1 && num <= 5) return num;
       // Map 0-100 to 1-5 scale:
       // 0-15 -> 1, 16-35 -> 2, 36-65 -> 3 (neutral), 66-85 -> 4, 86-100 -> 5
       if (num <= 15) return 1;
