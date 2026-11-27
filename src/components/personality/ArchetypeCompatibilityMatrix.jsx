@@ -4,6 +4,7 @@ import SafeIcon from '../../common/SafeIcon';
 import { ARCHETYPE_DETAILS } from '../../data/archetypes';
 import { ARCHETYPE_REFERENCE_VECTORS } from '../../services/psychometrics/archetypeProjector';
 import { usePersonalityStore } from '../../store/usePersonalityStore';
+import { trackEvent } from '../../services/telemetry';
 import './ArchetypeCompatibilityMatrix.css';
 
 const { FiCompass, FiHeart, FiInfo, FiSearch, FiUsers } = FiIcons;
@@ -98,6 +99,15 @@ function ArchetypeCompatibilityMatrix() {
   const selectedScore = selected?.score || 0;
   const selectedLabel = getCompatibilityLabel(selectedScore);
 
+  const handleSelectType = (item) => {
+    setSelectedType(item.archetype);
+    trackEvent('compatibility_archetype_inspected', {
+      selected_archetype: item.archetype,
+      assigned_archetype: assignedArchetype,
+      score: item.score
+    });
+  };
+
   return (
     <section
       className="result-panel compatibility-matrix"
@@ -162,7 +172,7 @@ function ArchetypeCompatibilityMatrix() {
                 }`}
                 type="button"
                 role="gridcell"
-                onClick={() => setSelectedType(item.archetype)}
+                onClick={() => handleSelectType(item)}
                 aria-pressed={isSelected}
                 title={`${item.archetype}: ${item.score}% compatibility`}
               >

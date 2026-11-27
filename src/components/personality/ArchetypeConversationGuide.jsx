@@ -3,6 +3,7 @@ import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../../common/SafeIcon';
 import { getConversationGuide } from '../../data/conversationGuides';
 import { usePersonalityStore } from '../../store/usePersonalityStore';
+import { trackEvent } from '../../services/telemetry';
 import './ArchetypeConversationGuide.css';
 
 const { FiCheck, FiCopy, FiEdit3, FiMessageCircle, FiUsers } = FiIcons;
@@ -42,10 +43,23 @@ function ArchetypeConversationGuide() {
 
   const activeGuide = guide[activeTab];
 
+  const handleTabChange = (key) => {
+    setActiveTab(key);
+    trackEvent('conversation_guide_tab_changed', {
+      tab: key,
+      archetype: assignedArchetype
+    });
+  };
+
   const copyPrompt = async (prompt) => {
     try {
       await copyText(prompt);
       setCopiedPrompt(prompt);
+      trackEvent('conversation_prompt_copied', {
+        prompt,
+        tab: activeTab,
+        archetype: assignedArchetype
+      });
       window.setTimeout(() => setCopiedPrompt(''), 2200);
     } catch {
       setCopiedPrompt('');
@@ -76,11 +90,13 @@ function ArchetypeConversationGuide() {
           return (
             <button
               key={key}
+              id={`tab-${key}`}
               className={activeTab === key ? 'active' : ''}
               type="button"
               role="tab"
               aria-selected={activeTab === key}
-              onClick={() => setActiveTab(key)}
+              aria-controls={`panel-${key}`}
+              onClick={() => handleTabChange(key)}
             >
               <SafeIcon icon={Icon} />
               {item.label}
@@ -89,7 +105,12 @@ function ArchetypeConversationGuide() {
         })}
       </div>
 
-      <div className="conversation-guide-list">
+      <div
+        id={`panel-${activeTab}`}
+        role="tabpanel"
+        aria-labelledby={`tab-${activeTab}`}
+        className="conversation-guide-list"
+      >
         {activeGuide.prompts.map((prompt, index) => (
           <article className="conversation-prompt" key={prompt}>
             <span className="conversation-prompt-number">

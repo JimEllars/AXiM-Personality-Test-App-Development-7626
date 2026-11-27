@@ -1,4 +1,3 @@
-import ErrorBoundary from '../../components/common/ErrorBoundary';
 import React from 'react';
 import {
   Document,
@@ -153,10 +152,4 @@ function PersonalityReportDocument({
   );
 }
 
-export default function SafePersonalityReportDocument(props) {
-  return (
-    <ErrorBoundary>
-      <PersonalityReportDocument {...props} />
-    </ErrorBoundary>
-  );
-}
+export default PersonalityReportDocument;
