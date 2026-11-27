@@ -23,7 +23,7 @@ function getAnswerLabel(item, value) {
 
   if (item.type === 'tradeoff') {
     let discreteValue = num;
-    if (num > 5) {
+    if (num > 5 || num === 0) {
       if (num <= 15) discreteValue = 1;
       else if (num <= 35) discreteValue = 2;
       else if (num <= 65) discreteValue = 3;
@@ -31,9 +31,11 @@ function getAnswerLabel(item, value) {
       else discreteValue = 5;
     }
 
-    if (discreteValue === 1) return item.options.left;
-    if (discreteValue === 5) return item.options.right;
-    if (discreteValue === 3) return 'Neutral';
+    if (discreteValue === 1) return `Strongly ${item.options.left}`;
+    if (discreteValue === 2) return `Lean ${item.options.left}`;
+    if (discreteValue === 3) return 'Neutral / Balanced';
+    if (discreteValue === 4) return `Lean ${item.options.right}`;
+    if (discreteValue === 5) return `Strongly ${item.options.right}`;
     return `Level ${discreteValue}`;
   }
 

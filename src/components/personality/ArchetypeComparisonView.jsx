@@ -201,11 +201,14 @@ function ArchetypeComparisonView({ assignedArchetype, ranking = [] }) {
           </div>
 
           <div className="comparison-functions">
-            {strongestFunctions.map(([key, value]) => (
-              <span key={key}>
-                {key} <b>{value > 0 ? '+' : ''}{value.toFixed(2)}</b>
-              </span>
-            ))}
+            {strongestFunctions.map(([key, value]) => {
+              const numVal = typeof value === 'number' && Number.isFinite(value) ? value : 0;
+              return (
+                <span key={key}>
+                  {key} <b>{numVal > 0 ? '+' : ''}{numVal.toFixed(2)}</b>
+                </span>
+              );
+            })}
           </div>
         </div>
       </div>
