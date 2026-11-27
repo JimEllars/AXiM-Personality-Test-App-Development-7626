@@ -40,22 +40,38 @@ function TradeoffSliderInput({ item, value, onChange }) {
     onChange(val);
   };
 
-  // Convert click on the track to a 0-100 value
-  const handleTrackClick = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    let percent = (e.clientX - rect.left) / rect.width;
+  const updateFromPointer = (clientX, rect) => {
+    let percent = (clientX - rect.left) / rect.width;
     percent = Math.max(0, Math.min(1, percent));
-    // snap to nearest 5
     const val = Math.round((percent * 100) / 5) * 5;
     handleChange(val);
   };
 
+  const handlePointerDown = (e) => {
+    const track = e.currentTarget;
+    track.setPointerCapture?.(e.pointerId);
+    const rect = track.getBoundingClientRect();
+    updateFromPointer(e.clientX, rect);
+
+    const onPointerMove = (moveEvent) => {
+      updateFromPointer(moveEvent.clientX, rect);
+    };
+
+    const onPointerUp = (upEvent) => {
+      track.releasePointerCapture?.(upEvent.pointerId);
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerup', onPointerUp);
+    };
+
+    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointerup', onPointerUp);
+  };
 
   const getBadgeStance = (val) => {
     if (val <= 15) return `Strongly ${options.left}`;
     if (val <= 35) return `Lean ${options.left}`;
-    if (val <= 64) return "Neutral / Balanced";
-    if (val <= 84) return `Lean ${options.right}`;
+    if (val <= 65) return "Neutral / Balanced";
+    if (val <= 85) return `Lean ${options.right}`;
     return `Strongly ${options.right}`;
   };
 
@@ -75,7 +91,7 @@ function TradeoffSliderInput({ item, value, onChange }) {
         </div>
 
         <div
-          className="relative flex items-center w-full max-w-xl h-4 bg-gray-200 dark:bg-gray-700 rounded-full cursor-pointer focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 focus-visible:outline-none dark:focus-visible:ring-offset-gray-900 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
+          className="relative flex items-center w-full max-w-xl h-4 bg-gray-200 dark:bg-gray-700 rounded-full cursor-pointer focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 focus-visible:outline-none dark:focus-visible:ring-offset-gray-900 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500 select-none"
           style={{ touchAction: 'none', transition: 'transform 150ms cubic-bezier(0.16, 1, 0.3, 1)' }}
           role="slider"
           aria-valuemin="0"
@@ -84,14 +100,14 @@ function TradeoffSliderInput({ item, value, onChange }) {
           aria-label={`${options.left} vs ${options.right}`}
           tabIndex={0}
           onKeyDown={handleKeyDown}
-          onClick={handleTrackClick}
+          onPointerDown={handlePointerDown}
         >
           {/* Active Track */}
-          <div className="absolute h-full bg-blue-300 dark:bg-blue-800 rounded-full" style={{ width: `${currentValue}%` }}></div>
+          <div className="absolute h-full bg-blue-300 dark:bg-blue-800 rounded-full pointer-events-none" style={{ width: `${currentValue}%` }}></div>
 
           {/* Thumb */}
           <div
-            className="absolute flex items-center justify-center cursor-grab active:cursor-grabbing w-8 h-8 -ml-4 bg-blue-600 shadow-lg rounded-full z-10 hover:scale-110 active:scale-95 transition-transform"
+            className="absolute flex items-center justify-center cursor-grab active:cursor-grabbing w-8 h-8 -ml-4 bg-blue-600 shadow-lg rounded-full z-10 hover:scale-110 active:scale-95 transition-transform pointer-events-none"
             style={{ left: `${currentValue}%`, transition: 'left 100ms ease-out, transform 150ms cubic-bezier(0.16, 1, 0.3, 1)' }}
           >
             <span className="sr-only">{currentValue}</span>

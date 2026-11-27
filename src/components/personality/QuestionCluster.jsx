@@ -6,6 +6,7 @@ import {
   ReactionDilemmaInput,
   ModernLikertInput
 } from './inputs';
+import { isItemAnswered } from '../../store/usePersonalityStore';
 
 function QuestionCluster({ items, answers, onAnswer, clusterIndex }) {
   const questionOffset = clusterIndex * items.length;
@@ -77,7 +78,7 @@ function QuestionCluster({ items, answers, onAnswer, clusterIndex }) {
       </div>
       <AnimatePresence>
         {items.map((item, index) => {
-          const answered = Number.isInteger(answers[item.id]);
+          const answered = isItemAnswered(answers[item.id]);
           const questionNumber = questionOffset + index + 1;
 
           return (

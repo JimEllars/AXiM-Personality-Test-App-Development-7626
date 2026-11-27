@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { scoreAssessmentDiagnostics } from '../services/psychometrics/irtEngine';
-import { projectArchetype } from '../services/psychometrics/archetypeProjector';
+import { projectArchetype, ARCHETYPE_REFERENCE_VECTORS } from '../services/psychometrics/archetypeProjector';
 import { QUESTION_BANK, FUNCTION_KEYS } from '../data/questionBank';
 import { trackEvent } from '../services/telemetry';
 import { submitAssessment, scoreAssessment, syncResult } from '../services/personalityApi';
@@ -148,6 +148,12 @@ export function validateAssessmentIntegrity(state) {
   }
 
   return { isValid, sanitizedAnswers, sanitizedIndex };
+}
+
+export function isItemAnswered(value) {
+  if (value === undefined || value === null) return false;
+  const num = Number(value);
+  return Number.isFinite(num) && num >= 0 && num <= 100;
 }
 
 export const usePersonalityStore = create(

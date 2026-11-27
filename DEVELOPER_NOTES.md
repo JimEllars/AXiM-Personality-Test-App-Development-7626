@@ -63,3 +63,7 @@
 - `src/components/personality/inputs/TradeoffSliderInput.jsx`: Added dynamic textual stance visual feedback badge (Strongly/Lean/Neutral) reflecting exact 0-100 values to enhance user context on the slider position.
 - `src/components/personality/ResultsToolbar.jsx`: Enhanced the share experience by adding a floating visual toast notification ("Link copied to clipboard!") upon clicking the copy summary action.
 - `tests/irtEngine.test.js`: Reorganized floating tradeoff normalization test to correctly nest within the primary `describe` block and added validation confirming neutral continuous slider inputs (e.g., 50) don't heavily skew the IRT theta.
+- `src/store/usePersonalityStore.js`: Added exported `isItemAnswered` helper standardizing response verification across 1-5 discrete inputs and 0-100 continuous tradeoff sliders. Fixed `ARCHETYPE_REFERENCE_VECTORS` reference in error fallback.
+- `src/components/personality/AssessmentFlow.jsx`, `QuestionCluster.jsx`, `AnswerReview.jsx`: Integrated `isItemAnswered` across all screens to ensure accurate progress tracking, unanswered item validation, and answer review enablement for continuous slider values.
+- `src/components/personality/inputs/TradeoffSliderInput.jsx`: Added pointer capture and continuous drag-sliding interaction with safe event cleanup, aligned stance thresholds (36-65 neutral) to psychometric discretizer bounds, and updated track element styles.
+- `eslint.config.js`: Restored ESLint configuration with browser and node globals, enforcing JSX hooks and code hygiene across all JS/JSX files.

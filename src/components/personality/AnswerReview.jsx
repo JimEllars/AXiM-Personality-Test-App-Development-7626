@@ -2,12 +2,13 @@ import React from 'react';
 import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../../common/SafeIcon';
 import { LIKERT_ANCHORS } from '../../data/questionBank';
+import { isItemAnswered } from '../../store/usePersonalityStore';
 import './AnswerReview.css';
 
 const { FiArrowLeft, FiCheck, FiEdit3, FiLock } = FiIcons;
 
 function getAnswerLabel(item, value) {
-  if (value === undefined || value === null || !Number.isInteger(Number(value))) {
+  if (!isItemAnswered(value)) {
     return 'Not answered';
   }
 
@@ -53,7 +54,7 @@ function getAnswerLabel(item, value) {
 
 function AnswerReview({ items, answers, onEdit, onReveal, onBack }) {
   const answeredCount = items.filter((item) =>
-    Number.isInteger(answers[item.id])
+    isItemAnswered(answers[item.id])
   ).length;
 
   return (

@@ -7,8 +7,8 @@ import {
   QUESTION_BANK
 } from '../../data/questionBank';
 import { scoreAssessmentDiagnostics } from '../../services/psychometrics/irtEngine';
-import { projectArchetype } from '../../services/psychometrics/archetypeProjector';
-import { usePersonalityStore } from '../../store/usePersonalityStore';
+import { projectArchetype, ARCHETYPE_REFERENCE_VECTORS } from '../../services/psychometrics/archetypeProjector';
+import { usePersonalityStore, isItemAnswered } from '../../store/usePersonalityStore';
 import { trackEvent } from '../../services/telemetry';
 import AnswerReview from './AnswerReview';
 import QuestionCluster from './QuestionCluster';
@@ -59,7 +59,7 @@ function AssessmentFlow() {
   const answeredCount = Object.keys(answers).filter((itemId) =>
     QUESTION_BANK.some(
       (item) =>
-        item.id === itemId && Number.isInteger(answers[itemId])
+        item.id === itemId && isItemAnswered(answers[itemId])
     )
   ).length;
   const progress = Math.round(
@@ -67,7 +67,7 @@ function AssessmentFlow() {
   );
 
   const unansweredItems = useMemo(
-    () => items.filter((item) => !Number.isInteger(answers[item.id])),
+    () => items.filter((item) => !isItemAnswered(answers[item.id])),
     [items, answers]
   );
 
