@@ -72,3 +72,6 @@
 - `src/components/personality/ArchetypeConversationGuide.jsx`: Added tab-to-panel ARIA relationships (`id`, `aria-controls`, `role="tabpanel"`, `aria-labelledby`) and wired telemetry events (`conversation_guide_tab_changed`, `conversation_prompt_copied`).
 - `src/components/personality/ArchetypeCompatibilityMatrix.jsx`: Added interaction telemetry (`compatibility_archetype_inspected`) reporting archetype pairs and compatibility scores.
 - `src/lib/pdf/PersonalityReportDocument.jsx`: Removed DOM `ErrorBoundary` wrapper from the PDF document module so `@react-pdf/renderer` renders raw native PDF primitives without throwing DOM node mismatch exceptions during PDF export.
+- `src/components/personality/DemographicGateModal.jsx`: Aligned consent copy with explicit TDPSA affirmative opt-in requirements and implemented a hard stop for respondents under 13 requiring verified parental consent in accordance with COPPA and TDPSA, preventing psychometric profiling of minors.
+- `src/components/personality/ResultsToolbar.jsx`: Added `aria-modal="true"` and `aria-labelledby="email-modal-title"` attributes to the email report dialog for WCAG accessibility compliance.
+- `tests/DemographicGateModal.test.jsx`: Added unit test coverage for demographic gating, validating affirmative TDPSA consent, under-13 COPPA regulatory blocks, and valid submission pathways.

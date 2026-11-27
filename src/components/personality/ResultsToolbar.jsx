@@ -176,9 +176,9 @@ function ResultsToolbar({ archetype, title }) {
       </div>
 
       {showEmailModal && (
-        <div className="reset-confirmation" role="dialog">
+        <div className="reset-confirmation" role="dialog" aria-modal="true" aria-labelledby="email-modal-title">
           <form onSubmit={sendEmailReport}>
-            <strong>Email My PDF Report</strong>
+            <strong id="email-modal-title">Email My PDF Report</strong>
             <p>Enter your email to receive a branded report briefing.</p>
             <input
               type="email"

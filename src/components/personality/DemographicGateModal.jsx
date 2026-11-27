@@ -48,12 +48,20 @@ function DemographicGateModal({ onClose, onContinue }) {
     };
   }, [onClose]);
 
+  const [isUnderAge, setIsUnderAge] = useState(false);
+
   const submit = (event) => {
     event.preventDefault();
 
     const age = Number(demographics.age);
-    if (!age || age < 13 || age > 120) {
-      setError('Enter a valid age between 13 and 120.');
+    if (!age || age < 1 || age > 120) {
+      setError('Please enter a valid age.');
+      return;
+    }
+
+    if (age < 13) {
+      setIsUnderAge(true);
+      setError('');
       return;
     }
 
@@ -77,6 +85,38 @@ function DemographicGateModal({ onClose, onContinue }) {
         if (event.target === event.currentTarget) onClose();
       }}
     >
+      {isUnderAge ? (
+        <div className="gate-modal" ref={modalRef} role="alertdialog" aria-labelledby="gate-underage-title">
+          <button
+            type="button"
+            className="icon-button modal-close"
+            onClick={onClose}
+            aria-label="Close dialog"
+          >
+            <SafeIcon icon={FiX} />
+          </button>
+          <span className="card-kicker" style={{ color: '#ef4444' }}>Regulatory Notice</span>
+          <h2 id="gate-underage-title">Parental Verification Required</h2>
+          <p id="gate-description">
+            In compliance with COPPA and the Texas Data Privacy and Security Act (TDPSA),
+            individuals under 13 years of age require verified parental consent before
+            psychological profiling data can be collected or processed.
+          </p>
+          <div style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <button
+              type="button"
+              className="primary-button full-button"
+              onClick={onClose}
+            >
+              Return to Home
+            </button>
+          </div>
+          <small className="privacy-note" style={{ marginTop: '1rem' }}>
+            <SafeIcon icon={FiLock} />
+            No answers, behavioral responses, or tracking cookies have been recorded.
+          </small>
+        </div>
+      ) : (
       <form className="gate-modal" ref={modalRef} onSubmit={submit}>
         <button
           type="button"
@@ -99,7 +139,7 @@ function DemographicGateModal({ onClose, onContinue }) {
           <input
             id="gate-age"
             type="number"
-            min="13"
+            min="1"
             max="120"
             inputMode="numeric"
             value={demographics.age}
@@ -147,8 +187,9 @@ function DemographicGateModal({ onClose, onContinue }) {
             aria-describedby={error ? 'gate-error' : undefined}
           />
           <span>
-            I consent to local processing of my answers to generate this
-            profile.
+            I explicitly consent to the collection and processing of my
+            psychological assessment responses to generate my personalized
+            development profile.
           </span>
         </label>
 
@@ -180,6 +221,7 @@ function DemographicGateModal({ onClose, onContinue }) {
           No account required. Clear browser data to remove your session.
         </small>
       </form>
+      )}
     </div>
   );
 }
